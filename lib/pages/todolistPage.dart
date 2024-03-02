@@ -5,6 +5,8 @@ import 'package:ssps_app/components/todolist/Dialog_add_card.dart';
 import 'package:ssps_app/components/todolist/Dialog_add_todonote.dart';
 import 'package:ssps_app/components/todolist/Dialog_delete_card.dart';
 import 'package:ssps_app/components/todolist/Dialog_delete_todonote.dart';
+import 'package:ssps_app/components/todolist/Dialog_update_cart.dart';
+import 'package:ssps_app/components/todolist/Dialog_update_todonote.dart';
 import 'package:ssps_app/models/todolist/get_all_todo_response_model.dart';
 import 'package:ssps_app/pages/accountPage.dart';
 import 'package:ssps_app/service/api_service.dart';
@@ -21,6 +23,8 @@ class TodolistPage extends StatefulWidget {
 }
 
 class _TodolistPage extends State<TodolistPage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   List<Data> todoList = [];
   bool isDataLoaded = false;
   String? firstName;
@@ -30,6 +34,10 @@ class _TodolistPage extends State<TodolistPage> {
   void initState() {
     super.initState();
     _decodeToken();
+    refreshTodoList();
+  }
+
+  void refreshTodoList() {
     ApiService.getAllTodo().then((response) {
       if (response.result) {
         setState(() {
@@ -59,6 +67,7 @@ class _TodolistPage extends State<TodolistPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         backgroundColor: Color(0xff3498DB),
         elevation: 0,
@@ -117,9 +126,17 @@ class _TodolistPage extends State<TodolistPage> {
                           IconButton(
                             onPressed: () {
                               showDialog(
-                                context: context,
+                                context: _scaffoldKey.currentContext!,
                                 builder: (context) {
-                                  return AddCardDialog();
+                                  return AddCardDialog(toDoNoteId: todo.id, onDeleteSuccess: () {
+                                    ApiService.getAllTodo().then((response) {
+                                        if (response.result) {
+                                          setState(() {
+                                            todoList = response.data;
+                                          });
+                                        }
+                                      });
+                                  },);
 
                                 }
                               );
@@ -128,16 +145,41 @@ class _TodolistPage extends State<TodolistPage> {
                           ),
                           IconButton(
                             onPressed: () {
-                              // Xử lý sự kiện khi nhấn vào biểu tượng sửa
+                              showDialog(
+                                context: _scaffoldKey.currentContext!,
+                                builder: (context) {
+                                  return UpdateDialog(onDeleteSuccess: () {
+                                    ApiService.getAllTodo().then((response) {
+                                        if (response.result) {
+                                          setState(() {
+                                            todoList = response.data;
+                                          });
+                                        }
+                                      });
+                                  }, todo: todo,);
+
+                                }
+                              );
                             },
                             icon: Icon(Icons.edit, color: Colors.white),
                           ),
                           IconButton(
                             onPressed: () {
                               showDialog(
-                                context: context,
+                                context: _scaffoldKey.currentContext!,
                                 builder: (context) {
-                                  return DeleteColumnDialog();
+                                  return DeleteColumnDialog(todoId: todo.id, 
+                                  onDeleteSuccess: () {
+                                      // Call the API to refresh the todo list here
+                                      ApiService.getAllTodo().then((response) {
+                                        if (response.result) {
+                                          setState(() {
+                                            todoList = response.data;
+                                          });
+                                        }
+                                      });
+                                    },
+                                  );
                                 }
                               );
                             },
@@ -182,17 +224,32 @@ class _TodolistPage extends State<TodolistPage> {
           ]),
         )),
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color.fromARGB(255, 57, 161, 247),
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (context) {
-              return CustomDialog();
-            }
-          );
-        },
-        child: const Icon(Icons.add, color: Colors.white,),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            backgroundColor: const Color.fromARGB(255, 57, 161, 247),
+            onPressed: () {
+              
+            },
+            child: const Icon(Icons.chat, color: Colors.white,),
+          ),
+          SizedBox(height: 15,),
+          FloatingActionButton(
+            backgroundColor: const Color.fromARGB(255, 57, 161, 247),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return CustomDialog(onDeleteSuccess: () {
+                    refreshTodoList();
+                  },);
+                }
+              );
+            },
+            child: const Icon(Icons.add, color: Colors.white,),
+          ),
+        ],
       )
     );
   }
@@ -219,7 +276,21 @@ class _TodolistPage extends State<TodolistPage> {
                   children: [
                     IconButton(
                       onPressed: () {
-                        // Xử lý sự kiện khi nhấn vào biểu tượng sửa
+                        showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return UpdateCardDialog(toDoNoteId: todo.id, onDeleteSuccess: () {
+                                    ApiService.getAllTodo().then((response) {
+                                        if (response.result) {
+                                          setState(() {
+                                            todoList = response.data;
+                                          });
+                                        }
+                                      });
+                                  }, cardId: card.id, title: card.title, description: card.description,);
+
+                                }
+                              );
                       },
                       icon: Icon(Icons.edit, color: Colors.white),
                     ),
@@ -228,7 +299,15 @@ class _TodolistPage extends State<TodolistPage> {
                         showDialog(
                           context: context,
                           builder: (context) {
-                            return DeleteCardDialog();
+                            return DeleteCardDialog(todoId: todo.id, cardId: card.id, onDeleteSuccess: () {
+                              ApiService.getAllTodo().then((response) {
+                                        if (response.result) {
+                                          setState(() {
+                                            todoList = response.data;
+                                          });
+                                        }
+                                      });
+                            },);
                           }
                         );
                       },

@@ -1,10 +1,10 @@
 import 'dart:convert';
 
-DeleteTodoNoteResponseModel deleteTodoNoteResponseJson (String str) => 
-  DeleteTodoNoteResponseModel.fromJson(json.decode(str));
+CreateTodoCardResponseModel createTodoCardResponseJson (String str) => 
+  CreateTodoCardResponseModel.fromJson(json.decode(str));
 
-class DeleteTodoNoteResponseModel {
-  DeleteTodoNoteResponseModel({
+class CreateTodoCardResponseModel {
+  CreateTodoCardResponseModel({
     required this.result,
     required this.msgCode,
     required this.msgDesc,
@@ -15,7 +15,7 @@ class DeleteTodoNoteResponseModel {
   late final String? msgDesc;
   late final Data? data;
   
-  DeleteTodoNoteResponseModel.fromJson(Map<String, dynamic> json){
+  CreateTodoCardResponseModel.fromJson(Map<String, dynamic> json){
     result = json['result'];
     msgCode = json['msgCode'];
     msgDesc = json['msgDesc'];
@@ -33,12 +33,18 @@ class DeleteTodoNoteResponseModel {
 }
 
 class Data {
-  Data();
+  Data({
+    required this.id,
+  });
+  late final String id;
   
-  Data.fromJson(Map json);
+  Data.fromJson(Map<String, dynamic> json){
+    id = json['id'];
+  }
 
   Map<String, dynamic> toJson() {
     final _data = <String, dynamic>{};
+    _data['id'] = id;
     return _data;
   }
 }

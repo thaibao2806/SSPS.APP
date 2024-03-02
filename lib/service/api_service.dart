@@ -10,7 +10,15 @@ import 'package:ssps_app/models/register_request_model.dart';
 import 'package:ssps_app/models/register_response_model.dart';
 import 'package:ssps_app/models/forgotPassword_request_model.dart';
 import 'package:ssps_app/models/forgotPassword_response_model.dart';
+import 'package:ssps_app/models/todolist/create_todo_card_request_model.dart';
+import 'package:ssps_app/models/todolist/create_todo_card_response_model.dart';
+import 'package:ssps_app/models/todolist/create_todo_note_request_model.dart';
+import 'package:ssps_app/models/todolist/create_todo_note_response_model.dart';
+import 'package:ssps_app/models/todolist/delete_todo_card_response_model.dart';
+import 'package:ssps_app/models/todolist/delete_todo_note_resquest_model.dart';
 import 'package:ssps_app/models/todolist/get_all_todo_response_model.dart';
+import 'package:ssps_app/models/todolist/update_todo_card_response_model.dart';
+import 'package:ssps_app/models/todolist/update_todo_cart_request_model.dart';
 import 'package:ssps_app/models/update_user_request_model.dart';
 import 'package:ssps_app/models/update_user_response_model.dart';
 import 'package:ssps_app/service/shared_service.dart';
@@ -115,5 +123,113 @@ class ApiService {
 
     var response = await client.get(url, headers: requestHeaders);
     return getAllTodoResponseJson(response.body);
+  }
+
+  static Future<DeleteTodoNoteResponseModel> deleteTodoNote( String? id) async {
+    var token = (await SharedService.loginDetails()); 
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(token!.data!.accessToken);
+
+    Map<String, String> requestHeaders = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${token?.data?.accessToken}'
+    };
+
+    var url = Uri.http(Config.apiUrl, Config.deleteTodoNote, {'id': id});
+    print(url);
+
+    var response = await client.post(url, headers: requestHeaders);
+    // if(response.statusCode == 200) {
+      
+    // }
+    return deleteTodoNoteResponseJson(response.body);
+  }
+
+  static Future<DeleteTodoCardResponseModel> deleteTodoCard( String? ToDoNoteId, String? CardId) async {
+    var token = (await SharedService.loginDetails()); 
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(token!.data!.accessToken);
+
+    Map<String, String> requestHeaders = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${token?.data?.accessToken}'
+    };
+
+    var url = Uri.http(Config.apiUrl, Config.deleteTodoCart, {'ToDoNoteId': ToDoNoteId, 'CardId': CardId});
+    print(url);
+
+    var response = await client.post(url, headers: requestHeaders);
+    return deleteTodoCardResponseJson(response.body);
+  }
+
+  static Future<CreateTodoCardResponseModel> createTodoCard( CreateTodoCardRequestModel model) async {
+    var token = (await SharedService.loginDetails()); 
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(token!.data!.accessToken);
+
+    Map<String, String> requestHeaders = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${token?.data?.accessToken}'
+    };
+
+    var url = Uri.http(Config.apiUrl, Config.createTodoCart);
+    print(url);
+
+    var response = await client.post(url, headers: requestHeaders, body: jsonEncode(model.toJson()));
+    
+    return createTodoCardResponseJson(response.body);
+  }
+
+  static Future<CreateTodoNoteResponseModel> createTodoNote( CreateTodoNoteRequestModel model) async {
+    var token = (await SharedService.loginDetails()); 
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(token!.data!.accessToken);
+
+    Map<String, String> requestHeaders = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${token?.data?.accessToken}'
+    };
+
+    var url = Uri.http(Config.apiUrl, Config.createTodoNote);
+    print(url);
+
+    var response = await client.post(url, headers: requestHeaders, body: jsonEncode(model.toJson()));
+    print(response.body);
+    if (response.statusCode == 200) {
+      // Kiểm tra nếu response.body không phải là null
+      if (response.body != null) {
+        return createTodoNoteResponseJson(response.body);
+      } else {
+        // Xử lý trường hợp response.body là null
+        throw Exception('Response body is null');
+      }
+    } else {
+      // Xử lý trường hợp status code không phải là 200
+      throw Exception('Failed to create todo note: ${response.statusCode}');
+    }
+  }
+
+  static Future<UpdateTodoCartResponseModel> updateTodoCard( UpdateTodoCartRequestModel model) async {
+    var token = (await SharedService.loginDetails()); 
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(token!.data!.accessToken);
+
+    Map<String, String> requestHeaders = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${token?.data?.accessToken}'
+    };
+
+    var url = Uri.http(Config.apiUrl, Config.updateTodoCart);
+    print(url);
+
+    var response = await client.put(url, headers: requestHeaders, body: jsonEncode(model.toJson()));
+    print(response.body);
+    if (response.statusCode == 200) {
+      // Kiểm tra nếu response.body không phải là null
+      if (response.body != null) {
+        return updateTodoCardResponseJson(response.body);
+      } else {
+        // Xử lý trường hợp response.body là null
+        throw Exception('Response body is null');
+      }
+    } else {
+      // Xử lý trường hợp status code không phải là 200
+      throw Exception('Failed to create todo note: ${response.statusCode}');
+    }
   }
 }

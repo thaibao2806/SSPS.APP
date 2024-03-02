@@ -5,19 +5,21 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:intl/intl.dart';
 import 'package:ssps_app/models/todolist/create_todo_note_request_model.dart';
 import 'package:ssps_app/models/todolist/create_todo_note_request_model.dart' as TodoNote;
+import 'package:ssps_app/models/todolist/get_all_todo_response_model.dart';
 import 'package:ssps_app/service/api_service.dart';
 
 
-class CustomDialog extends StatefulWidget {
+class UpdateDialog extends StatefulWidget {
   final Function() onDeleteSuccess;
+  final Data todo;
 
-  const CustomDialog({super.key, required this.onDeleteSuccess});
+  const UpdateDialog({super.key, required this.onDeleteSuccess, required this.todo});
 
   @override
-  _CustomDialogState createState() => _CustomDialogState();
+  _UpdateDialogState createState() => _UpdateDialogState();
 }
 
-class _CustomDialogState extends State<CustomDialog> {
+class _UpdateDialogState extends State<UpdateDialog> {
   late DateTime _startDate;
   late DateTime _endDate;
   late Color _selectedColor;
@@ -28,6 +30,13 @@ class _CustomDialogState extends State<CustomDialog> {
   late String _savedTitle;
   late String _savedStartTime;
   late String _savedEndTime;
+  
+
+  final title = TextEditingController();
+    final startTimeController = TextEditingController();
+    final startDayController = TextEditingController();
+    final endTimeController = TextEditingController();
+    final endDayController = TextEditingController();
 
   @override
   void initState() {
@@ -40,24 +49,23 @@ class _CustomDialogState extends State<CustomDialog> {
     _savedTitle = '';
     _savedStartTime = '';
     _savedEndTime = '';
+
+    title.text = widget.todo.title ?? '';
+    startTimeController.text = DateFormat('dd-MM-yyyy').format(DateTime.parse(widget.todo.fromDate!));
+    endTimeController.text = DateFormat('dd-MM-yyyy').format(DateTime.parse(widget.todo.toDate!));
+    _selectedColor = widget.todo.color != null ? Color(int.parse('0xFF${widget.todo.color}')) : Colors.blue; // Màu mặc định nếu không có màu được chỉ định
   }
 
   String colorToString(Color color) {
     return '${color.value.toRadixString(16)}';
   }
 
-  final title = TextEditingController();
-    final startTimeController = TextEditingController();
-    final startDayController = TextEditingController();
-    final endTimeController = TextEditingController();
-    final endDayController = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     
     
     return AlertDialog(
-      title: Text('Add column'),
+      title: Text('Edit column'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
@@ -156,26 +164,28 @@ class _CustomDialogState extends State<CustomDialog> {
                             ),
                           );
             } else {
-              DateTime startDate = _dateFormat.parse(startTimeController.text);
-              DateTime endDate = _dateFormat.parse(endTimeController.text);
-              if(startDate.isBefore(endDate)) {
-                // Thực hiện tạo mới card ở đây
-                Cards newCard = Cards(title: '', description: '',);
-                CreateTodoNoteRequestModel model = CreateTodoNoteRequestModel(title: title.text, fromDate: startTimeController.text.toString(), toDate: endTimeController.text.toString(), color: colorToString(_selectedColor), cards: []);
-                ApiService.createTodoNote(model).then((response) => {
-                  if(response.result) {
-                    widget.onDeleteSuccess(),
-                    Navigator.of(context).pop(),
-                  }
-                });
-              } else {
-                // Hiển thị thông báo nếu ngày bắt đầu không trước ngày kết thúc
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Start date must be before end date.'),
-                  ),
-                );
-              }
+                print(widget.todo.cards);
+
+              // DateTime startDate = _dateFormat.parse(startTimeController.text);
+              // DateTime endDate = _dateFormat.parse(endTimeController.text);
+              // if(startDate.isBefore(endDate)) {
+              //   // Thực hiện tạo mới card ở đây
+              //   // Cards newCard = Cards(title: '', description: '',);
+              //   // CreateTodoNoteRequestModel model = CreateTodoNoteRequestModel(title: title.text, fromDate: startTimeController.text.toString(), toDate: endTimeController.text.toString(), color: colorToString(_selectedColor), cards: []);
+              //   // ApiService.createTodoNote(model).then((response) => {
+              //   //   if(response.result) {
+              //   //     widget.onDeleteSuccess(),
+              //   //     Navigator.of(context).pop(),
+              //   //   }
+              //   // });
+              // } else {
+              //   // Hiển thị thông báo nếu ngày bắt đầu không trước ngày kết thúc
+              //   ScaffoldMessenger.of(context).showSnackBar(
+              //     const SnackBar(
+              //       content: Text('Start date must be before end date.'),
+              //     ),
+              //   );
+              // }
             }
             
           },

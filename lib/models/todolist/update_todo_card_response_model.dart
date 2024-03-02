@@ -1,10 +1,10 @@
 import 'dart:convert';
 
-DeleteTodoNoteResponseModel deleteTodoNoteResponseJson (String str) => 
-  DeleteTodoNoteResponseModel.fromJson(json.decode(str));
+UpdateTodoCartResponseModel updateTodoCardResponseJson (String str) => 
+  UpdateTodoCartResponseModel.fromJson(json.decode(str));
 
-class DeleteTodoNoteResponseModel {
-  DeleteTodoNoteResponseModel({
+class UpdateTodoCartResponseModel {
+  UpdateTodoCartResponseModel({
     required this.result,
     required this.msgCode,
     required this.msgDesc,
@@ -15,7 +15,7 @@ class DeleteTodoNoteResponseModel {
   late final String? msgDesc;
   late final Data? data;
   
-  DeleteTodoNoteResponseModel.fromJson(Map<String, dynamic> json){
+  UpdateTodoCartResponseModel.fromJson(Map<String, dynamic> json){
     result = json['result'];
     msgCode = json['msgCode'];
     msgDesc = json['msgDesc'];
