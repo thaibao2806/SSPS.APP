@@ -3,15 +3,21 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:intl/intl.dart';
-import 'package:ssps_app/models/todolist/create_todo_note_request_model.dart';
 import 'package:ssps_app/models/todolist/create_todo_note_request_model.dart' as TodoNote;
-import 'package:ssps_app/models/todolist/get_all_todo_response_model.dart';
+import 'package:ssps_app/models/todolist/get_all_todo_response_model.dart' as GetAll; 
+import 'package:ssps_app/models/todolist/update_todo_note_request_model.dart';
 import 'package:ssps_app/service/api_service.dart';
+import 'package:ssps_app/models/todolist/update_todo_note_request_model.dart' as UpdateModel;
 
 
 class UpdateDialog extends StatefulWidget {
   final Function() onDeleteSuccess;
-  final Data todo;
+  final GetAll.Data todo;
+  // final String? id;
+  // final String? title;
+  // late DateTime fromDate;
+  // late DateTime toDate;
+  // final String? color;
 
   const UpdateDialog({super.key, required this.onDeleteSuccess, required this.todo});
 
@@ -23,7 +29,7 @@ class _UpdateDialogState extends State<UpdateDialog> {
   late DateTime _startDate;
   late DateTime _endDate;
   late Color _selectedColor;
-  final DateFormat _dateFormat = DateFormat('yyyy-MM-ddTHH:mm:ss.SSSZ');
+  DateFormat _dateFormat = DateFormat('yyyy-MM-ddTHH:mm:ss.SSSZ');
   final DateFormat _dateFormats = DateFormat('dd-mm-yyyy');
   
   // Biến để lưu trữ giá trị trước khi mở hộp thoại màu
@@ -50,10 +56,12 @@ class _UpdateDialogState extends State<UpdateDialog> {
     _savedStartTime = '';
     _savedEndTime = '';
 
-    title.text = widget.todo.title ?? '';
-    startTimeController.text = DateFormat('dd-MM-yyyy').format(DateTime.parse(widget.todo.fromDate!));
-    endTimeController.text = DateFormat('dd-MM-yyyy').format(DateTime.parse(widget.todo.toDate!));
-    _selectedColor = widget.todo.color != null ? Color(int.parse('0xFF${widget.todo.color}')) : Colors.blue; // Màu mặc định nếu không có màu được chỉ định
+    setState(() {
+      title.text = widget.todo.title! ; 
+      startTimeController.text = _dateFormat.format(DateTime.parse(widget.todo.fromDate!));
+      endTimeController.text = _dateFormat.format(DateTime.parse(widget.todo.toDate!));
+      _selectedColor = widget.todo.color != null ? Color(int.parse('0xFF${widget.todo.color}')) : Colors.blue; 
+   });
   }
 
   String colorToString(Color color) {
@@ -164,28 +172,22 @@ class _UpdateDialogState extends State<UpdateDialog> {
                             ),
                           );
             } else {
-                print(widget.todo.cards);
 
-              // DateTime startDate = _dateFormat.parse(startTimeController.text);
-              // DateTime endDate = _dateFormat.parse(endTimeController.text);
-              // if(startDate.isBefore(endDate)) {
-              //   // Thực hiện tạo mới card ở đây
-              //   // Cards newCard = Cards(title: '', description: '',);
-              //   // CreateTodoNoteRequestModel model = CreateTodoNoteRequestModel(title: title.text, fromDate: startTimeController.text.toString(), toDate: endTimeController.text.toString(), color: colorToString(_selectedColor), cards: []);
-              //   // ApiService.createTodoNote(model).then((response) => {
-              //   //   if(response.result) {
-              //   //     widget.onDeleteSuccess(),
-              //   //     Navigator.of(context).pop(),
-              //   //   }
-              //   // });
-              // } else {
-              //   // Hiển thị thông báo nếu ngày bắt đầu không trước ngày kết thúc
-              //   ScaffoldMessenger.of(context).showSnackBar(
-              //     const SnackBar(
-              //       content: Text('Start date must be before end date.'),
-              //     ),
-              //   );
-              // }
+                List<UpdateModel.Cards> updatedCards = widget.todo.cards.map((card) => UpdateModel.Cards(
+                  title: card.title,
+                  description: card.description,
+                )).toList();
+                String startDate = _dateFormat.format(DateTime.parse(startTimeController.text));
+                String endDate = _dateFormat.format(DateTime.parse(endTimeController.text));
+                // print(DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(DateTime.parse(startTimeController.text!)));
+                print(startDate);
+                UpdateTodoNoteRequestModel model = UpdateTodoNoteRequestModel(id: widget.todo.id, title: title.text, fromDate: startDate.toString(), toDate: endDate.toString(), color: colorToString(_selectedColor), cards: updatedCards);
+                ApiService.updateTodoNote(model).then((response) => {
+                  if(response.result) {
+                     widget.onDeleteSuccess(),
+                    Navigator.of(context).pop(),
+                  }
+                });
             }
             
           },

@@ -17,8 +17,11 @@ import 'package:ssps_app/models/todolist/create_todo_note_response_model.dart';
 import 'package:ssps_app/models/todolist/delete_todo_card_response_model.dart';
 import 'package:ssps_app/models/todolist/delete_todo_note_resquest_model.dart';
 import 'package:ssps_app/models/todolist/get_all_todo_response_model.dart';
+import 'package:ssps_app/models/todolist/swap_response_model.dart';
 import 'package:ssps_app/models/todolist/update_todo_card_response_model.dart';
 import 'package:ssps_app/models/todolist/update_todo_cart_request_model.dart';
+import 'package:ssps_app/models/todolist/update_todo_note_request_model.dart';
+import 'package:ssps_app/models/todolist/update_todo_note_response_model.dart';
 import 'package:ssps_app/models/update_user_request_model.dart';
 import 'package:ssps_app/models/update_user_response_model.dart';
 import 'package:ssps_app/service/shared_service.dart';
@@ -231,5 +234,49 @@ class ApiService {
       // Xử lý trường hợp status code không phải là 200
       throw Exception('Failed to create todo note: ${response.statusCode}');
     }
+  }
+
+  static Future<UpdateTodoNoteResponseModel> updateTodoNote( UpdateTodoNoteRequestModel model) async {
+    var token = (await SharedService.loginDetails()); 
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(token!.data!.accessToken);
+
+    Map<String, String> requestHeaders = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${token?.data?.accessToken}'
+    };
+
+    var url = Uri.http(Config.apiUrl, Config.updateTodoNote);
+    print(url);
+
+    var response = await client.put(url, headers: requestHeaders, body: jsonEncode(model.toJson()));
+    print(response.body);
+    if (response.statusCode == 200) {
+      // Kiểm tra nếu response.body không phải là null
+      if (response.body != null) {
+        return updateTodoNoteResponseJson(response.body);
+      } else {
+        // Xử lý trường hợp response.body là null
+        throw Exception('Response body is null');
+      }
+    } else {
+      // Xử lý trường hợp status code không phải là 200
+      throw Exception('Failed to create todo note: ${response.statusCode}');
+    }
+  }
+
+  static Future<SwapResponseModel> swapCart( String? CardId, String? FromToDoNoteId, String? ToToDoNoteId) async {
+    var token = (await SharedService.loginDetails()); 
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(token!.data!.accessToken);
+
+    Map<String, String> requestHeaders = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${token?.data?.accessToken}'
+    };
+
+    var url = Uri.http(Config.apiUrl, Config.swapTodoCart, {'CardId': CardId, 'FromToDoNoteId': FromToDoNoteId, 'ToToDoNoteId': ToToDoNoteId});
+    print(url);
+
+    var response = await client.get(url, headers: requestHeaders);
+    return swapResponseJson(response.body);
   }
 }
