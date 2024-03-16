@@ -16,10 +16,10 @@ class GetAllTodoResponseModel {
   late final List<Data> data;
   
   GetAllTodoResponseModel.fromJson(Map<String, dynamic> json){
-    result = json['result'];
+    result = json['result'] ?? false;
     msgCode = json['msgCode'];
     msgDesc = json['msgDesc'];
-    data = List.from(json['data']).map((e)=>Data.fromJson(e)).toList();
+    data = json['data'] != null ? List.from(json['data']).map((e) => Data.fromJson(e)).toList() : [];
   }
 
   Map<String, dynamic> toJson() {

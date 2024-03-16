@@ -10,6 +10,7 @@ import 'package:ssps_app/components/todolist/Dialog_update_cart.dart';
 import 'package:ssps_app/components/todolist/Dialog_update_todonote.dart';
 import 'package:ssps_app/models/todolist/get_all_todo_response_model.dart';
 import 'package:ssps_app/pages/accountPage.dart';
+import 'package:ssps_app/pages/messagePage.dart';
 import 'package:ssps_app/service/api_service.dart';
 import 'package:intl/intl.dart';
 import 'package:ssps_app/service/shared_service.dart';
@@ -252,8 +253,12 @@ class _TodolistPage extends State<TodolistPage> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             FloatingActionButton(
+              heroTag: "Chat",
               backgroundColor: const Color.fromARGB(255, 57, 161, 247),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(context,
+                                MaterialPageRoute(builder: (context) =>  MessengerPage()));
+              },
               child: const Icon(
                 Icons.chat,
                 color: Colors.white,
@@ -263,6 +268,7 @@ class _TodolistPage extends State<TodolistPage> {
               height: 15,
             ),
             FloatingActionButton(
+              heroTag: "Add",
               backgroundColor: const Color.fromARGB(255, 57, 161, 247),
               onPressed: () {
                 showDialog(

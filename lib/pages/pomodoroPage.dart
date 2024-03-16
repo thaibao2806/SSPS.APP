@@ -6,6 +6,7 @@ import 'package:percent_indicator/percent_indicator.dart';
 import 'package:ssps_app/components/my_drawer_header.dart';
 import 'package:ssps_app/models/pomodoro_status.dart';
 import 'package:ssps_app/pages/accountPage.dart';
+import 'package:ssps_app/pages/messagePage.dart';
 import 'package:ssps_app/service/shared_service.dart';
 import 'package:ssps_app/utils/avatar.dart';
 import 'package:ssps_app/utils/constants.dart';
@@ -161,6 +162,18 @@ class _PomodoroPage extends State<PomodoroPage> {
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+              heroTag: "Chat",
+              backgroundColor: const Color.fromARGB(255, 57, 161, 247),
+              onPressed: () {
+                Navigator.push(context,
+                                MaterialPageRoute(builder: (context) =>  MessengerPage()));
+              },
+              child: const Icon(
+                Icons.chat,
+                color: Colors.white,
+              ),
+            ),
       drawer: Drawer(
         child: SingleChildScrollView(
             child: Container(

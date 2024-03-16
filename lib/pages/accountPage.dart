@@ -7,6 +7,7 @@ import 'package:ssps_app/config.dart';
 import 'package:ssps_app/models/register_request_model.dart';
 import 'package:ssps_app/models/update_user_request_model.dart';
 import 'package:ssps_app/pages/loginPage.dart';
+import 'package:ssps_app/pages/messagePage.dart';
 import 'package:ssps_app/service/api_service.dart';
 import 'package:ssps_app/service/shared_service.dart';
 import 'package:ssps_app/utils/avatar.dart';
@@ -345,6 +346,18 @@ class _AccountPage extends State<AccountPage> {
                   ),
 
                 ),
+      floatingActionButton: FloatingActionButton(
+              heroTag: "Chat",
+              backgroundColor: const Color.fromARGB(255, 57, 161, 247),
+              onPressed: () {
+                Navigator.push(context,
+                                MaterialPageRoute(builder: (context) =>  MessengerPage()));
+              },
+              child: const Icon(
+                Icons.chat,
+                color: Colors.white,
+              ),
+            ),
       drawer: Drawer(
         child: SingleChildScrollView(
             child: Container(

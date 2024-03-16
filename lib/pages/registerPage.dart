@@ -99,7 +99,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                   },
                                   decoration: InputDecoration(
                                     errorText: _isFirstNameEmpty ? 'Please enter your first name' : null,
-                                    suffixIcon: Icon(Icons.check, color: Colors.grey,),
+                                    // suffixIcon: Icon(Icons.check, color: Colors.grey,),
                                     labelText: 'First name',
                                     labelStyle: TextStyle(
                                       fontWeight: FontWeight.bold,
@@ -121,7 +121,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                   },
                                   decoration: InputDecoration(
                                     errorText: _isLastNameEmpty ? 'Please enter your last name' : null,
-                                    suffixIcon: Icon(Icons.check, color: Colors.grey,),
+                                    // suffixIcon: Icon(Icons.check, color: Colors.grey,),
                                     labelText: 'Last Name',
                                     labelStyle: TextStyle(
                                       fontWeight: FontWeight.bold,
@@ -148,7 +148,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                   },
                                   decoration: InputDecoration(
                                     errorText: _isCodeEmpty ? 'Please enter your code' : null,
-                                    suffixIcon: Icon(Icons.check, color: Colors.grey,),
+                                    // suffixIcon: Icon(Icons.check, color: Colors.grey,),
                                     labelText: 'Code',
                                     labelStyle: TextStyle(
                                       fontWeight: FontWeight.bold,
@@ -170,7 +170,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                   },
                                   decoration: InputDecoration(
                                     errorText: _isPhoneEmpty ? "Please enter your phone number" : null,
-                                    suffixIcon: Icon(Icons.check, color: Colors.grey,),
+                                    // suffixIcon: Icon(Icons.check, color: Colors.grey,),
                                     labelText: 'Phone',
                                     labelStyle: TextStyle(
                                       fontWeight: FontWeight.bold,
@@ -192,7 +192,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           },
                           decoration: InputDecoration(
                             errorText: _isSchoolEmpty ? 'Please enter your school' : null,
-                            suffixIcon: Icon(Icons.check,color: Colors.grey,),
+                            // suffixIcon: Icon(Icons.check,color: Colors.grey,),
                             label: Text('School',style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color:Color.fromARGB(255, 4, 4, 4),
@@ -209,7 +209,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           },
                           decoration: InputDecoration(
                             errorText: _isEmailEmpty ? 'Please enter your email' : null,
-                            suffixIcon: Icon(Icons.check,color: Colors.grey,),
+                            // suffixIcon: Icon(Icons.check,color: Colors.grey,),
                             label: Text('Email',style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color:Color.fromARGB(255, 4, 4, 4),
@@ -226,7 +226,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           },
                           decoration: InputDecoration(
                             errorText: _isAddressEmpty ? 'Please enter your address' : null,
-                            suffixIcon: Icon(Icons.check,color: Colors.grey,),
+                            // suffixIcon: Icon(Icons.check,color: Colors.grey,),
                             label: Text('Address',style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color:Color.fromARGB(255, 0, 0, 0),
