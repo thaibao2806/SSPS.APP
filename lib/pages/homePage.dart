@@ -96,19 +96,20 @@ class _HomePage extends State<HomePage> {
                     : SizedBox(),
           ),
         ],
-        
       ),
       body: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              ElevatedButton(onPressed: (){
-                setState(() {
-                  calendarView = CalendarView.day;
-                    calendarController.view = calendarView;
-                });
-              }, child: Text("Today")),
+              ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      calendarView = CalendarView.day;
+                      calendarController.view = calendarView;
+                    });
+                  },
+                  child: Text("Today")),
               DropdownButton<String>(
                 value: dropdownValue,
                 icon: Icon(Icons.arrow_drop_down),
@@ -135,8 +136,8 @@ class _HomePage extends State<HomePage> {
                     calendarController.view = calendarView;
                   }
                 },
-                items: dropdownItems
-                    .map<DropdownMenuItem<String>>((String value) {
+                items:
+                    dropdownItems.map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
                     child: Text(value),
