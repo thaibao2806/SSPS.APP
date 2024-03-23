@@ -2,11 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:ssps_app/components/my_drawer_header.dart';
+import 'package:ssps_app/components/note/bottom_sheet_dialog_add_note.dart';
+import 'package:ssps_app/components/note/bottom_sheet_dialog_update.dart';
+import 'package:ssps_app/models/notes/get_note_response_model.dart';
 import 'package:ssps_app/pages/accountPage.dart';
+import 'package:ssps_app/pages/categories.dart';
 import 'package:ssps_app/pages/messagePage.dart';
 import 'package:ssps_app/pages/pomodoroPage.dart';
 import 'package:ssps_app/pages/reportPage.dart';
 import 'package:ssps_app/pages/todolistPage.dart';
+import 'package:ssps_app/service/api_service.dart';
 import 'package:ssps_app/service/shared_service.dart';
 import 'package:ssps_app/utils/avatar.dart';
 import 'package:ssps_app/widget/drawer_widget.dart';
@@ -27,22 +32,67 @@ class _HomePage extends State<HomePage> {
   String? firstName;
   String? lastName;
   bool isDataLoaded = false;
-
-  String dropdownValue = 'Month';
+  DateTime currentDate = DateTime.now();
+  String dropdownValue = 'Day';
+  DateTime firstDate = DateTime.now();
+  DateTime lastDate = DateTime.now();
+  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  GlobalKey<DrawerControllerState> _drawerKey =
+      GlobalKey<DrawerControllerState>();
 
   // Danh sách các mục trong dropdown menu
   List<String> dropdownItems = ['Month', 'Week', 'Day', 'Today'];
+  List<Appointment> appointments = [];
+
+  String firstDateFormatted = '';
+  String lastDateFormatted = '';
+
+// Hàm để chuyển đổi ngày thành chuỗi theo định dạng yyyy-mm-dd
+  String formatDate(DateTime date) {
+    return '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  }
 
   @override
   void initState() {
     super.initState();
     _decodeToken();
+    getNote(formatDate(currentDate), formatDate(currentDate));
   }
 
   @override
   void dispose() {
     super.dispose();
-    _decodeToken();
+  }
+
+  Color hexToColor(String code) {
+    String hex = code.startsWith('#') ? code.substring(1) : code;
+    return Color(int.parse(hex, radix: 16) + 0xFF000000);
+  }
+
+  getNote(String? fromDate, String? toDate) {
+    ApiService.getNote(fromDate, toDate).then((response) {
+      if (response.result) {
+        setState(() {
+          appointments
+              .clear(); // Xóa sự kiện hiện tại trước khi thêm sự kiện mới
+          // Loop qua danh sách các sự kiện từ API và thêm vào danh sách appointments
+          for (var note in response.data) {
+            print(note.fromDate);
+            if (note.fromDate != null && note.toDate != null) {
+              appointments.add(Appointment(
+                id: note.id,
+                from: DateTime.parse(note.fromDate!),
+                to: DateTime.parse(note.toDate!),
+                eventName: note.title ?? '',
+                background: hexToColor(note.color ?? 'D13333'),
+                isAllDay: false,
+                notes: note.description,
+              ));
+            }
+          }
+        });
+      }
+    });
   }
 
   _decodeToken() async {
@@ -61,10 +111,48 @@ class _HomePage extends State<HomePage> {
       print("Access token is null");
     }
   }
+  
+
+  void handleEventTap(CalendarTapDetails details) {
+    // Xử lý logic khi người dùng nhấp vào một sự kiện trên lịch
+    if (details.targetElement is CalendarElement &&
+        details.appointments != null) {
+      final Appointment tappedAppointment = details.appointments![0];
+      // Lấy thông tin của sự kiện được nhấn
+      String eventId = tappedAppointment.id ?? '';
+      DateTime startTime = tappedAppointment.from;
+      DateTime endTime = tappedAppointment.to;
+      String? eventName = tappedAppointment.eventName;
+      Color eventColor = tappedAppointment.background;
+      bool isAllDay = tappedAppointment.isAllDay;
+      String? notes = tappedAppointment.notes;
+      print(notes);
+      showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return DraggableSheetUpdate(
+          getNote: () {
+            firstDateFormatted = formatDate(firstDate);
+            lastDateFormatted = formatDate(lastDate);
+            getNote(firstDateFormatted, lastDateFormatted);
+          },
+          enventId: eventId,
+          startTime: startTime,
+          endTime: endTime,
+          eventColor: eventColor,
+          notes: notes,
+          enventName: eventName,
+        );
+      },
+    );
+      // Xử lý thông tin sự kiện như mong muốn
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         backgroundColor: Color(0xff3498DB),
         elevation: 0,
@@ -102,14 +190,10 @@ class _HomePage extends State<HomePage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      calendarView = CalendarView.day;
-                      calendarController.view = calendarView;
-                    });
-                  },
-                  child: Text("Today")),
+              Column(children: [
+                Text("Expect: 10000"),
+                Text("Actual: 10000"),
+              ]),
               DropdownButton<String>(
                 value: dropdownValue,
                 icon: Icon(Icons.arrow_drop_down),
@@ -147,48 +231,89 @@ class _HomePage extends State<HomePage> {
             ],
           ),
           Expanded(
-            child: Container(
-              padding: EdgeInsets.only(top: 10.0),
-              child: SfCalendar(
-                view: calendarView,
-                monthViewSettings: MonthViewSettings(showAgenda: true),
-                controller: calendarController,
-                firstDayOfWeek: 6,
-              ),
+              child: Container(
+            padding: EdgeInsets.only(top: 10.0),
+            child: SfCalendar(
+              view: calendarView,
+              monthViewSettings: MonthViewSettings(showAgenda: true),
+              controller: calendarController,
+              firstDayOfWeek: 6,
+              dataSource: MeetingDataSource(appointments),
+              initialDisplayDate: currentDate,
+              onTap: handleEventTap,
+              onViewChanged: (ViewChangedDetails details) {
+                print("Ngày được chọn: ${details}");
+                print("Các ngày hiển thị trong tháng: ${details.visibleDates}");
+                firstDate = details.visibleDates[0];
+                lastDate =
+                    details.visibleDates[details.visibleDates.length - 1];
+                firstDateFormatted = formatDate(firstDate);
+                lastDateFormatted = formatDate(lastDate);
+                getNote(firstDateFormatted, lastDateFormatted);
+              },
             ),
-          ),
+          ))
         ],
       ),
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          SpeedDial(
-              animatedIcon: AnimatedIcons.menu_close,
-              backgroundColor: Colors.blue,
-              overlayColor: Colors.black,
-              overlayOpacity: 0.4,
-              children: [
-                SpeedDialChild(
-                    child: Icon(Icons.mail),
-                    backgroundColor: Colors.red,
-                    label: "Add event"),
-                SpeedDialChild(
-                    child: Icon(Icons.copy),
-                    backgroundColor: Colors.green,
-                    label: "Mail"),
-                SpeedDialChild(
-                  child: Icon(Icons.chat),
-                  backgroundColor: Colors.orange,
-                  label: "Chat",
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => MessengerPage()));
-                  },
-                )
-              ]),
-        ],
+      floatingActionButton: Builder(
+        builder: (BuildContext context) {
+          return SpeedDial(
+            animatedIcon: AnimatedIcons.menu_close,
+            backgroundColor: Colors.blue,
+            overlayColor: Colors.black,
+            overlayOpacity: 0.4,
+            children: [
+              SpeedDialChild(
+                  child: Icon(Icons.event),
+                  backgroundColor: Colors.red,
+                  label: "Add plan"),
+              SpeedDialChild(
+                child: Icon(Icons.paste),
+                backgroundColor: Colors.green,
+                label: "Add note",
+                onTap: () {
+                  showModalBottomSheet(
+                    // isScrollControlled: true,
+                    shape: const RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.vertical(top: Radius.circular(20))),
+                    isScrollControlled: true,
+                    context: context,
+                    builder: (BuildContext context) {
+                      return DraggableSheet(getNote: () {
+                        firstDateFormatted = formatDate(firstDate);
+                        lastDateFormatted = formatDate(lastDate);
+                        getNote(firstDateFormatted, lastDateFormatted);
+                      });
+                    },
+                  );
+                },
+              ),
+              SpeedDialChild(
+                child: Icon(Icons.category),
+                backgroundColor: Colors.green,
+                label: "Category",
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => Categories()),
+                  );
+                },
+              ),
+              SpeedDialChild(
+                child: Icon(Icons.chat),
+                backgroundColor: Colors.orange,
+                label: "Chat",
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => MessengerPage()),
+                  );
+                },
+              ),
+            ],
+          );
+        },
       ),
       drawer: Drawer(
         child: SingleChildScrollView(
@@ -201,5 +326,56 @@ class _HomePage extends State<HomePage> {
         )),
       ),
     );
+  }
+}
+
+class Appointment {
+  String? id;
+  late DateTime from;
+  late DateTime to;
+  String? eventName;
+  Color background;
+  bool isAllDay;
+  String? notes; // Thêm thuộc tính notes vào class
+
+  Appointment({
+    this.id,
+    required this.from,
+    required this.to,
+    required this.eventName,
+    required this.background,
+    required this.isAllDay,
+    required this.notes, // Bổ sung tham số notes vào constructor
+  });
+}
+
+class MeetingDataSource extends CalendarDataSource {
+  MeetingDataSource(List<Appointment> source) {
+    appointments = source;
+  }
+
+  @override
+  DateTime getStartTime(int index) {
+    return appointments![index].from;
+  }
+
+  @override
+  DateTime getEndTime(int index) {
+    return appointments![index].to;
+  }
+
+  @override
+  String getSubject(int index) {
+    return appointments![index].eventName;
+  }
+
+  @override
+  Color getColor(int index) {
+    return appointments![index].background;
+  }
+
+  @override
+  bool isAllDay(int index) {
+    return appointments![index].isAllDay;
   }
 }

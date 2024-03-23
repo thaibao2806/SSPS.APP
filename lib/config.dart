@@ -1,6 +1,6 @@
 class Config {
-  static const String appName="SSPS";
-  static const String apiUrl= "10.0.2.2:5031";
+  static const String appName = "SSPS";
+  static const String apiUrl = "10.0.2.2:5031";
   static const String loginApi = "/api/authenticate/login";
   static const String registerApi = "/api/authenticate/register";
   static const String forgotPasswordApi = "/api/authenticate/forgot-password";
@@ -14,4 +14,10 @@ class Config {
   static const String createTodoCart = "/api/user/to-do-card";
   static const String updateTodoCart = "/api/user/to-do-card";
   static const String swapTodoCart = "/api/user/to-do-card/swap";
+  static const String getCategories = "/api/user/category";
+  static const String createAndUpdateCategories = "/api/user/update-category";
+  static const String createNote = "/api/user/note";
+  static const String deleteNote = "/api/user/note/delete";
+  static const String updateNote = "/api/user/note";
+  static const String getNote = "/api/user/note/get-in-range";
 }

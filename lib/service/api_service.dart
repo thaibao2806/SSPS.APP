@@ -3,9 +3,18 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:ssps_app/config.dart';
+import 'package:ssps_app/models/categories/get_category_response_model.dart';
+import 'package:ssps_app/models/categories/update_category_request_model.dart';
+import 'package:ssps_app/models/categories/update_category_response_model.dart';
 import 'package:ssps_app/models/get_user_response_model.dart';
 import 'package:ssps_app/models/login_request_model.dart';
 import 'package:ssps_app/models/login_response_model.dart';
+import 'package:ssps_app/models/notes/create_note_request_model.dart';
+import 'package:ssps_app/models/notes/create_note_response_model.dart';
+import 'package:ssps_app/models/notes/delete_note_response_model.dart';
+import 'package:ssps_app/models/notes/get_note_response_model.dart';
+import 'package:ssps_app/models/notes/update_note_request_model.dart';
+import 'package:ssps_app/models/notes/update_note_response_model.dart';
 import 'package:ssps_app/models/register_request_model.dart';
 import 'package:ssps_app/models/register_response_model.dart';
 import 'package:ssps_app/models/forgotPassword_request_model.dart';
@@ -28,7 +37,7 @@ import 'package:ssps_app/service/shared_service.dart';
 
 class ApiService {
   static var client = http.Client();
-  
+
   static Future<bool> login(LoginRequestModel model) async {
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
@@ -36,46 +45,52 @@ class ApiService {
 
     var url = Uri.http(Config.apiUrl, Config.loginApi);
 
-    var response = await client.post(url, headers: requestHeaders, body: jsonEncode(model.toJson()));
+    var response = await client.post(url,
+        headers: requestHeaders, body: jsonEncode(model.toJson()));
     // print(response.body);
-    if(response.statusCode == 200) {
+    if (response.statusCode == 200) {
       //SHARED
       // print(response.body);
       await SharedService.setLoginDetails(loginResponseJson(response.body));
       return true;
-    }else {
+    } else {
       return false;
     }
   }
 
-  static Future<RegisterResponseModel> register(RegisterRequestModel model) async {
+  static Future<RegisterResponseModel> register(
+      RegisterRequestModel model) async {
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
     };
 
     var url = Uri.http(Config.apiUrl, Config.registerApi);
 
-    var response = await client.post(url, headers: requestHeaders, body: jsonEncode(model.toJson()));
+    var response = await client.post(url,
+        headers: requestHeaders, body: jsonEncode(model.toJson()));
     print(response.body);
 
     return registerResponseModel(response.body);
   }
 
-  static Future<ForgotPasswordResponseModel> fotgotPassword(ForgotPasswordRequestModel model) async {
+  static Future<ForgotPasswordResponseModel> fotgotPassword(
+      ForgotPasswordRequestModel model) async {
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
     };
 
     var url = Uri.http(Config.apiUrl, Config.forgotPasswordApi);
 
-    var response = await client.post(url, headers: requestHeaders, body: jsonEncode(model.toJson()));
+    var response = await client.post(url,
+        headers: requestHeaders, body: jsonEncode(model.toJson()));
 
     return forgotPasswordResponseJson(response.body);
   }
 
   static Future<GetUserResponseModel> getUserProfile() async {
-    var token = (await SharedService.loginDetails()); 
-    Map<String, dynamic> decodedToken = JwtDecoder.decode(token!.data!.accessToken);
+    var token = (await SharedService.loginDetails());
+    Map<String, dynamic> decodedToken =
+        JwtDecoder.decode(token!.data!.accessToken);
     String? id = '/${decodedToken['id']}';
 
     Map<String, String> requestHeaders = {
@@ -88,14 +103,16 @@ class ApiService {
     var response = await client.get(url, headers: requestHeaders);
     // print(response.body);
     // if(response.statusCode == 200) {
-      
+
     // }
     return getUserResponseJson(response.body);
   }
 
-  static Future<UpdateUserResponseModel> updateUserProfile(UpdateUserRequestModel model) async {
-    var token = (await SharedService.loginDetails()); 
-    Map<String, dynamic> decodedToken = JwtDecoder.decode(token!.data!.accessToken);
+  static Future<UpdateUserResponseModel> updateUserProfile(
+      UpdateUserRequestModel model) async {
+    var token = (await SharedService.loginDetails());
+    Map<String, dynamic> decodedToken =
+        JwtDecoder.decode(token!.data!.accessToken);
     String? id = '/${decodedToken['id']}';
 
     Map<String, String> requestHeaders = {
@@ -106,15 +123,17 @@ class ApiService {
     var url = Uri.http(Config.apiUrl, Config.updateUser + id);
     print(url);
 
-    var response = await client.put(url, headers: requestHeaders,  body: jsonEncode(model.toJson()));
+    var response = await client.put(url,
+        headers: requestHeaders, body: jsonEncode(model.toJson()));
     print("response: ${response.body}");
     // print(response.body);
     return updateUserResponseJson(response.body);
   }
 
   static Future<GetAllTodoResponseModel> getAllTodo() async {
-    var token = (await SharedService.loginDetails()); 
-    Map<String, dynamic> decodedToken = JwtDecoder.decode(token!.data!.accessToken);
+    var token = (await SharedService.loginDetails());
+    Map<String, dynamic> decodedToken =
+        JwtDecoder.decode(token!.data!.accessToken);
     String? id = '/${decodedToken['id']}';
 
     Map<String, String> requestHeaders = {
@@ -128,9 +147,10 @@ class ApiService {
     return getAllTodoResponseJson(response.body);
   }
 
-  static Future<DeleteTodoNoteResponseModel> deleteTodoNote( String? id) async {
-    var token = (await SharedService.loginDetails()); 
-    Map<String, dynamic> decodedToken = JwtDecoder.decode(token!.data!.accessToken);
+  static Future<DeleteTodoNoteResponseModel> deleteTodoNote(String? id) async {
+    var token = (await SharedService.loginDetails());
+    Map<String, dynamic> decodedToken =
+        JwtDecoder.decode(token!.data!.accessToken);
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
@@ -142,30 +162,35 @@ class ApiService {
 
     var response = await client.post(url, headers: requestHeaders);
     // if(response.statusCode == 200) {
-      
+
     // }
     return deleteTodoNoteResponseJson(response.body);
   }
 
-  static Future<DeleteTodoCardResponseModel> deleteTodoCard( String? ToDoNoteId, String? CardId) async {
-    var token = (await SharedService.loginDetails()); 
-    Map<String, dynamic> decodedToken = JwtDecoder.decode(token!.data!.accessToken);
+  static Future<DeleteTodoCardResponseModel> deleteTodoCard(
+      String? ToDoNoteId, String? CardId) async {
+    var token = (await SharedService.loginDetails());
+    Map<String, dynamic> decodedToken =
+        JwtDecoder.decode(token!.data!.accessToken);
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer ${token?.data?.accessToken}'
     };
 
-    var url = Uri.http(Config.apiUrl, Config.deleteTodoCart, {'ToDoNoteId': ToDoNoteId, 'CardId': CardId});
+    var url = Uri.http(Config.apiUrl, Config.deleteTodoCart,
+        {'ToDoNoteId': ToDoNoteId, 'CardId': CardId});
     print(url);
 
     var response = await client.post(url, headers: requestHeaders);
     return deleteTodoCardResponseJson(response.body);
   }
 
-  static Future<CreateTodoCardResponseModel> createTodoCard( CreateTodoCardRequestModel model) async {
-    var token = (await SharedService.loginDetails()); 
-    Map<String, dynamic> decodedToken = JwtDecoder.decode(token!.data!.accessToken);
+  static Future<CreateTodoCardResponseModel> createTodoCard(
+      CreateTodoCardRequestModel model) async {
+    var token = (await SharedService.loginDetails());
+    Map<String, dynamic> decodedToken =
+        JwtDecoder.decode(token!.data!.accessToken);
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
@@ -175,14 +200,17 @@ class ApiService {
     var url = Uri.http(Config.apiUrl, Config.createTodoCart);
     print(url);
 
-    var response = await client.post(url, headers: requestHeaders, body: jsonEncode(model.toJson()));
-    
+    var response = await client.post(url,
+        headers: requestHeaders, body: jsonEncode(model.toJson()));
+
     return createTodoCardResponseJson(response.body);
   }
 
-  static Future<CreateTodoNoteResponseModel> createTodoNote( CreateTodoNoteRequestModel model) async {
-    var token = (await SharedService.loginDetails()); 
-    Map<String, dynamic> decodedToken = JwtDecoder.decode(token!.data!.accessToken);
+  static Future<CreateTodoNoteResponseModel> createTodoNote(
+      CreateTodoNoteRequestModel model) async {
+    var token = (await SharedService.loginDetails());
+    Map<String, dynamic> decodedToken =
+        JwtDecoder.decode(token!.data!.accessToken);
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
@@ -192,7 +220,8 @@ class ApiService {
     var url = Uri.http(Config.apiUrl, Config.createTodoNote);
     print(url);
 
-    var response = await client.post(url, headers: requestHeaders, body: jsonEncode(model.toJson()));
+    var response = await client.post(url,
+        headers: requestHeaders, body: jsonEncode(model.toJson()));
     print(response.body);
     if (response.statusCode == 200) {
       // Kiểm tra nếu response.body không phải là null
@@ -208,9 +237,11 @@ class ApiService {
     }
   }
 
-  static Future<UpdateTodoCartResponseModel> updateTodoCard( UpdateTodoCartRequestModel model) async {
-    var token = (await SharedService.loginDetails()); 
-    Map<String, dynamic> decodedToken = JwtDecoder.decode(token!.data!.accessToken);
+  static Future<UpdateTodoCartResponseModel> updateTodoCard(
+      UpdateTodoCartRequestModel model) async {
+    var token = (await SharedService.loginDetails());
+    Map<String, dynamic> decodedToken =
+        JwtDecoder.decode(token!.data!.accessToken);
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
@@ -220,7 +251,8 @@ class ApiService {
     var url = Uri.http(Config.apiUrl, Config.updateTodoCart);
     print(url);
 
-    var response = await client.put(url, headers: requestHeaders, body: jsonEncode(model.toJson()));
+    var response = await client.put(url,
+        headers: requestHeaders, body: jsonEncode(model.toJson()));
     print(response.body);
     if (response.statusCode == 200) {
       // Kiểm tra nếu response.body không phải là null
@@ -236,9 +268,11 @@ class ApiService {
     }
   }
 
-  static Future<UpdateTodoNoteResponseModel> updateTodoNote( UpdateTodoNoteRequestModel model) async {
-    var token = (await SharedService.loginDetails()); 
-    Map<String, dynamic> decodedToken = JwtDecoder.decode(token!.data!.accessToken);
+  static Future<UpdateTodoNoteResponseModel> updateTodoNote(
+      UpdateTodoNoteRequestModel model) async {
+    var token = (await SharedService.loginDetails());
+    Map<String, dynamic> decodedToken =
+        JwtDecoder.decode(token!.data!.accessToken);
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
@@ -248,7 +282,8 @@ class ApiService {
     var url = Uri.http(Config.apiUrl, Config.updateTodoNote);
     print(url);
 
-    var response = await client.put(url, headers: requestHeaders, body: jsonEncode(model.toJson()));
+    var response = await client.put(url,
+        headers: requestHeaders, body: jsonEncode(model.toJson()));
     print(response.body);
     if (response.statusCode == 200) {
       // Kiểm tra nếu response.body không phải là null
@@ -264,19 +299,196 @@ class ApiService {
     }
   }
 
-  static Future<SwapResponseModel> swapCart( String? CardId, String? FromToDoNoteId, String? ToToDoNoteId) async {
-    var token = (await SharedService.loginDetails()); 
-    Map<String, dynamic> decodedToken = JwtDecoder.decode(token!.data!.accessToken);
+  static Future<SwapResponseModel> swapCart(
+      String? CardId, String? FromToDoNoteId, String? ToToDoNoteId) async {
+    var token = (await SharedService.loginDetails());
+    Map<String, dynamic> decodedToken =
+        JwtDecoder.decode(token!.data!.accessToken);
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer ${token?.data?.accessToken}'
     };
 
-    var url = Uri.http(Config.apiUrl, Config.swapTodoCart, {'CardId': CardId, 'FromToDoNoteId': FromToDoNoteId, 'ToToDoNoteId': ToToDoNoteId});
+    var url = Uri.http(Config.apiUrl, Config.swapTodoCart, {
+      'CardId': CardId,
+      'FromToDoNoteId': FromToDoNoteId,
+      'ToToDoNoteId': ToToDoNoteId
+    });
     print(url);
 
     var response = await client.get(url, headers: requestHeaders);
     return swapResponseJson(response.body);
+  }
+
+  static Future<GetCategoryResponseModel> getCategories() async {
+    var token = (await SharedService.loginDetails());
+    Map<String, dynamic> decodedToken =
+        JwtDecoder.decode(token!.data!.accessToken);
+
+    Map<String, String> requestHeaders = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${token?.data?.accessToken}'
+    };
+
+    var url = Uri.http(Config.apiUrl, Config.getCategories);
+
+    var response = await client.get(url, headers: requestHeaders);
+    return getCategoryResponseJson(response.body);
+  }
+
+  static Future<UpdateCategoryResponseModel> createCategories(
+      UpdateCategoryRequestModel model) async {
+    var token = (await SharedService.loginDetails());
+    Map<String, dynamic> decodedToken =
+        JwtDecoder.decode(token!.data!.accessToken);
+
+    Map<String, String> requestHeaders = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${token?.data?.accessToken}'
+    };
+
+    var url = Uri.http(Config.apiUrl, Config.createAndUpdateCategories);
+    print(url);
+
+    var response = await client.post(url,
+        headers: requestHeaders, body: jsonEncode(model.toJson()));
+    print(response);
+
+    if (response.statusCode == 200) {
+      // Kiểm tra nếu response.body không rỗng
+      if (response.body.isNotEmpty) {
+        return updateCategoryResponseJson(response.body);
+      } else {
+        throw Exception('Empty response body');
+      }
+    } else {
+      // Xử lý lỗi HTTP tại đây
+      throw Exception('Failed to create categories: ${response.statusCode}');
+    }
+  }
+
+  static Future<CreateNoteResponseModel> createNote(
+      CreateNoteRequestModel model) async {
+    var token = (await SharedService.loginDetails());
+    Map<String, dynamic> decodedToken =
+        JwtDecoder.decode(token!.data!.accessToken);
+
+    Map<String, String> requestHeaders = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${token?.data?.accessToken}'
+    };
+
+    var url = Uri.http(Config.apiUrl, Config.createNote);
+    print(url);
+
+    var response = await client.post(url,
+        headers: requestHeaders, body: jsonEncode(model.toJson()));
+    print(jsonEncode(model.toJson()));
+
+    if (response.statusCode == 200) {
+      // Kiểm tra nếu response.body không rỗng
+      if (response.body.isNotEmpty) {
+        return createNoteResponseJson(response.body);
+      } else {
+        throw Exception('Empty response body');
+      }
+    } else {
+      // Xử lý lỗi HTTP tại đây
+      throw Exception('Failed to create categories: ${response.statusCode}');
+    }
+  }
+
+  static Future<UpdateNoteResponseModel> updateNote(
+      UpdateNoteRequestModel model) async {
+    var token = (await SharedService.loginDetails());
+    Map<String, dynamic> decodedToken =
+        JwtDecoder.decode(token!.data!.accessToken);
+
+    Map<String, String> requestHeaders = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${token?.data?.accessToken}'
+    };
+
+    var url = Uri.http(Config.apiUrl, Config.updateNote);
+    print(url);
+
+    var response = await client.put(url,
+        headers: requestHeaders, body: jsonEncode(model.toJson()));
+    print(response);
+
+    if (response.statusCode == 200) {
+      // Kiểm tra nếu response.body không rỗng
+      if (response.body.isNotEmpty) {
+        return updateNoteResponseJson(response.body);
+      } else {
+        throw Exception('Empty response body');
+      }
+    } else {
+      // Xử lý lỗi HTTP tại đây
+      throw Exception('Failed to create categories: ${response.statusCode}');
+    }
+  }
+
+  static Future<DeleteNoteResponseModel> deleteNote(
+      String? id) async {
+    var token = (await SharedService.loginDetails());
+    Map<String, dynamic> decodedToken =
+        JwtDecoder.decode(token!.data!.accessToken);
+
+    Map<String, String> requestHeaders = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${token?.data?.accessToken}'
+    };
+
+    var url = Uri.http(Config.apiUrl, Config.deleteNote, {'Id': id});
+    print(url);
+
+    var response = await client.post(url,
+        headers: requestHeaders);
+    print(response);
+
+    if (response.statusCode == 200) {
+      // Kiểm tra nếu response.body không rỗng
+      if (response.body.isNotEmpty) {
+        return deleteNoteResponseJson(response.body);
+      } else {
+        throw Exception('Empty response body');
+      }
+    } else {
+      // Xử lý lỗi HTTP tại đây
+      throw Exception('Failed to create categories: ${response.statusCode}');
+    }
+  }
+
+  static Future<GetNoteResponseModel> getNote(
+      String? fromDate, String? toDate) async {
+    var token = (await SharedService.loginDetails());
+    Map<String, dynamic> decodedToken =
+        JwtDecoder.decode(token!.data!.accessToken);
+
+    Map<String, String> requestHeaders = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${token?.data?.accessToken}'
+    };
+
+    var url = Uri.http(Config.apiUrl, Config.getNote, {'FromDate': fromDate, 'ToDate': toDate});
+    print(url);
+
+    var response = await client.get(url,
+        headers: requestHeaders);
+    print(response);
+
+    if (response.statusCode == 200) {
+      // Kiểm tra nếu response.body không rỗng
+      if (response.body.isNotEmpty) {
+        return getNoteResponseJson(response.body);
+      } else {
+        throw Exception('Empty response body');
+      }
+    } else {
+      // Xử lý lỗi HTTP tại đây
+      throw Exception('Failed to create categories: ${response.statusCode}');
+    }
   }
 }
