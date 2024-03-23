@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:ssps_app/components/categories/Dialog_add_category.dart';
+import 'package:ssps_app/components/categories/Dialog_delete_category.dart';
 import 'package:ssps_app/components/categories/Dialog_update_category.dart';
+import 'package:ssps_app/models/categories/delete_category_request_model.dart';
 import 'package:ssps_app/models/categories/get_category_response_model.dart';
 import 'package:ssps_app/pages/accountPage.dart';
 import 'package:ssps_app/pages/messagePage.dart';
@@ -111,8 +113,16 @@ class _Categories extends State<Categories> {
                   trailing: IconButton(
                     icon: Icon(Icons.delete),
                     onPressed: () {
-                      // Add your delete logic here
-                      // For example: deleteCategory(index);
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return DeleteCategoriesDialog(
+                            id: category.id,
+                            onDeleteSuccess: () {
+                              _getCategories();
+                            },
+                          );
+                        });
                     },
                   ),
                   onTap: () {

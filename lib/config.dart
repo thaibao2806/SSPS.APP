@@ -20,4 +20,5 @@ class Config {
   static const String deleteNote = "/api/user/note/delete";
   static const String updateNote = "/api/user/note";
   static const String getNote = "/api/user/note/get-in-range";
+  static const String deleteCategory = "/api/user/delete-category";
 }

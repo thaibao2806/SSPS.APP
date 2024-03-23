@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:ssps_app/config.dart';
+import 'package:ssps_app/models/categories/delete_category_request_model.dart';
+import 'package:ssps_app/models/categories/delete_category_response_model.dart';
 import 'package:ssps_app/models/categories/get_category_response_model.dart';
 import 'package:ssps_app/models/categories/update_category_request_model.dart';
 import 'package:ssps_app/models/categories/update_category_response_model.dart';
@@ -483,6 +485,37 @@ class ApiService {
       // Kiểm tra nếu response.body không rỗng
       if (response.body.isNotEmpty) {
         return getNoteResponseJson(response.body);
+      } else {
+        throw Exception('Empty response body');
+      }
+    } else {
+      // Xử lý lỗi HTTP tại đây
+      throw Exception('Failed to create categories: ${response.statusCode}');
+    }
+  }
+
+   static Future<DeleteCategoryResponseModel> deleteCategory(
+      DeleteCategoryRequestModel model) async {
+    var token = (await SharedService.loginDetails());
+    Map<String, dynamic> decodedToken =
+        JwtDecoder.decode(token!.data!.accessToken);
+
+    Map<String, String> requestHeaders = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${token?.data?.accessToken}'
+    };
+
+    var url = Uri.http(Config.apiUrl, Config.deleteCategory);
+    print(url);
+
+    var response = await client.post(url,
+        headers: requestHeaders , body: jsonEncode(model.toJson()));
+    print(response);
+
+    if (response.statusCode == 200) {
+      // Kiểm tra nếu response.body không rỗng
+      if (response.body.isNotEmpty) {
+        return deleteCategoryResponseJson(response.body);
       } else {
         throw Exception('Empty response body');
       }
