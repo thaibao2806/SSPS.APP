@@ -386,17 +386,17 @@ class _ReportPage extends State<ReportPage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-              heroTag: "Chat",
-              backgroundColor: const Color.fromARGB(255, 57, 161, 247),
-              onPressed: () {
-                Navigator.push(context,
-                                MaterialPageRoute(builder: (context) =>  MessengerPage()));
-              },
-              child: const Icon(
-                Icons.chat,
-                color: Colors.white,
-              ),
-            ),
+        heroTag: "Chat",
+        backgroundColor: const Color.fromARGB(255, 57, 161, 247),
+        onPressed: () {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => MessengerPage()));
+        },
+        child: const Icon(
+          Icons.chat,
+          color: Colors.white,
+        ),
+      ),
       drawer: Drawer(
         child: SingleChildScrollView(
             child: Container(

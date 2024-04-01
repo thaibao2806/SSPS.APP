@@ -219,9 +219,11 @@ class _DraggableSheetUpdateState extends State<DraggableSheetUpdate> {
                   ),
                 ],
               ),
+              SizedBox(height:10),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   primary: Colors.blue[300],
+                  minimumSize: Size(double.infinity, 50),
                 ),
                 onPressed: () {
                   if (title.text.isEmpty) {
@@ -265,9 +267,11 @@ class _DraggableSheetUpdateState extends State<DraggableSheetUpdate> {
                   style: TextStyle(color: Colors.white),
                 ),
               ),
+              SizedBox(height:10),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   primary: Colors.red[300],
+                  minimumSize: Size(double.infinity, 50),
                 ),
                 onPressed: () {
                   ApiService.deleteNote(widget.enventId).then((response) => {

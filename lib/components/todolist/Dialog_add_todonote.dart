@@ -79,7 +79,7 @@ class _CustomDialogState extends State<CustomDialog> {
               );
 
               if (pickedDateTime != null) {
-                startTimeController.text = _dateFormat.format(DateTime(pickedDateTime.year, pickedDateTime.month, pickedDateTime.day +1, 1, 1, 59));
+                startTimeController.text = _dateFormat.format(DateTime(pickedDateTime.year, pickedDateTime.month, pickedDateTime.day , 1, 1, 59));
               }
             },
           ),

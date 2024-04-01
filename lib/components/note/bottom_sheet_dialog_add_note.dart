@@ -191,9 +191,11 @@ class _DraggableSheetState extends State<DraggableSheet> {
                   ),
                 ],
               ),
+              const SizedBox(height: 10),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   primary: Colors.blue[300],
+                  minimumSize: Size(double.infinity, 50),
                 ),
                 onPressed: () {
                   if (title.text.isEmpty) {

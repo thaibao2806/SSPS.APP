@@ -21,4 +21,9 @@ class Config {
   static const String updateNote = "/api/user/note";
   static const String getNote = "/api/user/note/get-in-range";
   static const String deleteCategory = "/api/user/delete-category";
+  static const String getMoneyPlanById = "/api/user/money-plan";
+  static const String createMoneyPlan = "/api/user/money-plan/create-list-money-plan";
+  static const String updateUsageMoneyPlan = "/api/user/money-plan/update-usage-money-plan";
+  static const String getMoneyPlan = "/api/user/money-plan/range-type";
+  static const String deleteMoneyPlan = "/api/user/money-plan/delete-money-plan";
 }

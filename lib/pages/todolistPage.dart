@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:ssps_app/components/my_drawer_header.dart';
 import 'package:ssps_app/components/todolist/Dialog_add_card.dart';
@@ -31,6 +32,7 @@ class _TodolistPage extends State<TodolistPage> {
   bool isDataLoaded = false;
   String? firstName;
   String? lastName;
+  String? dropdownValue = 'Item 1';
 
   @override
   void initState() {
@@ -252,39 +254,50 @@ class _TodolistPage extends State<TodolistPage> {
         floatingActionButton: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            FloatingActionButton(
-              heroTag: "Chat",
-              backgroundColor: const Color.fromARGB(255, 57, 161, 247),
-              onPressed: () {
-                Navigator.push(context,
-                                MaterialPageRoute(builder: (context) =>  MessengerPage()));
+            Builder(
+              builder: (BuildContext context) {
+                return SpeedDial(
+                  // animatedIcon: AnimatedIcons.menu_close,
+                  icon: Icons.add,
+                  activeIcon: Icons.close,
+                  backgroundColor: Color.fromARGB(255, 57, 161, 247),
+                  overlayColor: Colors.black,
+                  foregroundColor: Colors.white,
+                  spaceBetweenChildren: 10,
+                  overlayOpacity: 0.4,
+                  children: [
+                    SpeedDialChild(
+                        child: Icon(Icons.event),
+                        backgroundColor: Color.fromARGB(255, 57, 161, 247),
+                        foregroundColor: Colors.white,
+                        label: "Add todo",
+                        onTap: () {
+                          showDialog(
+                              context: context,
+                              builder: (context) {
+                                return CustomDialog(
+                                  onDeleteSuccess: () {
+                                    refreshTodoList();
+                                  },
+                                );
+                              });
+                        }),
+                    SpeedDialChild(
+                      child: Icon(Icons.chat),
+                      backgroundColor: Color.fromARGB(255, 57, 161, 247),
+                      foregroundColor: Colors.white,
+                      label: "Chat",
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => MessengerPage()),
+                        );
+                      },
+                    ),
+                  ],
+                );
               },
-              child: const Icon(
-                Icons.chat,
-                color: Colors.white,
-              ),
-            ),
-            SizedBox(
-              height: 15,
-            ),
-            FloatingActionButton(
-              heroTag: "Add",
-              backgroundColor: const Color.fromARGB(255, 57, 161, 247),
-              onPressed: () {
-                showDialog(
-                    context: context,
-                    builder: (context) {
-                      return CustomDialog(
-                        onDeleteSuccess: () {
-                          refreshTodoList();
-                        },
-                      );
-                    });
-              },
-              child: const Icon(
-                Icons.add,
-                color: Colors.white,
-              ),
             ),
           ],
         ));
@@ -319,13 +332,36 @@ class _TodolistPage extends State<TodolistPage> {
                 ),
                 Row(
                   children: [
+                    PopupMenuButton<String>(
+                        child: Icon(Icons.swap_vert, color: Colors.white),
+                        onSelected: (String newValue) {
+                          setState(() {
+                            dropdownValue = newValue;
+                            ApiService.swapCart(card.id, todo.id, dropdownValue)
+                                .then((response) => {
+                                      if (response.result)
+                                        {
+                                          refreshTodoList(),
+                                          // Navigator.of(context).pop(),
+                                        }
+                                    });
+                          });
+                        },
+                        itemBuilder: (BuildContext context) {
+                          return todoList.map((todo) {
+                            return PopupMenuItem<String>(
+                              value: todo.id,
+                              child: Text(todo.title!),
+                            );
+                          }).toList();
+                        }),
                     IconButton(
                       onPressed: () {
                         showDialog(
                             context: context,
                             builder: (context) {
-                              return SwapDialog(
-                                  toDo: todo,
+                              return UpdateCardDialog(
+                                  toDoNoteId: todo.id,
                                   onDeleteSuccess: () {
                                     ApiService.getAllTodo().then((response) {
                                       if (response.result) {
@@ -338,30 +374,6 @@ class _TodolistPage extends State<TodolistPage> {
                                   cardId: card.id,
                                   title: card.title,
                                   description: card.description);
-                            });
-                      },
-                      icon: Icon(Icons.swap_vert, color: Colors.white),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        showDialog(
-                            context: context,
-                            builder: (context) {
-                              return UpdateCardDialog(
-                                toDoNoteId: todo.id,
-                                onDeleteSuccess: () {
-                                  ApiService.getAllTodo().then((response) {
-                                    if (response.result) {
-                                      setState(() {
-                                        todoList = response.data;
-                                      });
-                                    }
-                                  });
-                                },
-                                cardId: card.id,
-                                title: card.title,
-                                description: card.description
-                              );
                             });
                       },
                       icon: Icon(Icons.edit, color: Colors.white),
