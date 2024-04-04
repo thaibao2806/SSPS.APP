@@ -15,6 +15,7 @@ Widget _defaultHome = const WelcomePage();
 final naviatorKey = GlobalKey<NavigatorState>();
 
 Future _firebaseBackgroundMessage(RemoteMessage message) async {
+  print(message);
   if (message.notification != null) {
     print("Some notification  received");
   }

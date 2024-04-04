@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:ssps_app/models/pomodoro_status.dart';
 
-const pomodoroTotalTime = 25*60 ;
-const shortBreakTime = 5*60;
-const longBreakTime = 15*60;
+var pomodoroTotalTime = 25*60 ;
+var shortBreakTime = 5*60;
+var longBreakTime = 15*60;
 const pomodoroPerSet = 4;
 
 const Map<PomodoroStatus, String> statusDescription = {
