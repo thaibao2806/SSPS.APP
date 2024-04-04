@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -49,7 +51,20 @@ void main() async {
   FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
   PushNotifications.init();
+  PushNotifications.localNotiInit();
   FirebaseMessaging.onBackgroundMessage(_firebaseBackgroundMessage);
+
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    String payloadData = jsonEncode(message.data);
+    print("Got a message in foreground");
+    if (message.notification != null) {
+      PushNotifications.showSimpleNotification(
+          title: message.notification!.title!,
+          body: message.notification!.body!,
+          payload: payloadData);
+    }
+  });
+
 
   bool _result = await SharedService.isLoggedIn();
   if (_result) {
