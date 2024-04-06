@@ -14,6 +14,7 @@ import 'package:ssps_app/models/login_response_model.dart';
 import 'package:ssps_app/models/moneyPlans/create_moneyPlan_request_model.dart';
 import 'package:ssps_app/models/moneyPlans/create_moneyPlan_response_model.dart';
 import 'package:ssps_app/models/moneyPlans/delete_moneyPlan_response_model.dart';
+import 'package:ssps_app/models/moneyPlans/get_moneyPlan_byId_response_model.dart';
 import 'package:ssps_app/models/moneyPlans/get_moneyPlan_response_model.dart';
 import 'package:ssps_app/models/moneyPlans/update_usageMoney_request_model.dart';
 import 'package:ssps_app/models/moneyPlans/update_usageMoney_response_model.dart';
@@ -438,8 +439,7 @@ class ApiService {
     }
   }
 
-  static Future<DeleteNoteResponseModel> deleteNote(
-      String? id) async {
+  static Future<DeleteNoteResponseModel> deleteNote(String? id) async {
     var token = (await SharedService.loginDetails());
     Map<String, dynamic> decodedToken =
         JwtDecoder.decode(token!.data!.accessToken);
@@ -452,8 +452,7 @@ class ApiService {
     var url = Uri.http(Config.apiUrl, Config.deleteNote, {'Id': id});
     print(url);
 
-    var response = await client.post(url,
-        headers: requestHeaders);
+    var response = await client.post(url, headers: requestHeaders);
     print(response);
 
     if (response.statusCode == 200) {
@@ -480,11 +479,11 @@ class ApiService {
       'Authorization': 'Bearer ${token?.data?.accessToken}'
     };
 
-    var url = Uri.http(Config.apiUrl, Config.getNote, {'FromDate': fromDate, 'ToDate': toDate});
+    var url = Uri.http(Config.apiUrl, Config.getNote,
+        {'FromDate': fromDate, 'ToDate': toDate});
     print(url);
 
-    var response = await client.get(url,
-        headers: requestHeaders);
+    var response = await client.get(url, headers: requestHeaders);
     print(response);
 
     if (response.statusCode == 200) {
@@ -500,7 +499,7 @@ class ApiService {
     }
   }
 
-   static Future<DeleteCategoryResponseModel> deleteCategory(
+  static Future<DeleteCategoryResponseModel> deleteCategory(
       DeleteCategoryRequestModel model) async {
     var token = (await SharedService.loginDetails());
     Map<String, dynamic> decodedToken =
@@ -515,7 +514,7 @@ class ApiService {
     print(url);
 
     var response = await client.post(url,
-        headers: requestHeaders , body: jsonEncode(model.toJson()));
+        headers: requestHeaders, body: jsonEncode(model.toJson()));
     print(response);
 
     if (response.statusCode == 200) {
@@ -546,7 +545,7 @@ class ApiService {
     print(url);
 
     var response = await client.post(url,
-        headers: requestHeaders , body: jsonEncode(model.toJson()));
+        headers: requestHeaders, body: jsonEncode(model.toJson()));
     print(response);
 
     if (response.statusCode == 200) {
@@ -577,7 +576,7 @@ class ApiService {
     print(url);
 
     var response = await client.post(url,
-        headers: requestHeaders , body: jsonEncode(model.toJson()));
+        headers: requestHeaders, body: jsonEncode(model.toJson()));
     print(response);
 
     if (response.statusCode == 200) {
@@ -604,11 +603,11 @@ class ApiService {
       'Authorization': 'Bearer ${token?.data?.accessToken}'
     };
 
-    var url = Uri.http(Config.apiUrl, Config.getMoneyPlan, {"FromDate": FromDate, "ToDate": ToDate});
+    var url = Uri.http(Config.apiUrl, Config.getMoneyPlan,
+        {"FromDate": FromDate, "ToDate": ToDate});
     print(url);
 
-    var response = await client.get(url,
-        headers: requestHeaders );
+    var response = await client.get(url, headers: requestHeaders);
     print(response);
 
     if (response.statusCode == 200) {
@@ -635,11 +634,11 @@ class ApiService {
       'Authorization': 'Bearer ${token?.data?.accessToken}'
     };
 
-    var url = Uri.http(Config.apiUrl, Config.deleteMoneyPlan, {"MoneyPlanId": MoneyPlanId});
+    var url = Uri.http(
+        Config.apiUrl, Config.deleteMoneyPlan, {"MoneyPlanId": MoneyPlanId});
     print(url);
 
-    var response = await client.post(url,
-        headers: requestHeaders );
+    var response = await client.post(url, headers: requestHeaders);
     print(response);
 
     if (response.statusCode == 200) {
@@ -648,6 +647,36 @@ class ApiService {
         return deleteMoneyPlanResponseModelJson(response.body);
       } else {
         throw Exception('Empty response body');
+      }
+    } else {
+      // Xử lý lỗi HTTP tại đây
+      throw Exception('Failed to create categories: ${response.statusCode}');
+    }
+  }
+
+  static Future<GetMoneyPlanByIdResponseModel> getMoneyPlanById(
+      String? id) async {
+    var token = (await SharedService.loginDetails());
+    Map<String, dynamic> decodedToken =
+        JwtDecoder.decode(token!.data!.accessToken);
+
+    Map<String, String> requestHeaders = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${token?.data?.accessToken}'
+    };
+
+    var url = Uri.http(Config.apiUrl, Config.getMoneyPlanById + "/${id}") ;
+    print(url);
+
+    var response = await client.get(url, headers: requestHeaders);
+    print(response);
+
+    if (response.statusCode == 200) {
+      // Kiểm tra nếu response.body không rỗng
+      if (response.body != null && response.body.isNotEmpty) {
+        return getMoneyPlanIdResponseModelJson(response.body);
+      } else {
+        throw Exception('Empty or null response body');
       }
     } else {
       // Xử lý lỗi HTTP tại đây

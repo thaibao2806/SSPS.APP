@@ -35,7 +35,7 @@ class _HomePage extends State<HomePage> {
   String? lastName;
   bool isDataLoaded = false;
   DateTime currentDate = DateTime.now();
-  String dropdownValue = 'Day';
+  String dropdownValue = 'Month';
   DateTime firstDate = DateTime.now();
   DateTime lastDate = DateTime.now();
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -105,7 +105,6 @@ class _HomePage extends State<HomePage> {
         for (var money in response.data) {
           setState(() {
             for (var usage in money.usageMoneys) {
-              print(usage.name);
               appointments.add(Appointment(
                 id: money.id,
                 from: DateTime.parse(money.date!),
@@ -186,9 +185,108 @@ class _HomePage extends State<HomePage> {
   }
 
   void handleEventTap(CalendarTapDetails details) {
-    print(details.appointments);
-    if (details.targetElement is CalendarElement &&
-        details.appointments != null) {
+    // if (details.targetElement is CalendarElement &&
+    //     details.appointments != null) {
+
+    DateTime selectedDate = details.date!;
+    List<Appointment> eventsOnSelectedDate = getEventsOnDate(selectedDate);
+
+    if (dropdownValue == "Month") {
+      // WidgetsBinding.instance!.addPostFrameCallback((_) {
+      print(details.appointments);
+
+      // showModalBottomSheet(
+      //   context: context,
+      //   builder: (context) {
+      //     return Padding(
+      //       padding: const EdgeInsets.only(top: 25),
+      //       child: ListView.builder(
+      //         itemCount: eventsOnSelectedDate.length,
+      //         itemBuilder: (context, index) {
+      //           final Appointment event = eventsOnSelectedDate[index];
+      //           return ListTile(
+      //             title: Container(
+      //                 decoration: BoxDecoration(
+      //                   borderRadius: BorderRadius.only(
+      //                       topLeft: Radius.circular(10),
+      //                       topRight: Radius.circular(10),
+      //                       bottomLeft: Radius.circular(10),
+      //                       bottomRight: Radius.circular(10)),
+      //                   color: event.background,
+      //                 ),
+      //                 child: Padding(
+      //                   padding: const EdgeInsets.all(8.0),
+      //                   child: Text(event.eventName ?? ''),
+      //                 )),
+      //             onTap: () {
+      //               final Appointment tappedAppointment = event;
+      //               String eventId = tappedAppointment.id ?? '';
+      //               DateTime startTime = tappedAppointment.from;
+      //               DateTime endTime = tappedAppointment.to;
+      //               String? eventName = tappedAppointment.eventName;
+      //               Color eventColor = tappedAppointment.background;
+      //               bool isAllDay = tappedAppointment.isAllDay;
+      //               String? notes = tappedAppointment.notes;
+      //               num expectAmount = tappedAppointment.expectAmount!;
+      //               num actualAmount = tappedAppointment.actualAmount!;
+      //               int priority = tappedAppointment.priority;
+      //               print(tappedAppointment.background);
+      //               if (expectAmount > 0) {
+      //                 showModalBottomSheet(
+      //                   context: context,
+      //                   builder: (context) {
+      //                     return UpdateMoneyPlan(
+      //                       getNote: () async {
+      //                         firstDateFormatted = formatDate(firstDate);
+      //                         lastDateFormatted = formatDate(lastDate);
+      //                         await getMoneyPlan(
+      //                             firstDateFormatted, lastDateFormatted);
+      //                       },
+      //                       moneyPlanId: eventId,
+      //                       expectualAmount: expectAmount,
+      //                       actualAmount: actualAmount,
+      //                       title: eventName!,
+      //                       priority: priority,
+      //                       notes: notes!,
+      //                       getMoneyPla: () {
+      //                         firstDateFormatted = formatDate(firstDate);
+      //                         lastDateFormatted = formatDate(lastDate);
+      //                         getNote(firstDateFormatted, lastDateFormatted);
+      //                       },
+      //                       // notes: notes ?? "",
+      //                     );
+      //                   },
+      //                 );
+      //               } else {
+      //                 showModalBottomSheet(
+      //                   context: context,
+      //                   builder: (context) {
+      //                     return DraggableSheetUpdate(
+      //                       getNote: () {
+      //                         firstDateFormatted = formatDate(firstDate);
+      //                         lastDateFormatted = formatDate(lastDate);
+      //                         getNote(firstDateFormatted, lastDateFormatted);
+      //                       },
+      //                       enventId: eventId,
+      //                       startTime: startTime,
+      //                       endTime: endTime,
+      //                       eventColor: eventColor,
+      //                       notes: notes,
+      //                       enventName: eventName,
+      //                     );
+      //                   },
+      //                 );
+      //               }
+      //               // Hiển thị chi tiết sự kiện khi được chọn
+      //             },
+      //           );
+      //         },
+      //       ),
+      //     );
+      //   },
+      // );
+      // }
+      // );
       final Appointment tappedAppointment = details.appointments![0];
       String eventId = tappedAppointment.id ?? '';
       DateTime startTime = tappedAppointment.from;
@@ -200,10 +298,67 @@ class _HomePage extends State<HomePage> {
       num expectAmount = tappedAppointment.expectAmount!;
       num actualAmount = tappedAppointment.actualAmount!;
       int priority = tappedAppointment.priority;
-      print(tappedAppointment.notes);
-
+      print(tappedAppointment.background);
       if (expectAmount > 0) {
-        WidgetsBinding.instance!.addPostFrameCallback((_) {
+        showModalBottomSheet(
+          context: context,
+          builder: (context) {
+            return UpdateMoneyPlan(
+              getNote: () async {
+                firstDateFormatted = formatDate(firstDate);
+                lastDateFormatted = formatDate(lastDate);
+                await getMoneyPlan(firstDateFormatted, lastDateFormatted);
+              },
+              moneyPlanId: eventId,
+              expectualAmount: expectAmount,
+              actualAmount: actualAmount,
+              title: eventName!,
+              priority: priority,
+              notes: notes!,
+              getMoneyPla: () {
+                firstDateFormatted = formatDate(firstDate);
+                lastDateFormatted = formatDate(lastDate);
+                getNote(firstDateFormatted, lastDateFormatted);
+              },
+              // notes: notes ?? "",
+            );
+          },
+        );
+      } else {
+        showModalBottomSheet(
+          context: context,
+          builder: (context) {
+            return DraggableSheetUpdate(
+              getNote: () {
+                firstDateFormatted = formatDate(firstDate);
+                lastDateFormatted = formatDate(lastDate);
+                getNote(firstDateFormatted, lastDateFormatted);
+              },
+              enventId: eventId,
+              startTime: startTime,
+              endTime: endTime,
+              eventColor: eventColor,
+              notes: notes,
+              enventName: eventName,
+            );
+          },
+        );
+      }
+    } else {
+      final Appointment tappedAppointment = details.appointments![0];
+      String eventId = tappedAppointment.id ?? '';
+      DateTime startTime = tappedAppointment.from;
+      DateTime endTime = tappedAppointment.to;
+      String? eventName = tappedAppointment.eventName;
+      Color eventColor = tappedAppointment.background;
+      bool isAllDay = tappedAppointment.isAllDay;
+      String? notes = tappedAppointment.notes;
+      num expectAmount = tappedAppointment.expectAmount!;
+      num actualAmount = tappedAppointment.actualAmount!;
+      int priority = tappedAppointment.priority;
+      print(tappedAppointment.background);
+      WidgetsBinding.instance!.addPostFrameCallback((_) {
+        if (expectAmount > 0) {
           showModalBottomSheet(
             context: context,
             builder: (context) {
@@ -228,9 +383,7 @@ class _HomePage extends State<HomePage> {
               );
             },
           );
-        });
-      } else {
-        WidgetsBinding.instance!.addPostFrameCallback((_) {
+        } else {
           showModalBottomSheet(
             context: context,
             builder: (context) {
@@ -249,9 +402,18 @@ class _HomePage extends State<HomePage> {
               );
             },
           );
-        });
-      }
+        }
+      });
     }
+  }
+  // }
+
+  List<Appointment> getEventsOnDate(DateTime date) {
+    return appointments.where((event) {
+      return event.from.year == date.year &&
+          event.from.month == date.month &&
+          event.from.day == date.day;
+    }).toList();
   }
   // Schedule the state update to occur after the current build cycle completes
 

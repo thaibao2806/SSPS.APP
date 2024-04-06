@@ -58,6 +58,7 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
   void initState() {
     super.initState();
     setState(() {
+      print(widget.moneyPlanId);
       title.text = widget.title;
       expectAmounts.text = widget.expectualAmount.toString();
       actualualAmount.text = widget.actualAmount.toString();
@@ -68,6 +69,7 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
               ? "Medium"
               : "Normal";
       dropdownValueCategory = widget.notes!;
+      _getMoneyPlanById ();
       _getCategory();
     });
   }
@@ -78,6 +80,14 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
     if (widget.notes != oldWidget.notes) {
       dropdownValueCategory = widget.notes!;
     }
+  }
+
+  _getMoneyPlanById () {
+    ApiService.getMoneyPlanById(widget.moneyPlanId).then((value) {
+      if(value.result) {
+        print(value.data);
+      }
+    });
   }
 
   _getCategory() {

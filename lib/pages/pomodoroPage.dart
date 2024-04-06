@@ -14,6 +14,7 @@ import 'package:ssps_app/widget/drawer_widget.dart';
 import 'package:ssps_app/widget/progress_icons.dart';
 import 'package:ssps_app/widget/custom_button.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:ssps_app/components/notification/local_notification.dart';
 
 class PomodoroPage extends StatefulWidget {
   PomodoroPage({Key? key}) : super(key: key);
@@ -60,6 +61,7 @@ class _PomodoroPage extends State<PomodoroPage> {
   void initState() {
     super.initState();
     _decodeToken();
+    
   }
 
   _decodeToken() async {
@@ -409,6 +411,10 @@ class _PomodoroPage extends State<PomodoroPage> {
         });
       } else {
         _playSound();
+        LocalNotifications.showSimpleNotification(
+                      title: "SSPS",
+                      body: "Pomodoro: time is up!",
+                      payload: "This is simple data");
         pomodoroNum++;
         _cancelTimer();
         if (pomodoroNum % pomodoroPerSet == 0) {
@@ -441,6 +447,10 @@ class _PomodoroPage extends State<PomodoroPage> {
         });
       } else {
         _playSound();
+        LocalNotifications.showSimpleNotification(
+                      title: "SSPS",
+                      body: "Pomodoro: time is up!",
+                      payload: "This is simple data");
         remainingTime = pomodoroTotalTime;
         _cancelTimer();
         pomodoroStatus = PomodoroStatus.pausePomodoro;
@@ -464,6 +474,10 @@ class _PomodoroPage extends State<PomodoroPage> {
         });
       } else {
         _playSound();
+        LocalNotifications.showSimpleNotification(
+                      title: "SSPS",
+                      body: "Pomodoro: time is up!",
+                      payload: "This is simple data");
         remainingTime = pomodoroTotalTime;
         _cancelTimer();
         pomodoroStatus = PomodoroStatus.setFinished;

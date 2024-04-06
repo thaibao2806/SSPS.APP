@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ssps_app/components/notification/local_notification.dart';
 import 'package:ssps_app/firebase_options.dart';
 import 'package:ssps_app/pages/homePage.dart';
 import 'package:ssps_app/pages/todolistPage.dart';
@@ -11,6 +12,7 @@ import 'package:ssps_app/pages/welcomPage.dart';
 import 'package:ssps_app/push_notification.dart';
 import 'package:ssps_app/service/shared_service.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:ssps_app/pages/pomodoroPage.dart';
 
 Widget _defaultHome = const WelcomePage();
 
@@ -33,6 +35,16 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  await LocalNotifications.init();
+
+  listenToNotifications() {
+    print("Listening to notification");
+    LocalNotifications.onClickNotification.stream.listen((event) {
+      print(event);
+      naviatorKey.currentState
+            ?.push(MaterialPageRoute(builder: (context) => PomodoroPage()));
+    });
+  }
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
     if (message.data['page'] != null) {
       String page = message.data['page'];
