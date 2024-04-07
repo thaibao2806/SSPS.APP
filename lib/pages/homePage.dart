@@ -477,8 +477,8 @@ class _HomePage extends State<HomePage> {
                         ),
                       ],
                     ),
-                    height: 80,
-                    width: 160,
+                    height: 100,
+                    width: 180,
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Column(
@@ -491,7 +491,7 @@ class _HomePage extends State<HomePage> {
                                 color: Color.fromARGB(255, 42, 43, 42)),
                           ),
                           Text(
-                            "${expectAmountTotal} $currencyUnit",
+                            "${expectAmountTotal.toStringAsFixed(2)} $currencyUnit",
                             style: TextStyle(
                                 fontSize: 18,
                                 color: Color.fromARGB(255, 81, 212, 85)),
@@ -516,8 +516,8 @@ class _HomePage extends State<HomePage> {
                       ],
                       color: Color.fromARGB(41, 229, 228, 228),
                     ),
-                    height: 80,
-                    width: 160,
+                    height: 100,
+                    width: 180,
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Column(
@@ -527,7 +527,7 @@ class _HomePage extends State<HomePage> {
                               style: TextStyle(
                                   fontSize: 16,
                                   color: Color.fromARGB(255, 42, 43, 42))),
-                          Text("${actualAmountTotal} $currencyUnit",
+                          Text("${actualAmountTotal.toStringAsFixed(2)} $currencyUnit",
                               style: TextStyle(
                                   fontSize: 18,
                                   color: Color.fromARGB(255, 81, 212, 85))),

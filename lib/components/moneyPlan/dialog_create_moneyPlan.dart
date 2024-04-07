@@ -132,27 +132,26 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
   }
 
   CreateMoneyPlanRequestModel _createMoneyPlanRequestModel() {
-  List<UsageMoneys> usageMoneys = [];
+    List<UsageMoneys> usageMoneys = [];
 
-  for (int i = 0; i < titleControllers.length; i++) {
-    UsageMoneys usageMoney = UsageMoneys(
-      name: titleControllers[i].text,
-      expectAmount: int.parse(expectControllers[i].text),
-      priority: 1,
-      categoryId: "10c91950-e888-40f3-a24c-3a7b9eb29109",
+    for (int i = 0; i < titleControllers.length; i++) {
+      UsageMoneys usageMoney = UsageMoneys(
+        name: titleControllers[i].text,
+        expectAmount: int.parse(expectControllers[i].text),
+        priority: 1,
+        categoryId: "10c91950-e888-40f3-a24c-3a7b9eb29109",
+      );
+      usageMoneys.add(usageMoney);
+    }
+
+    return CreateMoneyPlanRequestModel(
+      expectAmount: int.parse(expectAmounts.text),
+      currencyUnit: currencyUnit.text,
+      fromDate: _selectedFromDateTime.toString(),
+      toDate: _selectedToDateTime.toString(),
+      usageMoneys: usageMoneys,
     );
-    usageMoneys.add(usageMoney);
   }
-
-  return CreateMoneyPlanRequestModel(
-    expectAmount: int.parse(expectAmounts.text),
-    currencyUnit: currencyUnit.text,
-    fromDate: _selectedFromDateTime.toString(),
-    toDate: _selectedToDateTime.toString(),
-    usageMoneys: usageMoneys,
-  );
-}
-
 
   Future<void> _selectDate(BuildContext context, bool isFrom) async {
     final DateTime? picked = await showDatePicker(
@@ -373,14 +372,15 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
                         DateTime.parse(_selectedToDateTime.toString());
                     String formattedToDateTime =
                         DateFormat('yyyy-MM-ddTHH:mm:ss.SSSZ').format(toDate);
-                      
-                     CreateMoneyPlanRequestModel model = _createMoneyPlanRequestModel();
-                     ApiService.createMoneyPlan(model).then((value) {
+
+                    CreateMoneyPlanRequestModel model =
+                        _createMoneyPlanRequestModel();
+                    ApiService.createMoneyPlan(model).then((value) {
                       print(value.msgDesc);
-                        if(value.result) {
-                          print(value.msgDesc);
-                        }
-                     });
+                      if (value.result) {
+                        print(value.msgDesc);
+                      }
+                    });
                     // CreateNoteRequestModel model = CreateNoteRequestModel(
                     //     title: title.text,
                     //     description: description.text,

@@ -1,8 +1,7 @@
 import 'dart:convert';
 
-GetMoneyPlanByIdResponseModel getMoneyPlanIdResponseModelJson (String str) => 
-  GetMoneyPlanByIdResponseModel.fromJson(json.decode(str));
-
+GetMoneyPlanByIdResponseModel getMoneyPlanIdResponseModelJson(String str) =>
+    GetMoneyPlanByIdResponseModel.fromJson(json.decode(str));
 
 class GetMoneyPlanByIdResponseModel {
   GetMoneyPlanByIdResponseModel({
@@ -20,12 +19,13 @@ class GetMoneyPlanByIdResponseModel {
 
   GetMoneyPlanByIdResponseModel.fromJson(Map<String, dynamic> json) {
     result = json['result'] ?? false;
-    msgCode = json['msgCode'] ?? "" ;
+    msgCode = json['msgCode'] ?? "";
     msgDesc = json['msgDesc'] ?? "";
     data = json['data'] != null ? Data.fromJson(json['data']) : null;
-    paginationResult =json['paginationResult'] != null ? PaginationResult.fromJson(json['paginationResult']) : null;
+    paginationResult = json['paginationResult'] != null
+        ? PaginationResult.fromJson(json['paginationResult'])
+        : null;
   }
-  
 
   Map<String, dynamic> toJson() {
     final _data = <String, dynamic>{};
@@ -49,20 +49,22 @@ class Data {
   });
   late final String? id;
   late final String? status;
-  late final int expectAmount;
-  late final int actualAmount;
+  late final double expectAmount;
+  late final double actualAmount;
   late final String? currencyUnit;
   late final List<UsageMoneys> usageMoneys;
 
   Data.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     status = json['status'];
-    expectAmount = json['expectAmount'];
-    actualAmount = json['actualAmount'];
+    expectAmount = json['expectAmount']?.toDouble() ?? 0.0;
+    actualAmount = json['actualAmount']?.toDouble() ?? 0.0;
+
     currencyUnit = json['currencyUnit'];
     usageMoneys = (json['usageMoneys'] as List<dynamic>?)
-    ?.map((e) => UsageMoneys.fromJson(e))
-    .toList() ?? [];
+            ?.map((e) => UsageMoneys.fromJson(e))
+            .toList() ??
+        [];
   }
 
   Map<String, dynamic> toJson() {
@@ -86,15 +88,16 @@ class UsageMoneys {
     required this.categoryName,
   });
   late final String? name;
-  late final int expectAmount;
-  late final int actualAmount;
+  late final double expectAmount;
+  late final double actualAmount;
   late final int priority;
   late final String? categoryName;
 
   UsageMoneys.fromJson(Map<String, dynamic> json) {
     name = json['name'];
-    expectAmount = json['expectAmount'];
-    actualAmount = json['actualAmount'];
+    expectAmount = json['expectAmount']?.toDouble() ?? 0.0;
+    actualAmount = json['actualAmount']?.toDouble() ?? 0.0;
+
     priority = json['priority'];
     categoryName = json['categoryName'];
   }
