@@ -16,6 +16,8 @@ import 'package:ssps_app/models/moneyPlans/create_moneyPlan_response_model.dart'
 import 'package:ssps_app/models/moneyPlans/delete_moneyPlan_response_model.dart';
 import 'package:ssps_app/models/moneyPlans/get_moneyPlan_byId_response_model.dart';
 import 'package:ssps_app/models/moneyPlans/get_moneyPlan_response_model.dart';
+import 'package:ssps_app/models/moneyPlans/update_moneyPlan_request_model.dart';
+import 'package:ssps_app/models/moneyPlans/update_moneyPlan_response_model.dart';
 import 'package:ssps_app/models/moneyPlans/update_usageMoney_request_model.dart';
 import 'package:ssps_app/models/moneyPlans/update_usageMoney_response_model.dart';
 import 'package:ssps_app/models/notes/create_note_request_model.dart';
@@ -547,6 +549,7 @@ class ApiService {
     var response = await client.post(url,
         headers: requestHeaders, body: jsonEncode(model.toJson()));
     print(response);
+    print(jsonEncode(model.toJson()));
 
     if (response.statusCode == 200) {
       // Kiểm tra nếu response.body không rỗng
@@ -675,6 +678,37 @@ class ApiService {
       // Kiểm tra nếu response.body không rỗng
       if (response.body != null && response.body.isNotEmpty) {
         return getMoneyPlanIdResponseModelJson(response.body);
+      } else {
+        throw Exception('Empty or null response body');
+      }
+    } else {
+      // Xử lý lỗi HTTP tại đây
+      throw Exception('Failed to create categories: ${response.statusCode}');
+    }
+  }
+
+  static Future<UpdateMoneyPlanResponseModels> updateMoneyPlans(
+      UpdateMoneyPlanRequestModels model) async {
+    var token = (await SharedService.loginDetails());
+    Map<String, dynamic> decodedToken =
+        JwtDecoder.decode(token!.data!.accessToken);
+
+    Map<String, String> requestHeaders = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${token?.data?.accessToken}'
+    };
+
+    var url = Uri.http(Config.apiUrl, Config.updateMoneyPlan ) ;
+    print(url);
+
+    var response = await client.post(url, headers: requestHeaders, body: jsonEncode(model.toJson()));
+    print(response);
+    print(jsonEncode(model.toJson()));
+
+    if (response.statusCode == 200) {
+      // Kiểm tra nếu response.body không rỗng
+      if (response.body != null && response.body.isNotEmpty) {
+        return updateMoneyPlanResponseJson(response.body);
       } else {
         throw Exception('Empty or null response body');
       }

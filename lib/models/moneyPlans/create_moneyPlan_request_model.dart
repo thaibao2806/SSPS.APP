@@ -6,7 +6,7 @@ class CreateMoneyPlanRequestModel {
     required this.toDate,
     required this.usageMoneys,
   });
-  late final int expectAmount;
+  late final double? expectAmount;
   late final String? currencyUnit;
   late final String? fromDate;
   late final String? toDate;
@@ -39,7 +39,7 @@ class UsageMoneys {
     required this.categoryId,
   });
   late final String? name;
-  late final int expectAmount;
+  late final double? expectAmount;
   late final int priority;
   late final String? categoryId;
   

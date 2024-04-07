@@ -5,6 +5,7 @@ import 'package:ssps_app/models/categories/get_category_response_model.dart';
 import 'package:ssps_app/models/categories/get_category_response_model.dart'
     as categoryData;
 import 'package:ssps_app/models/moneyPlans/get_moneyPlan_byId_response_model.dart';
+import 'package:ssps_app/models/moneyPlans/update_moneyPlan_request_model.dart';
 import 'package:ssps_app/models/moneyPlans/update_usageMoney_request_model.dart';
 import 'package:ssps_app/models/moneyPlans/update_usageMoney_request_model.dart'
     as updateMoneyPlan;
@@ -70,19 +71,21 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
             Expanded(
               child: TextFormField(
                 controller: formData['field1'],
-                decoration: InputDecoration(labelText: 'Field 1'),
+                decoration: InputDecoration(labelText: 'Title'),
               ),
             ),
             Expanded(
               child: TextFormField(
                 controller: formData['field2'],
-                decoration: InputDecoration(labelText: 'Field 2'),
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(labelText: 'Expectual'),
               ),
             ),
             Expanded(
               child: TextFormField(
                 controller: formData['field3'],
-                decoration: InputDecoration(labelText: 'Field 3'),
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(labelText: 'Actual'),
               ),
             ),
             IconButton(
@@ -197,9 +200,9 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
 
     setState(() {
       print(widget.moneyPlanId);
-      title.text = widget.title;
-      expectAmounts.text = widget.expectualAmount.toString();
-      actualualAmount.text = widget.actualAmount.toString();
+      // title.text = widget.title;
+      // expectAmounts.text = widget.expectualAmount.toString();
+      // actualualAmount.text = widget.actualAmount.toString();
       selectedPriority = widget.priority;
       dropdownValue = widget.priority == 1
           ? "Highly"
@@ -224,6 +227,10 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
     ApiService.getMoneyPlanById(widget.moneyPlanId).then((value) {
       if (value.result) {
         setState(() {
+          num totalActual = 0;
+
+          expectAmounts.text = value.data!.expectAmount.toString();
+
           List<UsageMoneys> usageMoneys = value.data!.usageMoneys;
           for (int i = 0; i < usageMoneys.length; i++) {
             Map<String, TextEditingController> newRow = {
@@ -245,7 +252,8 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
                 (element) => element.name == item.categoryName,
                 // orElse: () => null,
               );
-              print(item.categoryName);
+              print(item.actualAmount);
+              totalActual += item.actualAmount;
               if (category != null) {
                 dropdownValues[i].value = category.id! ?? initialDropdownValue;
               }
@@ -257,6 +265,8 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
                     : "Normal";
             // dropdownValues[i].value = category.id!;
           }
+          actualualAmount.text = totalActual.toString();
+
         });
       }
     });
@@ -518,26 +528,62 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
                   // }
                   // ;
                   List<Map<String, dynamic>> data = [];
+                  List<Usages> usages = [];
 
                   // Lặp qua danh sách các dòng form để tạo đối tượng từ dữ liệu nhập
                   for (Map<String, TextEditingController> formData
                       in formDataList) {
                     // Tạo đối tượng từ dữ liệu nhập của mỗi dòng form
-                    Map<String, dynamic> formDataObject = {
-                      'name': formData['field1']?.text,
-                      'expectAmount': formData['field2']?.text,
-                      'actualAmount': formData['field3']?.text,
-                      'priority':
-                          dropdownValues2[formDataList.indexOf(formData)].value,
-                      'categoryId':
+                    Usages usage = Usages(
+                      name: formData['field1']?.text ?? '',
+                      expectAmount:
+                          double.tryParse(formData['field2']?.text ?? '0'),
+                      actualAmount:
+                          double.tryParse(formData['field3']?.text ?? '0'),
+                      priority: dropdownValues2[formDataList.indexOf(formData)]
+                                  .value ==
+                              "Highly"
+                          ? 1
+                          : dropdownValues2[formDataList.indexOf(formData)]
+                                      .value ==
+                                  "Medium"
+                              ? 2
+                              : 3,
+                      categoryId:
                           dropdownValues[formDataList.indexOf(formData)].value,
-                    };
-                    // Thêm đối tượng vào danh sách chứa dữ liệu
-                    data.add(formDataObject);
+                    );
+
+                    // Thêm đối tượng Usages vào danh sách chứa dữ liệu
+                    usages.add(usage);
                   }
+                  double? expectedAmounts = double.tryParse(expectAmounts.text);
+                  double? actualAmounts = double.tryParse(actualualAmount.text);
+
+                  UpdateMoneyPlanRequestModels model =
+                      UpdateMoneyPlanRequestModels(
+                    id: widget.moneyPlanId,
+                    status:
+                        "null", // Bạn có thể gán giá trị cho trường này nếu cần
+                    expectAmount: expectedAmounts,
+                    actualAmount: actualAmounts,
+                    day: _selectedFromDateTime?.day ?? 0,
+                    month: _selectedFromDateTime?.month ?? 0,
+                    year: _selectedFromDateTime?.year ?? 0,
+                    usages: usages,
+                  );
+
+                  print(usages);
+                  ApiService.updateMoneyPlans(model).then((value) {
+                    if (value.result) {
+                      widget.getMoneyPla();
+                      widget.getNote();
+                      Navigator.of(context).pop();
+                    }
+                  });
+
+                  // UpdateMoneyPlanRequestModels model = UpdateMoneyPlanRequestModels(id: widget.moneyPlanId, status: null, expectAmount: expectedAmounts, actualAmount: actualAmounts, day: day, month: month, year: year, usages: usages);
 
                   // data bây giờ là một mảng các đối tượng có cấu trúc như bạn mong muốn
-                  print(data);
                 },
                 child: Text(
                   'Save',

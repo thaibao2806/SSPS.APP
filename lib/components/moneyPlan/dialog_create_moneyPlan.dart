@@ -28,7 +28,6 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
   TextEditingController expectAmountsController = TextEditingController();
   List<TextEditingController> titleControllers = [];
   List<TextEditingController> expectControllers = [];
-  List<String?> dropdownValues = [];
   List<GlobalKey> keys = []; // Danh sách các key cho mỗi dòng
   List<Widget> rows = [];
   List<String?> selectedValues = [];
@@ -40,13 +39,23 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
   int selectedPriority = 1;
   String dropdownValueCategory = 'Food & Beverage';
   List<Data> dataCategories = [];
+  List<Map<String, TextEditingController>> formDataList = [];
+  List<Widget> formRows = [];
+  List<ValueNotifier<String>> dropdownValues = [];
+  List<ValueNotifier<String>> dropdownValues2 = [];
+  List<String> dropdownItems = [];
+  String initialDropdownValue = '';
 
   @override
   void initState() {
     super.initState();
     // Thêm một dòng ban đầu
-    _addCustomRow();
     _getCategory();
+    // dropdownValues.add(ValueNotifier(initialDropdownValue));
+
+    // _addFormRow();
+
+    // _buildFormRow();
   }
 
   _getCategory() {
@@ -54,103 +63,137 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
       setState(() {
         if (response.result) {
           dataCategories = response.data;
+          Data category = dataCategories.firstWhere(
+            (element) => element.name == dropdownValueCategory,
+            // orElse: () => null,
+          );
+          dropdownItems =
+              dataCategories.map((category) => category.name ?? "").toList();
+          // Nếu cần, có thể gán giá trị mặc định cho dropdownValueCategory
+          dropdownValueCategory =
+              dropdownItems.isNotEmpty ? dropdownItems.first : "";
+          // Nếu category khác null, gán idCategory bằng id của category
+          // if (category != null) {
+          //   idCategory = category.id;
+          // }
+          initialDropdownValue =
+              dataCategories.isNotEmpty ? dataCategories.first.id ?? '' : '';
+          _addFormRow();
         }
       });
     });
   }
 
-  void _addCustomRow() {
-    TextEditingController titleController = TextEditingController();
-    TextEditingController expectController = TextEditingController();
-    String selectedValue = "Normal";
-
-    titleControllers.add(titleController);
-    expectControllers.add(expectController);
-    selectedValues.add(selectedValue);
-    dropdownValues.add("Normal");
-
-    GlobalKey key = GlobalKey();
-    keys.add(key);
-
-    setState(() {
-      rows.add(
-        Column(
+  Widget _buildFormRow(Map<String, TextEditingController> formData, int index) {
+    return Column(
+      children: [
+        Row(
           children: [
-            Row(
-              key: key,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: TextField(
-                      controller: titleController,
-                      decoration: InputDecoration(
-                        labelText: 'Title',
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: TextField(
-                      controller: expectController,
-                      decoration: InputDecoration(
-                        labelText: 'Expect',
-                      ),
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.delete),
-                  onPressed: () {
-                    _removeCustomRow(key); // Truyền key vào hàm xoá
-                  },
-                ),
-              ],
+            Expanded(
+              child: TextFormField(
+                controller: formData['field1'],
+                decoration: InputDecoration(labelText: 'Title'),
+              ),
+            ),
+            Expanded(
+              child: TextFormField(
+                controller: formData['field2'],
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(labelText: 'Expectual'),
+              ),
+            ),
+            IconButton(
+              icon: Icon(Icons.delete),
+              onPressed: () {
+                setState(() {
+                  formDataList.removeAt(index);
+                  formRows.removeAt(index);
+                  dropdownValues.removeAt(index);
+                  dropdownValues2.removeAt(index);
+                });
+              },
             ),
           ],
         ),
-      );
+        Row(
+          children: [
+            Expanded(
+              child: ValueListenableBuilder<String>(
+                valueListenable: dropdownValues[index],
+                builder: (context, value, child) {
+                  return DropdownButton<String>(
+                    value: value,
+                    onChanged: (newValue) {
+                      dropdownValues[index].value = newValue!;
+                      print(newValue);
+                    },
+                    items: dataCategories.map<DropdownMenuItem<String>>(
+                      (category) {
+                        return DropdownMenuItem<String>(
+                          value: category
+                              .id, // Sử dụng id của category làm giá trị
+                          child: Text(category.name!),
+                        );
+                      },
+                    ).toList(),
+                  );
+                },
+              ),
+            ),
+            Expanded(
+              child: ValueListenableBuilder<String>(
+                valueListenable: dropdownValues2[index],
+                builder: (context, value, child) {
+                  return DropdownButton<String>(
+                    value: value,
+                    onChanged: (newValue) {
+                      dropdownValues2[index].value = newValue!;
+                    },
+                    items: [
+                      'Highly',
+                      'Medium',
+                      'Normal',
+                    ].map<DropdownMenuItem<String>>(
+                      (value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      },
+                    ).toList(),
+                  );
+                },
+              ),
+            ),
+          ],
+        )
+      ],
+    );
+  }
+
+  void _addFormRow() {
+    setState(() {
+      Map<String, TextEditingController> newRow = {
+        'field1': TextEditingController(),
+        'field2': TextEditingController(),
+      };
+      dropdownValues.add(ValueNotifier(initialDropdownValue));
+      dropdownValues2.add(ValueNotifier('Highly'));
+      formDataList.add(newRow);
+      formRows.add(_buildFormRow(newRow,
+          formRows.length)); // Thêm Widget của dòng form vào danh sách formRows
     });
   }
 
-// Thêm hàm _removeCustomRow để xoá dòng chính xác
-  void _removeCustomRow(GlobalKey key) {
-    int index = keys.indexOf(key);
-    if (index != -1) {
-      setState(() {
-        titleControllers.removeAt(index);
-        expectControllers.removeAt(index);
-        dropdownValues.removeAt(index);
-        keys.removeAt(index);
-        rows.removeAt(index);
-        selectedValues.removeAt(index);
-      });
+  @override
+  void dispose() {
+    // Clean up the TextEditingController instances
+    for (var formData in formDataList) {
+      for (var controller in formData.values) {
+        controller.dispose();
+      }
     }
-  }
-
-  CreateMoneyPlanRequestModel _createMoneyPlanRequestModel() {
-    List<UsageMoneys> usageMoneys = [];
-
-    for (int i = 0; i < titleControllers.length; i++) {
-      UsageMoneys usageMoney = UsageMoneys(
-        name: titleControllers[i].text,
-        expectAmount: int.parse(expectControllers[i].text),
-        priority: 1,
-        categoryId: "10c91950-e888-40f3-a24c-3a7b9eb29109",
-      );
-      usageMoneys.add(usageMoney);
-    }
-
-    return CreateMoneyPlanRequestModel(
-      expectAmount: int.parse(expectAmounts.text),
-      currencyUnit: currencyUnit.text,
-      fromDate: _selectedFromDateTime.toString(),
-      toDate: _selectedToDateTime.toString(),
-      usageMoneys: usageMoneys,
-    );
+    super.dispose();
   }
 
   Future<void> _selectDate(BuildContext context, bool isFrom) async {
@@ -240,6 +283,7 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
                       padding: const EdgeInsets.only(right: 8.0),
                       child: TextField(
                         controller: expectAmounts,
+                        keyboardType: TextInputType.number,
                         decoration: InputDecoration(
                           labelText: 'ExpectAmount',
                         ),
@@ -317,34 +361,14 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
                   Text("Plan Details"),
                   IconButton(
                       onPressed: () {
-                        _addCustomRow();
+                        _addFormRow();
                       },
                       icon: Icon(Icons.add)),
-                  DropdownButton<Data>(
-                    value: dataCategories.isNotEmpty
-                        ? dataCategories.firstWhere(
-                            (element) => element.name == dropdownValueCategory,
-                            orElse: () => dataCategories.first)
-                        : null,
-                    hint: Text('Category'),
-                    onChanged: (Data? newValue) {
-                      setState(() {
-                        print(newValue?.name ?? 'null');
-                        dropdownValueCategory = newValue?.name ?? '';
-                        // idCategory = newValue?.id ?? '';
-                      });
-                    },
-                    items: dataCategories
-                        .map<DropdownMenuItem<Data>>((Data category) {
-                      return DropdownMenuItem<Data>(
-                        value: category,
-                        child: Text(category.name!),
-                      );
-                    }).toList(),
-                  ),
                 ],
               ),
-              Column(children: rows),
+              Column(
+                children: formRows,
+              ),
               SizedBox(
                 height: 10,
               ),
@@ -372,13 +396,42 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
                         DateTime.parse(_selectedToDateTime.toString());
                     String formattedToDateTime =
                         DateFormat('yyyy-MM-ddTHH:mm:ss.SSSZ').format(toDate);
+                    List<Map<String, dynamic>> data = [];
+                    List<UsageMoneys> usageMoneys = [];
+                    for (Map<String, TextEditingController> formData
+                        in formDataList) {
+                      UsageMoneys usageMoney = UsageMoneys(
+                          name: formData['field1']?.text ?? '',
+                          expectAmount:
+                              double.tryParse(formData['field2']?.text ?? '0'),
+                          priority: dropdownValues2[
+                                          formDataList.indexOf(formData)]
+                                      .value ==
+                                  "Highly"
+                              ? 1
+                              : dropdownValues2[formDataList.indexOf(formData)]
+                                          .value ==
+                                      "Medium"
+                                  ? 2
+                                  : 3,
+                          categoryId:
+                              dropdownValues[formDataList.indexOf(formData)]
+                                  .value);
+                      usageMoneys.add(usageMoney);
+                    }
 
-                    CreateMoneyPlanRequestModel model =
-                        _createMoneyPlanRequestModel();
+                    print(usageMoneys);
+                    double? expectedAmounts = double.tryParse(expectAmounts.text);
+
+                    CreateMoneyPlanRequestModel model = CreateMoneyPlanRequestModel(currencyUnit: currencyUnit.text, expectAmount: expectedAmounts, fromDate: formattedFromDateTime, toDate: formattedToDateTime, usageMoneys: usageMoneys);
+                    // CreateMoneyPlanRequestModel model =
+                    //     _createMoneyPlanRequestModel();
                     ApiService.createMoneyPlan(model).then((value) {
-                      print(value.msgDesc);
+                      print(value.result);
                       if (value.result) {
-                        print(value.msgDesc);
+                        // print(value.msgDesc);
+                        widget.getNote();
+                         Navigator.of(context).pop();
                       }
                     });
                     // CreateNoteRequestModel model = CreateNoteRequestModel(

@@ -364,6 +364,8 @@ class _HomePage extends State<HomePage> {
             builder: (context) {
               return UpdateMoneyPlan(
                 getNote: () async {
+                  actualAmountTotal = 0;
+                  expectAmountTotal = 0;
                   firstDateFormatted = formatDate(firstDate);
                   lastDateFormatted = formatDate(lastDate);
                   await getMoneyPlan(firstDateFormatted, lastDateFormatted);
@@ -527,7 +529,8 @@ class _HomePage extends State<HomePage> {
                               style: TextStyle(
                                   fontSize: 16,
                                   color: Color.fromARGB(255, 42, 43, 42))),
-                          Text("${actualAmountTotal.toStringAsFixed(2)} $currencyUnit",
+                          Text(
+                              "${actualAmountTotal.toStringAsFixed(2)} $currencyUnit",
                               style: TextStyle(
                                   fontSize: 18,
                                   color: Color.fromARGB(255, 81, 212, 85))),
@@ -696,9 +699,14 @@ class _HomePage extends State<HomePage> {
                       isScrollControlled: true,
                       context: context,
                       builder: (BuildContext context) {
-                        return CreateMoneyPlan(getNote: () {
+                        return CreateMoneyPlan(getNote: () async {
                           firstDateFormatted = formatDate(firstDate);
                           lastDateFormatted = formatDate(lastDate);
+
+                          actualAmountTotal = 0;
+                          expectAmountTotal = 0;
+                          await getMoneyPlan(
+                              firstDateFormatted, lastDateFormatted);
                           getNote(firstDateFormatted, lastDateFormatted);
                         });
                       },
