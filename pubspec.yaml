@@ -78,6 +78,9 @@ flutter:
     - assets/images/home.jpg
     - assets/images/signup.png
     - assets/images/forgot-password.png
+    - assets/images/tien-bac.jpg
+    - assets/images/expectual.jpg
+    - assets/images/tien.jpg
     - assets/audio/audio.mp3
 
   # To add assets to your application, add an assets section, like this:

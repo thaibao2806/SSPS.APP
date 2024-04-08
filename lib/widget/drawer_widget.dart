@@ -12,11 +12,12 @@ Widget MyDrawerList(BuildContext context) {
     padding: EdgeInsets.only(top: 0.0),
     child: Column(
       children: [
-        menuItem(context, 1, "Home", Icons.home_outlined, true, HomePage()),
+        menuItem(context, 1, "Home", Icons.home_outlined, true, ReportPage()),
+        menuItem(context, 2, "Money plan", Icons.calendar_month, false,
+            HomePage()),
         menuItem(
-            context, 2, "Todo", Icons.task_outlined, false, TodolistPage()),
-        menuItem(context, 3, "Report", Icons.bar_chart_outlined, false,
-            ReportPage()),
+            context, 3, "Todo", Icons.task_outlined, false, TodolistPage()),
+        
         menuItem(context, 4, "Pomodoro", Icons.punch_clock_outlined, false,
             PomodoroPage()),
         menuItem(

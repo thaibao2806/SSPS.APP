@@ -428,7 +428,7 @@ class _HomePage extends State<HomePage> {
         elevation: 0,
         centerTitle: true,
         title: const Text(
-          "Home",
+          "Money Plan",
           style: TextStyle(color: Colors.white),
         ),
         // leading: IconButton(onPressed: () {}, icon: const Icon(Icons.menu)),

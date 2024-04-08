@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:ssps_app/components/notification/local_notification.dart';
 import 'package:ssps_app/firebase_options.dart';
 import 'package:ssps_app/pages/homePage.dart';
+import 'package:ssps_app/pages/reportPage.dart';
 import 'package:ssps_app/pages/todolistPage.dart';
 import 'package:ssps_app/pages/welcomPage.dart';
 import 'package:ssps_app/push_notification.dart';
@@ -81,7 +82,7 @@ void main() async {
   bool _result = await SharedService.isLoggedIn();
   if (_result) {
     print(_result);
-    _defaultHome = HomePage();
+    _defaultHome = ReportPage();
   }
   runApp(const MyApp());
 }
