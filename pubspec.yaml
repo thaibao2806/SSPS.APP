@@ -81,6 +81,7 @@ flutter:
     - assets/images/tien-bac.jpg
     - assets/images/expectual.jpg
     - assets/images/tien.jpg
+    - assets/images/ai.jpg
     - assets/audio/audio.mp3
 
   # To add assets to your application, add an assets section, like this:

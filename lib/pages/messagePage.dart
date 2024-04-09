@@ -19,7 +19,47 @@ class _MessengerPageState extends State<MessengerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Messenger'),
+        backgroundColor: Color(0xff3498DB),
+        title: Row(
+          children: [
+            Stack(
+              children: [
+                 CircleAvatar(
+                  backgroundImage:
+                      AssetImage('assets/images/ai.jpg'),
+                  radius: 20,
+                ),
+                Positioned(
+                  bottom: 0,
+                  right: 1,
+                  child: Container(
+                    width: 12,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: Colors.green,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(width: 10),
+            const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Assistant AI',
+                  style: TextStyle(color: Colors.white),
+                ),
+                Text(
+                  'Active now',
+                  style: TextStyle(color: Colors.white, fontSize: 12),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
       body: Column(
         children: [
@@ -30,9 +70,11 @@ class _MessengerPageState extends State<MessengerPage> {
                 final message = _messages[index];
                 final isSentByMe = message['sender'] == 'me';
                 return Align(
-                  alignment: isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
+                  alignment:
+                      isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
                   child: Container(
-                    margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+                    margin:
+                        EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
                     padding: EdgeInsets.all(12.0),
                     decoration: BoxDecoration(
                       color: isSentByMe ? Colors.blue : Colors.grey,
@@ -48,25 +90,43 @@ class _MessengerPageState extends State<MessengerPage> {
             ),
           ),
           Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _textController,
-                    decoration: InputDecoration(
-                      hintText: 'Type a message...',
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Color.fromARGB(223, 241, 240, 234),
+                borderRadius: BorderRadius.circular(20),
+                // border: Border.all(
+                //   color: Colors.black, width: 1, style: BorderStyle.solid, strokeAlign: BorderSide.strokeAlignCenter
+                // )
+              ),
+
+              child: Padding(
+                padding: EdgeInsets.only(
+                  top: 8, bottom: 8, left: 15, right: 15
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _textController,
+                        decoration: InputDecoration(
+                          hintText: 'Type a message...',
+                        ),
+                      ),
                     ),
-                  ),
+                    SizedBox(width: 15.0),
+                    GestureDetector(
+                      onTap: () {
+                        _sendMessage();
+                      },
+                      child: Icon(
+                        Icons.send,
+                        color: Colors.blue,
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(width: 8.0),
-                FloatingActionButton(
-                  onPressed: () {
-                    _sendMessage();
-                  },
-                  child: Icon(Icons.send),
-                ),
-              ],
+              ),
             ),
           ),
         ],
