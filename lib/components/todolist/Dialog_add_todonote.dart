@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:intl/intl.dart';
 import 'package:ssps_app/models/todolist/create_todo_note_request_model.dart';
-import 'package:ssps_app/models/todolist/create_todo_note_request_model.dart' as TodoNote;
+import 'package:ssps_app/models/todolist/create_todo_note_request_model.dart'
+    as TodoNote;
 import 'package:ssps_app/service/api_service.dart';
-
 
 class CustomDialog extends StatefulWidget {
   final Function() onDeleteSuccess;
@@ -22,8 +22,8 @@ class _CustomDialogState extends State<CustomDialog> {
   late DateTime _endDate;
   late Color _selectedColor;
   final DateFormat _dateFormat = DateFormat('yyyy-MM-ddTHH:mm:ss.SSSZ');
-  final DateFormat _dateFormats = DateFormat('dd-mm-yyyy');
-  
+  final DateFormat _dateFormats = DateFormat('dd, MMM, yyyy');
+
   // Biến để lưu trữ giá trị trước khi mở hộp thoại màu
   late String _savedTitle;
   late String _savedStartTime;
@@ -47,15 +47,15 @@ class _CustomDialogState extends State<CustomDialog> {
   }
 
   final title = TextEditingController();
-    final startTimeController = TextEditingController();
-    final startDayController = TextEditingController();
-    final endTimeController = TextEditingController();
-    final endDayController = TextEditingController();
+  final startTimeController = TextEditingController();
+  final startDayController = TextEditingController();
+  final endTimeController = TextEditingController();
+  final endDayController = TextEditingController();
+  final StartController = TextEditingController();
+  final EndController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    
-    
     return AlertDialog(
       title: Text('Add column'),
       content: Column(
@@ -68,7 +68,7 @@ class _CustomDialogState extends State<CustomDialog> {
             ),
           ),
           TextField(
-            controller: startTimeController,
+            controller: StartController,
             decoration: InputDecoration(labelText: 'Start Time'),
             onTap: () async {
               final DateTime? pickedDateTime = await showDatePicker(
@@ -79,12 +79,25 @@ class _CustomDialogState extends State<CustomDialog> {
               );
 
               if (pickedDateTime != null) {
-                startTimeController.text = _dateFormat.format(DateTime(pickedDateTime.year, pickedDateTime.month, pickedDateTime.day , 1, 1, 59));
+                StartController.text = _dateFormats.format(DateTime(
+                    pickedDateTime.year,
+                    pickedDateTime.month,
+                    pickedDateTime.day,
+                    1,
+                    1,
+                    59));
+                startTimeController.text = _dateFormat.format(DateTime(
+                    pickedDateTime.year,
+                    pickedDateTime.month,
+                    pickedDateTime.day,
+                    1,
+                    1,
+                    59));
               }
             },
           ),
           TextField(
-            controller: endTimeController,
+            controller: EndController,
             decoration: InputDecoration(labelText: 'End Time'),
             onTap: () async {
               final DateTime? pickedDateTime = await showDatePicker(
@@ -95,7 +108,20 @@ class _CustomDialogState extends State<CustomDialog> {
               );
 
               if (pickedDateTime != null) {
-                endTimeController.text = _dateFormat.format(DateTime(pickedDateTime.year, pickedDateTime.month, pickedDateTime.day, 23, 59, 59));
+                EndController.text = _dateFormats.format(DateTime(
+                    pickedDateTime.year,
+                    pickedDateTime.month,
+                    pickedDateTime.day,
+                    23,
+                    59,
+                    59));
+                endTimeController.text = _dateFormat.format(DateTime(
+                    pickedDateTime.year,
+                    pickedDateTime.month,
+                    pickedDateTime.day,
+                    23,
+                    59,
+                    59));
               }
             },
           ),
@@ -114,8 +140,11 @@ class _CustomDialogState extends State<CustomDialog> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.square, color: _selectedColor, size: 35,),
-
+                  Icon(
+                    Icons.square,
+                    color: _selectedColor,
+                    size: 35,
+                  ),
                   Container(
                     padding: EdgeInsets.only(left: 10),
                     child: Center(
@@ -149,35 +178,71 @@ class _CustomDialogState extends State<CustomDialog> {
             primary: Colors.blue[300],
           ),
           onPressed: () {
-            if(title.text.isEmpty || startTimeController.text.isEmpty || endTimeController.text.isEmpty) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Please enter title, start time and end time.'),
-                            ),
-                          );
+            if (title.text.isEmpty ||
+                startTimeController.text.isEmpty ||
+                endTimeController.text.isEmpty) {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('Notification'),
+                    content: Text('Please enter complete information'),
+                    actions: <Widget>[
+                      TextButton(
+                        child: Text('OK'),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+              return;
             } else {
               DateTime startDate = _dateFormat.parse(startTimeController.text);
               DateTime endDate = _dateFormat.parse(endTimeController.text);
-              if(startDate.isBefore(endDate)) {
+              if (startDate.isBefore(endDate)) {
                 // Thực hiện tạo mới card ở đây
-                Cards newCard = Cards(title: '', description: '',);
-                CreateTodoNoteRequestModel model = CreateTodoNoteRequestModel(title: title.text, fromDate: startTimeController.text.toString(), toDate: endTimeController.text.toString(), color: colorToString(_selectedColor), cards: []);
+                Cards newCard = Cards(
+                  title: '',
+                  description: '',
+                );
+                CreateTodoNoteRequestModel model = CreateTodoNoteRequestModel(
+                    title: title.text,
+                    fromDate: startTimeController.text.toString(),
+                    toDate: endTimeController.text.toString(),
+                    color: colorToString(_selectedColor),
+                    cards: []);
                 ApiService.createTodoNote(model).then((response) => {
-                  if(response.result) {
-                    widget.onDeleteSuccess(),
-                    Navigator.of(context).pop(),
-                  }
-                });
+                      if (response.result)
+                        {
+                          widget.onDeleteSuccess(),
+                          Navigator.of(context).pop(),
+                        }
+                    });
               } else {
                 // Hiển thị thông báo nếu ngày bắt đầu không trước ngày kết thúc
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Start date must be before end date.'),
-                  ),
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text('Notification'),
+                      content: Text('Start date must be before end date.'),
+                      actions: <Widget>[
+                        TextButton(
+                          child: Text('OK'),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ],
+                    );
+                  },
                 );
+                return;
               }
             }
-            
           },
           child: Text('Save', style: TextStyle(color: Colors.white)),
         ),

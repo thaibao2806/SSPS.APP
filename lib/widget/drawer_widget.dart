@@ -13,7 +13,7 @@ Widget MyDrawerList(BuildContext context) {
     child: Column(
       children: [
         menuItem(context, 1, "Home", Icons.home_outlined, true, ReportPage()),
-        menuItem(context, 2, "Money plan", Icons.calendar_month, false,
+        menuItem(context, 2, "Expense management", Icons.calendar_month, false,
             HomePage()),
         menuItem(
             context, 3, "Todo", Icons.task_outlined, false, TodolistPage()),

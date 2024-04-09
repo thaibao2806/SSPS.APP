@@ -62,6 +62,8 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
   List<ValueNotifier<String>> dropdownValues2 = [];
   List<String> dropdownItems = [];
   String initialDropdownValue = '';
+          num totalActual = 0;
+
 
   Widget _buildFormRow(Map<String, TextEditingController> formData, int index) {
     return Column(
@@ -74,6 +76,7 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
                 decoration: InputDecoration(labelText: 'Title'),
               ),
             ),
+            SizedBox(width: 15,),
             Expanded(
               child: TextFormField(
                 controller: formData['field2'],
@@ -81,6 +84,7 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
                 decoration: InputDecoration(labelText: 'Expectual'),
               ),
             ),
+            SizedBox(width: 15,),
             Expanded(
               child: TextFormField(
                 controller: formData['field3'],
@@ -89,7 +93,7 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
               ),
             ),
             IconButton(
-              icon: Icon(Icons.delete),
+              icon: Icon(Icons.delete, color: Colors.red[400],),
               onPressed: () {
                 setState(() {
                   formDataList.removeAt(index);
@@ -126,6 +130,7 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
                 },
               ),
             ),
+            SizedBox(width: 25,),
             Expanded(
               child: ValueListenableBuilder<String>(
                 valueListenable: dropdownValues2[index],
@@ -151,6 +156,8 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
                 },
               ),
             ),
+            SizedBox(width: 25,),
+
           ],
         )
       ],
@@ -227,9 +234,9 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
     ApiService.getMoneyPlanById(widget.moneyPlanId).then((value) {
       if (value.result) {
         setState(() {
-          num totalActual = 0;
 
           expectAmounts.text = value.data!.expectAmount.toString();
+          actualualAmount.text = value.data!.actualAmount.toString();
 
           List<UsageMoneys> usageMoneys = value.data!.usageMoneys;
           for (int i = 0; i < usageMoneys.length; i++) {
@@ -253,7 +260,7 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
                 // orElse: () => null,
               );
               print(item.actualAmount);
-              totalActual += item.actualAmount;
+              // totalActual += item.actualAmount;
               if (category != null) {
                 dropdownValues[i].value = category.id! ?? initialDropdownValue;
               }
@@ -265,8 +272,7 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
                     : "Normal";
             // dropdownValues[i].value = category.id!;
           }
-          actualualAmount.text = totalActual.toString();
-
+          // actualualAmount.text = totalActual.toString();
         });
       }
     });
@@ -340,193 +346,75 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
               ),
               SizedBox(height: 10),
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                Text("Plan details: "),
+                Text("Plan details: ", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
                 IconButton(
                     onPressed: () {
                       // _addCustomRow();
                       _addFormRow();
                     },
-                    icon: Icon(Icons.add)),
+                    icon: Icon(Icons.add, size: 30,)),
               ]),
               Column(
                 children: formRows,
               ),
               SizedBox(height: 10),
-              Column(
-                children: [
-                  // Expanded(
-                  //   child: Padding(
-                  //     padding: const EdgeInsets.only(right: 8.0),
-                  //     child: TextField(
-                  //       controller: title,
-                  //       decoration: InputDecoration(
-                  //         labelText: 'Title',
-                  //       ),
-                  //     ),
-                  //   ),
-                  // ),
-                  // Row(children: [
-                  //   Expanded(
-                  //     child: Padding(
-                  //       padding: const EdgeInsets.only(right: 8.0),
-                  //       child: TextField(
-                  //         controller: title,
-                  //         decoration: InputDecoration(
-                  //           labelText: 'Title',
-                  //         ),
-                  //       ),
-                  //     ),
-                  //   ),
-                  //   Expanded(
-                  //     child: Padding(
-                  //       padding: const EdgeInsets.only(right: 8.0),
-                  //       child: TextField(
-                  //         controller: title,
-                  //         decoration: InputDecoration(
-                  //           labelText: 'Title',
-                  //         ),
-                  //       ),
-                  //     ),
-                  //   ),
-                  // ]),
-                  // Row(
-                  //   // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
-                  //   children: [
-                  //     Container(
-                  //       decoration: const BoxDecoration(
-                  //         borderRadius: BorderRadius.only(
-                  //             topLeft: Radius.circular(10),
-                  //             topRight: Radius.circular(10),
-                  //             bottomLeft: Radius.circular(10),
-                  //             bottomRight: Radius.circular(10)),
-
-                  //         // color: Color.fromARGB(41, 229, 228, 228),
-                  //       ),
-                  //       child: DropdownButton<categoryData.Data>(
-                  //         value: categories.isNotEmpty
-                  //             ? categories.firstWhere(
-                  //                 (element) =>
-                  //                     element.name == dropdownValueCategory,
-                  //                 orElse: () => categories.first)
-                  //             : null,
-                  //         hint: Text('Category'),
-                  //         onChanged: (categoryData.Data? newValue) {
-                  //           setState(() {
-                  //             print(newValue?.name ?? 'null');
-                  //             dropdownValueCategory = newValue?.name ?? '';
-                  //             idCategory = newValue?.id ?? '';
-                  //           });
-                  //         },
-                  //         items: categories
-                  //             .map<DropdownMenuItem<categoryData.Data>>(
-                  //                 (categoryData.Data category) {
-                  //           return DropdownMenuItem<categoryData.Data>(
-                  //             value: category,
-                  //             child: Text(category.name!),
-                  //           );
-                  //         }).toList(),
-                  //       ),
-                  //     ),
-                  //     Container(
-                  //       padding: EdgeInsets.only(left: 10),
-                  //       margin: EdgeInsets.only(left: 40),
-                  //       decoration: const BoxDecoration(
-                  //         borderRadius: BorderRadius.only(
-                  //             topLeft: Radius.circular(10),
-                  //             topRight: Radius.circular(10),
-                  //             bottomLeft: Radius.circular(10),
-                  //             bottomRight: Radius.circular(10)),
-                  //         // boxShadow: [
-                  //         //   BoxShadow(
-                  //         //     color: Color.fromARGB(135, 223, 222, 222),
-                  //         //     spreadRadius: 1,
-                  //         //     blurRadius: 1,
-                  //         //     offset: Offset(0, 3),
-                  //         //   ),
-                  //         // ],
-                  //         // color: Color.fromARGB(41, 229, 228, 228),
-                  //       ),
-                  //       child: DropdownButton<String>(
-                  //         value: dropdownValue,
-                  //         onChanged: (String? newValue) {
-                  //           setState(() {
-                  //             print(priorityMap[newValue!]!);
-                  //             dropdownValue = newValue!;
-                  //             selectedPriority = priorityMap[newValue!]!;
-                  //           });
-                  //         },
-                  //         items: priorityMap.keys.map((String value) {
-                  //           return DropdownMenuItem<String>(
-                  //             value: value,
-                  //             child: Text(value),
-                  //           );
-                  //         }).toList(),
-                  //       ),
-                  //     ),
-                  //   ],
-                  // ),
-                ],
-              ),
+              
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   primary: Colors.blue[300],
                   minimumSize: Size(double.infinity, 50),
+                  textStyle: TextStyle(fontSize: 20)
                 ),
                 onPressed: () {
-                  // if (expectAmounts.text.isEmpty || title.text.isEmpty) {
-                  //   ScaffoldMessenger.of(context).showSnackBar(
-                  //     const SnackBar(
-                  //       content: Text('Please enter title.'),
-                  //     ),
-                  //   );
-                  // } else {
-                  //   double? expectedAmounts =
-                  //       double.tryParse(expectAmounts.text);
-                  //   double? actualAmounts =
-                  //       double.tryParse(actualualAmount.text);
+                  if (expectAmounts.text.isEmpty ||
+                      actualualAmount.text.isEmpty) {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('Notification'),
+                          content: Text('Please enter complete information'),
+                          actions: <Widget>[
+                            TextButton(
+                              child: Text('OK'),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                    return;
+                  }
 
-                  //   if (expectedAmounts == null || actualAmounts == null) {
-                  //     ScaffoldMessenger.of(context).showSnackBar(
-                  //       const SnackBar(
-                  //         content: Text(
-                  //             'Please enter valid numbers for expected and actual amounts.'),
-                  //       ),
+                  
+
+                  // for (var formData in formDataList) {
+                  //   if (formData['field1']!.text.isEmpty ||
+                  //       formData['field2']!.text.isEmpty) {
+                  //     showDialog(
+                  //       context: context,
+                  //       builder: (BuildContext context) {
+                  //         return AlertDialog(
+                  //           title: Text('Notification'),
+                  //           content: Text('Please enter complete information'),
+                  //           actions: <Widget>[
+                  //             TextButton(
+                  //               child: Text('OK'),
+                  //               onPressed: () {
+                  //                 Navigator.of(context).pop();
+                  //               },
+                  //             ),
+                  //           ],
+                  //         );
+                  //       },
                   //     );
-                  //     return;
+                  //     break;
                   //   }
-                  //   if (expectedAmounts < actualAmounts) {
-                  //     ScaffoldMessenger.of(context).showSnackBar(
-                  //       const SnackBar(
-                  //         content: Text(
-                  //             'The expected amount is greater than the actual amount'),
-                  //       ),
-                  //     );
-                  //   }
-
-                  //   List<updateMoneyPlan.Data> data = [
-                  //     updateMoneyPlan.Data(
-                  //       name: title.text,
-                  //       expectAmount: expectedAmounts,
-                  //       actualAmount: actualAmounts,
-                  //       priority: selectedPriority,
-                  //       categoryId: idCategory,
-                  //     ),
-                  //   ];
-                  //   UpdateMoneyPlanRequestModel model =
-                  //       UpdateMoneyPlanRequestModel(
-                  //           moneyPlanId: widget.moneyPlanId, data: data);
-                  //   ApiService.updateMoneyPlan(model).then((response) {
-                  //     print(response.msgDesc);
-
-                  //     if (response.result) {
-                  //       widget.getMoneyPla();
-                  //       widget.getNote();
-                  //       Navigator.of(context).pop();
-                  //     }
-                  //   });
+                  //   return;
                   // }
-                  // ;
+
                   List<Map<String, dynamic>> data = [];
                   List<Usages> usages = [];
 
@@ -552,12 +440,14 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
                       categoryId:
                           dropdownValues[formDataList.indexOf(formData)].value,
                     );
+                    totalActual += double.tryParse(formData['field3']?.text ?? '0')!.toDouble();
 
                     // Thêm đối tượng Usages vào danh sách chứa dữ liệu
                     usages.add(usage);
                   }
                   double? expectedAmounts = double.tryParse(expectAmounts.text);
                   double? actualAmounts = double.tryParse(actualualAmount.text);
+                  actualAmounts = totalActual.toDouble();
 
                   UpdateMoneyPlanRequestModels model =
                       UpdateMoneyPlanRequestModels(
@@ -597,6 +487,7 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
                 style: ElevatedButton.styleFrom(
                   primary: Colors.red[300],
                   minimumSize: Size(double.infinity, 50),
+                  textStyle: TextStyle(fontSize: 20)
                 ),
                 onPressed: () {
                   if (expectAmounts.text.isEmpty) {

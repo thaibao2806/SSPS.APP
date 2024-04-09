@@ -1,5 +1,8 @@
+import 'package:bottom_picker/resources/arrays.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:ssps_app/components/my_drawer_header.dart';
 import 'package:ssps_app/pages/accountPage.dart';
@@ -7,6 +10,7 @@ import 'package:ssps_app/pages/messagePage.dart';
 import 'package:ssps_app/service/shared_service.dart';
 import 'package:ssps_app/utils/avatar.dart';
 import 'package:ssps_app/widget/drawer_widget.dart';
+import 'package:bottom_picker/bottom_picker.dart';
 
 class ReportPage extends StatefulWidget {
   ReportPage({Key? key}) : super(key: key);
@@ -20,11 +24,15 @@ class _ReportPage extends State<ReportPage> {
   String? lastName;
   bool isDataLoaded = false;
   String? selectedValue = "Day";
+  DateTime currentDate = DateTime.now();
+  String? month;
+  bool isMonthSelected = true;
 
   @override
   void initState() {
     super.initState();
     _decodeToken();
+    month = formatMonthYear(currentDate);
   }
 
   @override
@@ -103,6 +111,29 @@ class _ReportPage extends State<ReportPage> {
         style: style,
       ),
     );
+  }
+
+  String formatMonthYear(DateTime dateString) {
+    String formattedDate = DateFormat('MMM, yyyy').format(dateString);
+    return formattedDate;
+  }
+
+  _openDatePicker(BuildContext context) {
+    BottomPicker.date(
+      title: "Select a Month",
+      dateOrder: DatePickerDateOrder.mdy,
+      pickerTextStyle:
+          const TextStyle(color: Color.fromARGB(255, 15, 15, 15), fontSize: 20),
+      titleStyle: const TextStyle(fontSize: 20),
+      onChange: (index) {
+        print(formatMonthYear(index));
+        print(currentDate);
+        setState(() {
+          month = formatMonthYear(index);
+        });
+      },
+      bottomPickerTheme: BottomPickerTheme.blue,
+    ).show(context);
   }
 
   @override
@@ -185,15 +216,14 @@ class _ReportPage extends State<ReportPage> {
                             //   Icons.payment_outlined,
                             //   size: 40,
                             // ),
-                            SizedBox(
-                              width: 30,
+                            const SizedBox(
+                              width: 20,
                             ),
-                            Row(
+                            const Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
                                       children: [
@@ -201,22 +231,22 @@ class _ReportPage extends State<ReportPage> {
                                           "Total expect",
                                           style: TextStyle(
                                               fontSize: 18,
-                                              color: Color.fromARGB(255, 81, 212, 85)),
+                                              color: Color.fromARGB(
+                                                  255, 81, 212, 85)),
                                         ),
                                       ],
                                     ),
                                     SizedBox(
-                                  height: 5,
-                                ),
-                                Text(
-                                  "1000000 VND",
-                                  style: TextStyle(
-                                      fontSize: 30,
-                                      fontWeight: FontWeight.w500),
-                                ),
+                                      height: 5,
+                                    ),
+                                    Text(
+                                      "1000000 VND",
+                                      style: TextStyle(
+                                          fontSize: 30,
+                                          fontWeight: FontWeight.w500),
+                                    ),
                                   ],
                                 ),
-                                
                               ],
                             )
                           ],
@@ -261,40 +291,28 @@ class _ReportPage extends State<ReportPage> {
                               ),
                             ),
                             SizedBox(
-                              width: 30,
+                              width: 20,
                             ),
                             const Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                              Text(
-                                "Total actual",
-                                style: TextStyle(
-                                    fontSize: 18,
-                                    color: Color.fromARGB(255, 248, 213, 87)),
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Text(
-                                "10000 VND",
-                                style: TextStyle(
-                                    fontSize: 30, fontWeight: FontWeight.w500),
-                              ),
-                            ])
-                            // Text(
-                            //   "Total actual",
-                            //   style: TextStyle(
-                            //       fontSize: 18,
-                            //       color: Color.fromARGB(255, 81, 212, 85)),
-                            // ),
-                            // SizedBox(height: 10,),
-                            // Text(
-                            //   "10000 VND",
-                            //   style: TextStyle(
-                            //     fontSize: 25,
-                            //     fontWeight: FontWeight.w500
-                            //   ),
-                            // ),
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Total actual",
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        color:
+                                            Color.fromARGB(255, 248, 213, 87)),
+                                  ),
+                                  SizedBox(
+                                    height: 5,
+                                  ),
+                                  Text(
+                                    "10000 VND",
+                                    style: TextStyle(
+                                        fontSize: 30,
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                ])
                           ],
                         ),
                       ],
@@ -347,38 +365,160 @@ class _ReportPage extends State<ReportPage> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            "Total spending:",
-                                            style: TextStyle(
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.w500),
-                                          ),
-                                          Text(
-                                            "10000\$",
-                                            style: TextStyle(fontSize: 20),
+                                          // Text(
+                                          //   "Total spending:",
+                                          //   style: TextStyle(
+                                          //       fontSize: 15,
+                                          //       fontWeight: FontWeight.w500),
+                                          // ),
+                                          // Text(
+                                          //   "10000\$",
+                                          //   style: TextStyle(fontSize: 20),
+                                          // ),
+                                          Container(
+                                            decoration: BoxDecoration(
+                                              color: Color.fromARGB(107, 77, 77, 77),
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                            ),
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                setState(() {
+                                                  isMonthSelected =
+                                                      !isMonthSelected;
+                                                });
+                                              },
+                                              child: Container(
+                                                padding: EdgeInsets.all(5.0),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.grey[250],
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10.0),
+                                                ),
+                                                child: RichText(
+                                                  text: TextSpan(
+                                                    children: [
+                                                      WidgetSpan(
+                                                        child: DecoratedBox(
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              color:
+                                                                  isMonthSelected
+                                                                      ? Colors
+                                                                          .white
+                                                                      : null,
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          5.0),
+                                                            ),
+                                                            child: Padding(
+                                                              padding:
+                                                                  EdgeInsets
+                                                                      .all(5),
+                                                              child: Text(
+                                                                'Month',
+                                                                style:
+                                                                    TextStyle(
+                                                                  color: isMonthSelected
+                                                                      ? const Color
+                                                                          .fromARGB(
+                                                                          255,
+                                                                          6,
+                                                                          6,
+                                                                          6)
+                                                                      : Colors
+                                                                          .white,
+                                                                  fontSize:
+                                                                      18.0,
+                                                                ),
+                                                              ),
+                                                            )),
+                                                      ),
+                                                      TextSpan(
+                                                        text: '  ',
+                                                        style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 18.0,
+                                                        ),
+                                                      ),
+                                                      WidgetSpan(
+                                                        child: DecoratedBox(
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            color:
+                                                                isMonthSelected
+                                                                    ? null
+                                                                    : Colors
+                                                                        .white,
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        5.0),
+                                                          ),
+                                                          child: Padding(
+                                                            padding: const EdgeInsets.all(5.0),
+                                                            child: Text(
+                                                              'Year',
+                                                              style: TextStyle(
+                                                                color: isMonthSelected
+                                                                    ? Colors.white
+                                                                    : Color
+                                                                        .fromARGB(
+                                                                            255,
+                                                                            0,
+                                                                            0,
+                                                                            0),
+                                                                fontSize: 18.0,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
                                           ),
                                         ],
                                       ),
-                                      DropdownButton<String>(
-                                        items: <String>['Day', 'Week', 'Month']
-                                            .map((String option) {
-                                          return DropdownMenuItem<String>(
-                                            value: option,
-                                            child: Text(option),
-                                          );
-                                        }).toList(),
-                                        onChanged: (String? value) {
-                                          // Xử lý giá trị được chọn
-                                          setState(() {
-                                            selectedValue = value;
-                                          });
+                                      ElevatedButton(
+                                        style: ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStateProperty.all<Color>(
+                                                  const Color.fromARGB(255, 251,
+                                                      251, 251)), // Xoá nền
+                                          shape: MaterialStateProperty.all<
+                                              OutlinedBorder>(
+                                            // Thêm border
+                                            RoundedRectangleBorder(
+                                              side: const BorderSide(
+                                                  color: Color.fromARGB(
+                                                      255,
+                                                      91,
+                                                      91,
+                                                      91)), // Màu và độ dày của border
+                                              borderRadius:
+                                                  BorderRadius.circular(
+                                                      8), // Độ cong của border
+                                            ),
+                                          ),
+                                        ),
+                                        child: Text(
+                                          '${month}',
+                                          style: const TextStyle(
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        onPressed: () {
+                                          _openDatePicker(context);
                                         },
-                                        // hint: Text('Chọn một tùy chọn'),
-                                        value: selectedValue,
-                                        // dropdownColor: Colors.grey,
                                       ),
                                     ],
                                   ),
+                                  SizedBox(height: 15,),
                                   AspectRatio(
                                     aspectRatio: 1.6,
                                     child: Padding(
@@ -454,7 +594,7 @@ class _ReportPage extends State<ReportPage> {
                 ),
               ),
               SizedBox(
-                height: 10,
+                height: 15,
               ),
               Row(children: [
                 Text("Categories list: ",
@@ -465,9 +605,7 @@ class _ReportPage extends State<ReportPage> {
               ),
               Center(
                 child: DataTable(
-                  decoration: BoxDecoration(
-                    
-                  ),
+                  decoration: BoxDecoration(),
                   columns: const <DataColumn>[
                     DataColumn(
                       label: Expanded(
@@ -493,7 +631,7 @@ class _ReportPage extends State<ReportPage> {
                         ),
                       ),
                     ),
-                     DataColumn(
+                    DataColumn(
                       label: Expanded(
                         child: Text(
                           'Unit',

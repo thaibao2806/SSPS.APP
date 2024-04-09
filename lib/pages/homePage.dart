@@ -102,6 +102,8 @@ class _HomePage extends State<HomePage> {
     ApiService.getMoneyPlan(fromDate, toDate).then((response) {
       if (response.result) {
         print(response.result);
+        expectAmountTotal = 0;
+        actualAmountTotal = 0;
         for (var money in response.data) {
           setState(() {
             for (var usage in money.usageMoneys) {
@@ -428,7 +430,7 @@ class _HomePage extends State<HomePage> {
         elevation: 0,
         centerTitle: true,
         title: const Text(
-          "Money Plan",
+          "Expense management",
           style: TextStyle(color: Colors.white),
         ),
         // leading: IconButton(onPressed: () {}, icon: const Icon(Icons.menu)),
@@ -463,29 +465,28 @@ class _HomePage extends State<HomePage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
-                    decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(10),
-                          topRight: Radius.circular(10),
-                          bottomLeft: Radius.circular(10),
-                          bottomRight: Radius.circular(10)),
-                      color: Color.fromARGB(54, 214, 214, 214),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Color.fromARGB(41, 229, 228, 228),
-                          spreadRadius: 1,
-                          blurRadius: 1,
-                          offset: Offset(0, 3),
-                        ),
-                      ],
+                    decoration:  BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Color.fromARGB(41, 161, 161, 161),
+                      // boxShadow: [
+                      //   BoxShadow(
+                      //     color: Color.fromARGB(41, 229, 228, 228),
+                      //     spreadRadius: 1,
+                      //     blurRadius: 1,
+                      //     offset: Offset(0, 3),
+                      //   ),
+                      // ],
                     ),
-                    height: 100,
+                    height: 120,
                     width: 180,
                     child: Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(10.0),
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
+                          Icon(Icons.payment, size: 40,),
+                          SizedBox(height: 5,),
                           Text(
                             "Total expect: ",
                             style: TextStyle(
@@ -495,36 +496,35 @@ class _HomePage extends State<HomePage> {
                           Text(
                             "${expectAmountTotal.toStringAsFixed(2)} $currencyUnit",
                             style: TextStyle(
-                                fontSize: 18,
+                                fontSize: 20,
                                 color: Color.fromARGB(255, 81, 212, 85)),
                           ),
                         ],
                       ),
                     )),
                 Container(
-                    decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(10),
-                          topRight: Radius.circular(10),
-                          bottomLeft: Radius.circular(10),
-                          bottomRight: Radius.circular(10)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Color.fromARGB(54, 214, 214, 214),
-                          spreadRadius: 1,
-                          blurRadius: 1,
-                          offset: Offset(0, 3),
-                        ),
-                      ],
-                      color: Color.fromARGB(41, 229, 228, 228),
+                    decoration:  BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      // boxShadow: [
+                      //   BoxShadow(
+                      //     color: Color.fromARGB(54, 214, 214, 214),
+                      //     spreadRadius: 1,
+                      //     blurRadius: 1,
+                      //     offset: Offset(0, 3),
+                      //   ),
+                      // ],
+                      color: Color.fromARGB(41, 161, 161, 161),
                     ),
-                    height: 100,
+                    height: 120,
                     width: 180,
                     child: Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(10.0),
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
+                          Icon(Icons.money_outlined, size: 40,),
+                          SizedBox(height: 5,),
                           Text("Total actual:",
                               style: TextStyle(
                                   fontSize: 16,
@@ -532,7 +532,7 @@ class _HomePage extends State<HomePage> {
                           Text(
                               "${actualAmountTotal.toStringAsFixed(2)} $currencyUnit",
                               style: TextStyle(
-                                  fontSize: 18,
+                                  fontSize: 20,
                                   color: Color.fromARGB(255, 81, 212, 85))),
                         ],
                       ),
@@ -540,7 +540,7 @@ class _HomePage extends State<HomePage> {
               ],
             ),
             SizedBox(
-              height: 10,
+              height: 15,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -111,7 +111,7 @@ class _Categories extends State<Categories> {
                 child: ListTile(
                   title: Text('${category.name ?? ""}'),
                   trailing: IconButton(
-                    icon: Icon(Icons.delete),
+                    icon: Icon(Icons.delete, color: Colors.red[400],),
                     onPressed: () {
                       showDialog(
                         context: context,

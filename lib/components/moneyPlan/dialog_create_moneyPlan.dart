@@ -88,6 +88,7 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
     return Column(
       children: [
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
               child: TextFormField(
@@ -95,6 +96,7 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
                 decoration: InputDecoration(labelText: 'Title'),
               ),
             ),
+            SizedBox(width: 20,),
             Expanded(
               child: TextFormField(
                 controller: formData['field2'],
@@ -103,7 +105,7 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
               ),
             ),
             IconButton(
-              icon: Icon(Icons.delete),
+              icon: Icon(Icons.delete, color: Colors.red[400],),
               onPressed: () {
                 setState(() {
                   formDataList.removeAt(index);
@@ -140,6 +142,7 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
                 },
               ),
             ),
+            SizedBox(width: 20,),
             Expanded(
               child: ValueListenableBuilder<String>(
                 valueListenable: dropdownValues2[index],
@@ -165,6 +168,7 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
                 },
               ),
             ),
+            SizedBox(width: 25,),
           ],
         )
       ],
@@ -201,35 +205,16 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
+      lastDate: DateTime.now().add(Duration(days: 365)),
     );
-    if (picked != null) {
-      final TimeOfDay? pickedTime = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.now(),
-      );
-      if (pickedTime != null) {
-        setState(() {
-          if (isFrom) {
-            _selectedFromDateTime = DateTime(
-              picked.year,
-              picked.month,
-              picked.day,
-              pickedTime.hour,
-              pickedTime.minute,
-            );
-          } else {
-            _selectedToDateTime = DateTime(
-              picked.year,
-              picked.month,
-              picked.day,
-              pickedTime.hour,
-              pickedTime.minute,
-            );
-          }
-        });
-      }
-    }
+    if (picked != null)
+      setState(() {
+        if (isFrom) {
+          _selectedFromDateTime = picked;
+        } else {
+          _selectedToDateTime = picked;
+        }
+      });
   }
 
   void _openColorPicker() {
@@ -315,13 +300,19 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
                             decoration: InputDecoration(
                               labelText: 'From',
                               labelStyle: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(255, 0, 0, 0),
+                                // fontWeight: FontWeight.bold,
+                                // color: Color.fromARGB(255, 0, 0, 0),
                               ),
                             ),
+                            // controller: TextEditingController(
+                            //   text: _selectedFromDateTime != null
+                            //       ? _selectedFromDateTime.toString()
+                            //       : '',
+                            // ),
                             controller: TextEditingController(
                               text: _selectedFromDateTime != null
-                                  ? _selectedFromDateTime.toString()
+                                  ? DateFormat('dd, MMM, yyyy')
+                                      .format(_selectedFromDateTime!)
                                   : '',
                             ),
                           ),
@@ -339,13 +330,19 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
                             decoration: InputDecoration(
                               labelText: 'To',
                               labelStyle: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(255, 0, 0, 0),
+                                // fontWeight: FontWeight.bold,
+                                // color: Color.fromARGB(255, 0, 0, 0),
                               ),
                             ),
+                            // controller: TextEditingController(
+                            //   text: _selectedToDateTime != null
+                            //       ? _selectedToDateTime.toString()
+                            //       : '',
+                            // ),
                             controller: TextEditingController(
                               text: _selectedToDateTime != null
-                                  ? _selectedToDateTime.toString()
+                                  ? DateFormat('dd, MMM, yyyy')
+                                      .format(_selectedToDateTime!)
                                   : '',
                             ),
                           ),
@@ -355,15 +352,16 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
                   ),
                 ],
               ),
+              SizedBox(height: 10,),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Plan Details"),
+                  Text("Plan Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
                   IconButton(
                       onPressed: () {
                         _addFormRow();
                       },
-                      icon: Icon(Icons.add)),
+                      icon: Icon(Icons.add, size: 30,)),
                 ],
               ),
               Column(
@@ -375,15 +373,37 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   primary: Colors.blue[300],
-                  minimumSize: Size(double.infinity, 50),
+                  minimumSize: const Size(double.infinity, 50),
+                  textStyle: TextStyle(fontSize: 20)
                 ),
                 onPressed: () {
-                  if (expectAmounts.text.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Please enter title.'),
-                      ),
+                  if (expectAmounts.text.isEmpty ||
+                      currencyUnit.text.isEmpty ||
+                      _selectedFromDateTime == null ||
+                      _selectedToDateTime == null) {
+                    // ScaffoldMessenger.of(context).showSnackBar(
+                    //   const SnackBar(
+                    //     content: Text('Please enter title.'),
+                    //   ),
+                    // );
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('Notification'),
+                          content: Text('Please enter complete information'),
+                          actions: <Widget>[
+                            TextButton(
+                              child: Text('OK'),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        );
+                      },
                     );
+                    return;
                   } else {
                     Color originalColor = _selectedColor;
                     String colorCode =
@@ -398,6 +418,54 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
                         DateFormat('yyyy-MM-ddTHH:mm:ss.SSSZ').format(toDate);
                     List<Map<String, dynamic>> data = [];
                     List<UsageMoneys> usageMoneys = [];
+
+                    if(_selectedToDateTime!.isBefore(_selectedFromDateTime!)) {
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text('Notification'),
+                              content: Text(
+                                  'The start date must be before the end date'),
+                              actions: <Widget>[
+                                TextButton(
+                                  child: Text('OK'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                        return;
+                    }
+
+                    for (var formData in formDataList) {
+                      if (formData['field1']!.text.isEmpty ||
+                          formData['field2']!.text.isEmpty) {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text('Notification'),
+                              content: Text(
+                                  'Please enter complete information'),
+                              actions: <Widget>[
+                                TextButton(
+                                  child: Text('OK'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                        break;
+                      }
+                      return;
+                    }
                     for (Map<String, TextEditingController> formData
                         in formDataList) {
                       UsageMoneys usageMoney = UsageMoneys(
@@ -421,9 +489,18 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
                     }
 
                     print(usageMoneys);
-                    double? expectedAmounts = double.tryParse(expectAmounts.text);
+                    double? expectedAmounts =
+                        double.tryParse(expectAmounts.text);
 
-                    CreateMoneyPlanRequestModel model = CreateMoneyPlanRequestModel(currencyUnit: currencyUnit.text, expectAmount: expectedAmounts, fromDate: formattedFromDateTime, toDate: formattedToDateTime, usageMoneys: usageMoneys);
+                    
+
+                    CreateMoneyPlanRequestModel model =
+                        CreateMoneyPlanRequestModel(
+                            currencyUnit: currencyUnit.text,
+                            expectAmount: expectedAmounts,
+                            fromDate: formattedFromDateTime,
+                            toDate: formattedToDateTime,
+                            usageMoneys: usageMoneys);
                     // CreateMoneyPlanRequestModel model =
                     //     _createMoneyPlanRequestModel();
                     ApiService.createMoneyPlan(model).then((value) {
@@ -431,7 +508,7 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
                       if (value.result) {
                         // print(value.msgDesc);
                         widget.getNote();
-                         Navigator.of(context).pop();
+                        Navigator.of(context).pop();
                       }
                     });
                     // CreateNoteRequestModel model = CreateNoteRequestModel(

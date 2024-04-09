@@ -233,7 +233,7 @@ class ApiService {
 
     var response = await client.post(url,
         headers: requestHeaders, body: jsonEncode(model.toJson()));
-    print(response.body);
+    print(jsonEncode(model.toJson()));
     if (response.statusCode == 200) {
       // Kiểm tra nếu response.body không phải là null
       if (response.body != null) {
@@ -296,6 +296,7 @@ class ApiService {
     var response = await client.put(url,
         headers: requestHeaders, body: jsonEncode(model.toJson()));
     print(response.body);
+    print(jsonEncode(model.toJson()));
     if (response.statusCode == 200) {
       // Kiểm tra nếu response.body không phải là null
       if (response.body != null) {
