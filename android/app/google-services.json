@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "321912808494",
-    "project_id": "sspsnotification",
-    "storage_bucket": "sspsnotification.appspot.com"
+    "project_number": "917993715372",
+    "project_id": "spss-7ddb5",
+    "storage_bucket": "spss-7ddb5.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:321912808494:android:92f3a1a97e7f430cbbabbf",
+        "mobilesdk_app_id": "1:917993715372:android:634e5da9c8f06b95fa1109",
         "android_client_info": {
           "package_name": "com.example.ssps_app"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBfmGsDzKxrW9zQdiJm4eBR_mohrjNZGYY"
+          "current_key": "AIzaSyBHgi5s7_JyobGbImEKKxb7Qsc4Qf9pt8c"
         }
       ],
       "services": {

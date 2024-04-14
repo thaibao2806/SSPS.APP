@@ -32,9 +32,12 @@ void main() async {
     statusBarColor: Colors.transparent,
   ));
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp(
+      name: 'name-here',
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
 
   await LocalNotifications.init();
 

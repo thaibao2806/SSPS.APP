@@ -62,8 +62,8 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
   List<ValueNotifier<String>> dropdownValues2 = [];
   List<String> dropdownItems = [];
   String initialDropdownValue = '';
-          num totalActual = 0;
-
+  num totalActual = 0;
+  bool checkChangeActual = false;
 
   Widget _buildFormRow(Map<String, TextEditingController> formData, int index) {
     return Column(
@@ -76,7 +76,9 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
                 decoration: InputDecoration(labelText: 'Title'),
               ),
             ),
-            SizedBox(width: 15,),
+            SizedBox(
+              width: 15,
+            ),
             Expanded(
               child: TextFormField(
                 controller: formData['field2'],
@@ -84,7 +86,9 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
                 decoration: InputDecoration(labelText: 'Expectual'),
               ),
             ),
-            SizedBox(width: 15,),
+            SizedBox(
+              width: 15,
+            ),
             Expanded(
               child: TextFormField(
                 controller: formData['field3'],
@@ -93,7 +97,10 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
               ),
             ),
             IconButton(
-              icon: Icon(Icons.delete, color: Colors.red[400],),
+              icon: Icon(
+                Icons.delete,
+                color: Colors.red[400],
+              ),
               onPressed: () {
                 setState(() {
                   formDataList.removeAt(index);
@@ -130,7 +137,9 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
                 },
               ),
             ),
-            SizedBox(width: 25,),
+            SizedBox(
+              width: 25,
+            ),
             Expanded(
               child: ValueListenableBuilder<String>(
                 valueListenable: dropdownValues2[index],
@@ -156,8 +165,9 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
                 },
               ),
             ),
-            SizedBox(width: 25,),
-
+            SizedBox(
+              width: 25,
+            ),
           ],
         )
       ],
@@ -234,7 +244,7 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
     ApiService.getMoneyPlanById(widget.moneyPlanId).then((value) {
       if (value.result) {
         setState(() {
-
+          print("test ${value.data!.actualAmount.toString()}");
           expectAmounts.text = value.data!.expectAmount.toString();
           actualualAmount.text = value.data!.actualAmount.toString();
 
@@ -339,6 +349,11 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
                         decoration: InputDecoration(
                           labelText: 'ActualAmount',
                         ),
+                        onChanged: (value) {
+                          setState(() {
+                            checkChangeActual = true;
+                          });
+                        },
                       ),
                     ),
                   ),
@@ -346,25 +361,29 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
               ),
               SizedBox(height: 10),
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                Text("Plan details: ", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
+                Text(
+                  "Plan details: ",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
                 IconButton(
                     onPressed: () {
                       // _addCustomRow();
                       _addFormRow();
                     },
-                    icon: Icon(Icons.add, size: 30,)),
+                    icon: Icon(
+                      Icons.add,
+                      size: 30,
+                    )),
               ]),
               Column(
                 children: formRows,
               ),
               SizedBox(height: 10),
-              
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.blue[300],
-                  minimumSize: Size(double.infinity, 50),
-                  textStyle: TextStyle(fontSize: 20)
-                ),
+                    primary: Colors.blue[300],
+                    minimumSize: Size(double.infinity, 50),
+                    textStyle: TextStyle(fontSize: 20)),
                 onPressed: () {
                   if (expectAmounts.text.isEmpty ||
                       actualualAmount.text.isEmpty) {
@@ -388,39 +407,17 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
                     return;
                   }
 
-                  
-
-                  // for (var formData in formDataList) {
-                  //   if (formData['field1']!.text.isEmpty ||
-                  //       formData['field2']!.text.isEmpty) {
-                  //     showDialog(
-                  //       context: context,
-                  //       builder: (BuildContext context) {
-                  //         return AlertDialog(
-                  //           title: Text('Notification'),
-                  //           content: Text('Please enter complete information'),
-                  //           actions: <Widget>[
-                  //             TextButton(
-                  //               child: Text('OK'),
-                  //               onPressed: () {
-                  //                 Navigator.of(context).pop();
-                  //               },
-                  //             ),
-                  //           ],
-                  //         );
-                  //       },
-                  //     );
-                  //     break;
-                  //   }
-                  //   return;
-                  // }
-
                   List<Map<String, dynamic>> data = [];
                   List<Usages> usages = [];
+                  bool checkAmount = false;
 
                   // Lặp qua danh sách các dòng form để tạo đối tượng từ dữ liệu nhập
                   for (Map<String, TextEditingController> formData
                       in formDataList) {
+                    if (double.tryParse(formData['field2']?.text ?? '0')! <
+                        double.tryParse(formData['field3']?.text ?? '0')!) {
+                      checkAmount = true;
+                    }
                     // Tạo đối tượng từ dữ liệu nhập của mỗi dòng form
                     Usages usage = Usages(
                       name: formData['field1']?.text ?? '',
@@ -440,14 +437,37 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
                       categoryId:
                           dropdownValues[formDataList.indexOf(formData)].value,
                     );
-                    totalActual += double.tryParse(formData['field3']?.text ?? '0')!.toDouble();
+                    totalActual +=
+                        double.tryParse(formData['field3']?.text ?? '0')!
+                            .toDouble();
 
                     // Thêm đối tượng Usages vào danh sách chứa dữ liệu
                     usages.add(usage);
                   }
+
                   double? expectedAmounts = double.tryParse(expectAmounts.text);
                   double? actualAmounts = double.tryParse(actualualAmount.text);
-                  actualAmounts = totalActual.toDouble();
+                  if (checkChangeActual) {
+                    actualAmounts = double.tryParse(actualualAmount.text);
+                  } else {
+                    actualAmounts = totalActual.toDouble();
+                  }
+                  if (checkAmount || (expectedAmounts! < actualAmounts!)) {
+                    SnackBar snackBar = SnackBar(
+                      content: Text(
+                        "The actual amount is greater than the expected amount",
+                        style: TextStyle(fontSize: 18),
+                      ),
+                      dismissDirection: DismissDirection.up,
+                      backgroundColor: Color.fromARGB(255, 244, 224, 93),
+                      behavior: SnackBarBehavior.floating,
+                      margin: EdgeInsets.only(
+                          bottom: MediaQuery.of(context).size.height - 180,
+                          left: 10,
+                          right: 10),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  }
 
                   UpdateMoneyPlanRequestModels model =
                       UpdateMoneyPlanRequestModels(
@@ -485,10 +505,9 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.red[300],
-                  minimumSize: Size(double.infinity, 50),
-                  textStyle: TextStyle(fontSize: 20)
-                ),
+                    primary: Colors.red[300],
+                    minimumSize: Size(double.infinity, 50),
+                    textStyle: TextStyle(fontSize: 20)),
                 onPressed: () {
                   if (expectAmounts.text.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -502,8 +521,8 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
                       print(response.msgDesc);
 
                       if (response.result) {
-                        widget.getMoneyPla();
                         widget.getNote();
+                        widget.getMoneyPla();
                         Navigator.of(context).pop();
                       }
                     });

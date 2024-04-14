@@ -98,7 +98,6 @@ class _HomePage extends State<HomePage> {
   }
 
   getMoneyPlan(String? fromDate, String? toDate) {
-    print("aaaa");
     ApiService.getMoneyPlan(fromDate, toDate).then((response) {
       if (response.result) {
         print(response.result);
@@ -112,7 +111,7 @@ class _HomePage extends State<HomePage> {
                 from: DateTime.parse(money.date!),
                 to: DateTime.parse(money.date!),
                 eventName: usage.name ?? '',
-                background: hexToColor(usage.priority == 1
+                background: hexToColor(usage.expectAmount < usage.actualAmount ? "ca4f4f" : usage.priority == 1
                     ? '039BE5'
                     : usage.priority == 2
                         ? '33B679'
@@ -335,6 +334,7 @@ class _HomePage extends State<HomePage> {
                 firstDateFormatted = formatDate(firstDate);
                 lastDateFormatted = formatDate(lastDate);
                 getNote(firstDateFormatted, lastDateFormatted);
+                getMoneyPlan(firstDateFormatted, lastDateFormatted);
               },
               enventId: eventId,
               startTime: startTime,
@@ -370,6 +370,8 @@ class _HomePage extends State<HomePage> {
                   expectAmountTotal = 0;
                   firstDateFormatted = formatDate(firstDate);
                   lastDateFormatted = formatDate(lastDate);
+                  getNote(firstDateFormatted, lastDateFormatted);
+
                   await getMoneyPlan(firstDateFormatted, lastDateFormatted);
                 },
                 moneyPlanId: eventId,
@@ -382,6 +384,7 @@ class _HomePage extends State<HomePage> {
                   firstDateFormatted = formatDate(firstDate);
                   lastDateFormatted = formatDate(lastDate);
                   getNote(firstDateFormatted, lastDateFormatted);
+                  getMoneyPlan(firstDateFormatted, lastDateFormatted);
                 },
                 // notes: notes ?? "",
               );
@@ -396,6 +399,7 @@ class _HomePage extends State<HomePage> {
                   firstDateFormatted = formatDate(firstDate);
                   lastDateFormatted = formatDate(lastDate);
                   getNote(firstDateFormatted, lastDateFormatted);
+                  getMoneyPlan(firstDateFormatted, lastDateFormatted);
                 },
                 enventId: eventId,
                 startTime: startTime,
@@ -705,9 +709,10 @@ class _HomePage extends State<HomePage> {
 
                           actualAmountTotal = 0;
                           expectAmountTotal = 0;
+                          getNote(firstDateFormatted, lastDateFormatted);
+
                           await getMoneyPlan(
                               firstDateFormatted, lastDateFormatted);
-                          getNote(firstDateFormatted, lastDateFormatted);
                         });
                       },
                     );

@@ -5,8 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:ssps_app/components/my_drawer_header.dart';
+import 'package:ssps_app/models/report/report_response_model.dart';
 import 'package:ssps_app/pages/accountPage.dart';
 import 'package:ssps_app/pages/messagePage.dart';
+import 'package:ssps_app/service/api_service.dart';
 import 'package:ssps_app/service/shared_service.dart';
 import 'package:ssps_app/utils/avatar.dart';
 import 'package:ssps_app/widget/drawer_widget.dart';
@@ -27,11 +29,28 @@ class _ReportPage extends State<ReportPage> {
   DateTime currentDate = DateTime.now();
   String? month;
   bool isMonthSelected = true;
+  num totalExpectAmount = 0;
+  num totalActualAmount = 0;
+  DateTimeRange dateRange =
+      DateTimeRange(start: DateTime.now(), end: DateTime.now());
+  String? type = "MONTH";
+  String? fromDate;
+  String? toDate;
+  List<ListDiagramData> listDiagramData = [];
 
   @override
   void initState() {
     super.initState();
+    DateTime now = DateTime.now();
+    DateTime firstDayOfMonth = new DateTime(now.year, now.month, 1);
+    DateTime lastDayOfMonth = new DateTime(now.year, now.month + 1, 0);
+    fromDate = formatMonthYear(firstDayOfMonth);
+    toDate = formatMonthYear(lastDayOfMonth);
+    dateRange = DateTimeRange(start: firstDayOfMonth, end: lastDayOfMonth);
+
     _decodeToken();
+    _getData(type, fromDate, toDate);
+
     month = formatMonthYear(currentDate);
   }
 
@@ -39,6 +58,31 @@ class _ReportPage extends State<ReportPage> {
   void dispose() {
     super.dispose();
     _decodeToken();
+  }
+
+  _changeTypeDate(bool isType) {
+    if(isType) {
+      type = "MONTH";
+      _getData(type, fromDate, toDate);
+    } else {
+       type = "YEAR";
+      _getData(type, fromDate, toDate);
+    }
+  }
+
+  _getData(String? type, String? fromDate, String? toDate) async {
+    ApiService.report(type, fromDate, toDate).then((value) {
+      if (value.result) {
+        setState(() {
+          print(value.data!.totalExpectMoney);
+          print(value.data!.totalActualMoney);
+          totalExpectAmount = value.data!.totalExpectMoney;
+          totalActualAmount = value.data!.totalActualMoney;
+          listDiagramData = value.data?.listDiagramData ?? [];
+          listDiagramData.sort((a, b) => a.doM.compareTo(b.doM));
+        });
+      }
+    });
   }
 
   _decodeToken() async {
@@ -61,40 +105,159 @@ class _ReportPage extends State<ReportPage> {
   Widget bottomTitles(double value, TitleMeta meta) {
     const style = TextStyle(fontSize: 10);
     String text;
-    switch (value.toInt()) {
-      case 0:
-        text = 'Apr';
-        break;
-      case 1:
-        text = 'May';
-        break;
-      case 2:
-        text = 'Jun';
-        break;
-      case 3:
-        text = 'Jul';
-        break;
-      case 4:
-        text = 'Aug';
-        break;
-      case 5:
-        text = 'Aug';
-        break;
-      case 6:
-        text = 'Aug';
-        break;
-      case 7:
-        text = 'Aug';
-        break;
-      default:
-        text = '';
-        break;
+    if (!isMonthSelected) {
+      switch (value.toInt()) {
+        case 1:
+          text = 'Jan';
+          break;
+        case 2:
+          text = 'Feb';
+          break;
+        case 3:
+          text = 'Mar';
+          break;
+        case 4:
+          text = 'Apr';
+          break;
+        case 5:
+          text = 'May';
+          break;
+        case 6:
+          text = 'Jun';
+          break;
+        case 7:
+          text = 'Jul';
+          break;
+        case 8:
+          text = 'Aug';
+          break;
+        case 9:
+          text = 'Sep';
+          break;
+        case 10:
+          text = 'Oct';
+          break;
+        case 11:
+          text = 'Nov';
+          break;
+        case 12:
+          text = 'Dec';
+          break;
+        default:
+          text = '';
+          break;
+      }
+
+      return SideTitleWidget(
+        axisSide: meta.axisSide,
+        space: 2,
+        child: Text(text, style: style),
+      );
+    } else {
+      switch (value.toInt()) {
+        case 1:
+          text = '1';
+          break;
+        case 2:
+          text = '2';
+          break;
+        case 3:
+          text = '3';
+          break;
+        case 4:
+          text = '4';
+          break;
+        case 5:
+          text = '5';
+          break;
+        case 6:
+          text = '6';
+          break;
+        case 7:
+          text = '7';
+          break;
+        case 8:
+          text = '8';
+          break;
+        case 9:
+          text = '9';
+          break;
+        case 10:
+          text = '10';
+          break;
+        case 11:
+          text = '11';
+          break;
+        case 12:
+          text = '12';
+          break;
+        case 13:
+          text = '13';
+          break;
+        case 14:
+          text = '14';
+          break;
+        case 15:
+          text = '15';
+          break;
+        case 16:
+          text = '16';
+          break;
+        case 17:
+          text = '17';
+          break;
+        case 18:
+          text = '18';
+          break;
+        case 19:
+          text = '19';
+          break;
+        case 20:
+          text = '20';
+          break;
+        case 21:
+          text = '21';
+          break;
+        case 22:
+          text = '22';
+          break;
+        case 23:
+          text = '23';
+          break;
+        case 24:
+          text = '24';
+          break;
+        case 25:
+          text = '25';
+          break;
+        case 26:
+          text = '26';
+          break;
+        case 27:
+          text = '27';
+          break;
+        case 28:
+          text = '28';
+          break;
+        case 29:
+          text = '29';
+          break;
+        case 30:
+          text = '30';
+          break;
+        case 31:
+          text = '31';
+          break;
+        default:
+          text = '';
+          break;
+      }
+      return SideTitleWidget(
+        axisSide: meta.axisSide,
+        space: 2,
+        child: Text(text, style: style),
+      );
     }
-    return SideTitleWidget(
-      axisSide: meta.axisSide,
-      space: 4,
-      child: Text(text, style: style),
-    );
   }
 
   Widget leftTitles(double value, TitleMeta meta) {
@@ -114,13 +277,13 @@ class _ReportPage extends State<ReportPage> {
   }
 
   String formatMonthYear(DateTime dateString) {
-    String formattedDate = DateFormat('MMM, yyyy').format(dateString);
+    String formattedDate = DateFormat('yyyy-MM-dd').format(dateString);
     return formattedDate;
   }
 
   _openDatePicker(BuildContext context) {
     BottomPicker.date(
-      title: "Select a Month",
+      title: "Select a year",
       dateOrder: DatePickerDateOrder.mdy,
       pickerTextStyle:
           const TextStyle(color: Color.fromARGB(255, 15, 15, 15), fontSize: 20),
@@ -130,14 +293,40 @@ class _ReportPage extends State<ReportPage> {
         print(currentDate);
         setState(() {
           month = formatMonthYear(index);
+          type = "YEAR";
+          fromDate = formatMonthYear(index);
+          toDate = formatMonthYear(index);
+          _getData(type, fromDate, toDate);
         });
       },
       bottomPickerTheme: BottomPickerTheme.blue,
     ).show(context);
   }
 
+  Future pickDateRange() async {
+    DateTimeRange? newDateRange = await showDateRangePicker(
+        context: context,
+        initialDateRange: dateRange,
+        firstDate: DateTime(1900),
+        lastDate: DateTime.now().add(Duration(days: 365)));
+
+    if (newDateRange == null) return;
+
+    setState(() {
+      print(newDateRange);
+      type = "MONTH";
+      fromDate = formatMonthYear(newDateRange.start);
+      toDate = formatMonthYear(newDateRange.end);
+      dateRange = newDateRange;
+      _getData(type, fromDate, toDate);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final start = dateRange.start;
+    final end = dateRange.end;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xff3498DB),
@@ -219,7 +408,7 @@ class _ReportPage extends State<ReportPage> {
                             const SizedBox(
                               width: 20,
                             ),
-                            const Row(
+                            Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 Column(
@@ -240,7 +429,9 @@ class _ReportPage extends State<ReportPage> {
                                       height: 5,
                                     ),
                                     Text(
-                                      "1000000 VND",
+                                      totalExpectAmount
+                                          .toStringAsFixed(2)
+                                          .toString(),
                                       style: TextStyle(
                                           fontSize: 30,
                                           fontWeight: FontWeight.w500),
@@ -293,7 +484,7 @@ class _ReportPage extends State<ReportPage> {
                             SizedBox(
                               width: 20,
                             ),
-                            const Column(
+                            Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
@@ -307,7 +498,9 @@ class _ReportPage extends State<ReportPage> {
                                     height: 5,
                                   ),
                                   Text(
-                                    "10000 VND",
+                                    totalActualAmount
+                                        .toStringAsFixed(2)
+                                        .toString(),
                                     style: TextStyle(
                                         fontSize: 30,
                                         fontWeight: FontWeight.w500),
@@ -360,6 +553,8 @@ class _ReportPage extends State<ReportPage> {
                                   Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     children: [
                                       Column(
                                         mainAxisAlignment:
@@ -377,7 +572,8 @@ class _ReportPage extends State<ReportPage> {
                                           // ),
                                           Container(
                                             decoration: BoxDecoration(
-                                              color: Color.fromARGB(107, 77, 77, 77),
+                                              color: Color.fromARGB(
+                                                  107, 77, 77, 77),
                                               borderRadius:
                                                   BorderRadius.circular(10.0),
                                             ),
@@ -386,6 +582,8 @@ class _ReportPage extends State<ReportPage> {
                                                 setState(() {
                                                   isMonthSelected =
                                                       !isMonthSelected;
+                                                   _changeTypeDate(isMonthSelected);
+                                                  
                                                 });
                                               },
                                               child: Container(
@@ -458,12 +656,15 @@ class _ReportPage extends State<ReportPage> {
                                                                         5.0),
                                                           ),
                                                           child: Padding(
-                                                            padding: const EdgeInsets.all(5.0),
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(5.0),
                                                             child: Text(
                                                               'Year',
                                                               style: TextStyle(
                                                                 color: isMonthSelected
-                                                                    ? Colors.white
+                                                                    ? Colors
+                                                                        .white
                                                                     : Color
                                                                         .fromARGB(
                                                                             255,
@@ -484,51 +685,143 @@ class _ReportPage extends State<ReportPage> {
                                           ),
                                         ],
                                       ),
-                                      ElevatedButton(
-                                        style: ButtonStyle(
-                                          backgroundColor:
-                                              MaterialStateProperty.all<Color>(
-                                                  const Color.fromARGB(255, 251,
-                                                      251, 251)), // Xoá nền
-                                          shape: MaterialStateProperty.all<
-                                              OutlinedBorder>(
-                                            // Thêm border
-                                            RoundedRectangleBorder(
-                                              side: const BorderSide(
-                                                  color: Color.fromARGB(
-                                                      255,
-                                                      91,
-                                                      91,
-                                                      91)), // Màu và độ dày của border
-                                              borderRadius:
-                                                  BorderRadius.circular(
-                                                      8), // Độ cong của border
+                                      SizedBox(
+                                        width: 15,
+                                      ),
+                                      Visibility(
+                                        visible: isMonthSelected,
+                                        child: Expanded(
+                                          child: Padding(
+                                            padding: EdgeInsets.only(left: 8.0),
+                                            child: GestureDetector(
+                                              onTap: () => pickDateRange(),
+                                              child: AbsorbPointer(
+                                                child: Row(
+                                                  children: [
+                                                    Expanded(
+                                                      child: TextField(
+                                                        decoration:
+                                                            InputDecoration(
+                                                          // labelText: 'From',
+                                                          labelStyle: TextStyle(
+                                                              // fontWeight: FontWeight.bold,
+                                                              // color: Color.fromARGB(255, 0, 0, 0),
+                                                              ),
+                                                        ),
+                                                        // controller: TextEditingController(
+                                                        //   text: _selectedToDateTime != null
+                                                        //       ? _selectedToDateTime.toString()
+                                                        //       : '',
+                                                        // ),
+                                                        controller:
+                                                            TextEditingController(
+                                                          text:
+                                                              "${start.day}/${start.month}/${start.year}",
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    // SizedBox(
+                                                    //   width: 10,
+                                                    // ),
+                                                    Text(
+                                                      "  ",
+                                                      style: TextStyle(
+                                                          fontSize: 15),
+                                                    ),
+                                                    SizedBox(width: 15,),
+                                                    // Icon(Icons.minimize),
+                                                    Expanded(
+                                                      child: TextField(
+                                                        decoration:
+                                                            InputDecoration(
+                                                          // labelText: 'To',
+                                                          labelStyle: TextStyle(
+                                                              // fontWeight: FontWeight.bold,
+                                                              // color: Color.fromARGB(255, 0, 0, 0),
+                                                              ),
+                                                        ),
+                                                        // controller: TextEditingController(
+                                                        //   text: _selectedToDateTime != null
+                                                        //       ? _selectedToDateTime.toString()
+                                                        //       : '',
+                                                        // ),
+                                                        controller:
+                                                            TextEditingController(
+                                                          text:
+                                                              "${end.day}/${end.month}/${end.year}",
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
                                             ),
                                           ),
                                         ),
-                                        child: Text(
-                                          '${month}',
-                                          style: const TextStyle(
-                                            color: Colors.black,
+                                      ),
+                                      // {!isMonthSelected ? }
+                                      Visibility(
+                                        visible: !isMonthSelected,
+                                        child: ElevatedButton(
+                                          style: ButtonStyle(
+                                            backgroundColor:
+                                                MaterialStateProperty.all<
+                                                        Color>(
+                                                    const Color.fromARGB(
+                                                        255,
+                                                        251,
+                                                        251,
+                                                        251)), // Xoá nền
+                                            shape: MaterialStateProperty.all<
+                                                OutlinedBorder>(
+                                              // Thêm border
+                                              RoundedRectangleBorder(
+                                                side: const BorderSide(
+                                                    color: Color.fromARGB(
+                                                        255,
+                                                        91,
+                                                        91,
+                                                        91)), // Màu và độ dày của border
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        8), // Độ cong của border
+                                              ),
+                                            ),
                                           ),
+                                          child: Text(
+                                            '${month}',
+                                            style: const TextStyle(
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          onPressed: () {
+                                            _openDatePicker(context);
+                                          },
                                         ),
-                                        onPressed: () {
-                                          _openDatePicker(context);
-                                        },
                                       ),
                                     ],
                                   ),
-                                  SizedBox(height: 15,),
+                                  SizedBox(
+                                    height: 15,
+                                  ),
                                   AspectRatio(
-                                    aspectRatio: 1.6,
+                                    aspectRatio: 1.5,
                                     child: Padding(
                                       padding: const EdgeInsets.only(top: 10),
                                       child: LayoutBuilder(
                                         builder: (context, constraints) {
-                                          final barsSpace =
-                                              5.0 * constraints.maxWidth / 80;
-                                          final barsWidth =
-                                              8.0 * constraints.maxWidth / 100;
+                                          final barsSpace = 8.0 *
+                                              constraints.maxWidth /
+                                              1000000;
+                                          double barsWidth = 0;
+                                          if(isMonthSelected) {
+                                             barsWidth =
+                                              8.0 * constraints.maxWidth / 480;
+                                          } else {
+                                             barsWidth =
+                                              8.0 * constraints.maxWidth / 200;
+                                          }
+                                          
                                           return BarChart(
                                             BarChartData(
                                               alignment:
@@ -565,7 +858,7 @@ class _ReportPage extends State<ReportPage> {
                                               gridData: FlGridData(
                                                 show: true,
                                                 checkToShowHorizontalLine:
-                                                    (value) => value % 10 == 0,
+                                                    (value) => value % 5 == 0,
                                                 getDrawingHorizontalLine:
                                                     (value) => FlLine(
                                                   color: Color(0xff3498DB),
@@ -597,7 +890,7 @@ class _ReportPage extends State<ReportPage> {
                 height: 15,
               ),
               Row(children: [
-                Text("Categories list: ",
+                Text("Report list: ",
                     style: TextStyle(fontSize: 25, fontWeight: FontWeight.w500))
               ]),
               SizedBox(
@@ -606,11 +899,11 @@ class _ReportPage extends State<ReportPage> {
               Center(
                 child: DataTable(
                   decoration: BoxDecoration(),
-                  columns: const <DataColumn>[
+                  columns:  <DataColumn>[
                     DataColumn(
                       label: Expanded(
                         child: Text(
-                          'Category',
+                          "${isMonthSelected ? "Day" : "Month"}",
                           style: TextStyle(fontStyle: FontStyle.italic),
                         ),
                       ),
@@ -618,7 +911,7 @@ class _ReportPage extends State<ReportPage> {
                     DataColumn(
                       label: Expanded(
                         child: Text(
-                          'Title',
+                          'Expectual',
                           style: TextStyle(fontStyle: FontStyle.italic),
                         ),
                       ),
@@ -626,19 +919,19 @@ class _ReportPage extends State<ReportPage> {
                     DataColumn(
                       label: Expanded(
                         child: Text(
-                          'Money',
+                          'Actual',
                           style: TextStyle(fontStyle: FontStyle.italic),
                         ),
                       ),
                     ),
-                    DataColumn(
-                      label: Expanded(
-                        child: Text(
-                          'Unit',
-                          style: TextStyle(fontStyle: FontStyle.italic),
-                        ),
-                      ),
-                    ),
+                    // DataColumn(
+                    //   label: Expanded(
+                    //     child: Text(
+                    //       'Unit',
+                    //       style: TextStyle(fontStyle: FontStyle.italic),
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                   rows: const <DataRow>[
                     DataRow(
@@ -646,7 +939,7 @@ class _ReportPage extends State<ReportPage> {
                         DataCell(Text('Sarah')),
                         DataCell(Text('19')),
                         DataCell(Text('Student')),
-                        DataCell(Text('vnd')),
+                        // DataCell(Text('vnd')),
                       ],
                     ),
                     DataRow(
@@ -654,7 +947,7 @@ class _ReportPage extends State<ReportPage> {
                         DataCell(Text('Janine')),
                         DataCell(Text('43')),
                         DataCell(Text('Professor')),
-                        DataCell(Text('vnd')),
+                        // DataCell(Text('vnd')),
                       ],
                     ),
                     DataRow(
@@ -662,7 +955,7 @@ class _ReportPage extends State<ReportPage> {
                         DataCell(Text('William')),
                         DataCell(Text('27')),
                         DataCell(Text('Associate Professor')),
-                        DataCell(Text('vnd')),
+                        // DataCell(Text('vnd')),
                       ],
                     ),
                   ],
@@ -697,106 +990,153 @@ class _ReportPage extends State<ReportPage> {
     );
   }
 
-  List<BarChartGroupData> getData(double barsWidth, double barsSpace) {
-    return [
-      BarChartGroupData(
-        x: 0,
-        barsSpace: barsSpace,
-        barRods: [
-          BarChartRodData(
-            toY: 17000000000,
-            rodStackItems: [
-              BarChartRodStackItem(0, 2000000000, Colors.black),
-            ],
-            borderRadius: BorderRadius.zero,
-            width: barsWidth,
-          ),
-        ],
-      ),
-      BarChartGroupData(
-        x: 1,
-        barsSpace: barsSpace,
-        barRods: [
-          BarChartRodData(
-            toY: 31000000000,
-            rodStackItems: [
-              BarChartRodStackItem(0, 11000000000, Colors.black),
-            ],
-            borderRadius: BorderRadius.zero,
-            width: barsWidth,
-          ),
-        ],
-      ),
-      BarChartGroupData(
-        x: 2,
-        barsSpace: barsSpace,
-        barRods: [
-          BarChartRodData(
-            toY: 34000000000,
-            rodStackItems: [
-              BarChartRodStackItem(0, 6000000000, Colors.black),
-            ],
-            borderRadius: BorderRadius.zero,
-            width: barsWidth,
-          ),
-        ],
-      ),
-      BarChartGroupData(
-        x: 3,
-        barsSpace: barsSpace,
-        barRods: [
-          BarChartRodData(
-            toY: 14000000000,
-            rodStackItems: [
-              BarChartRodStackItem(0, 1000000000.5, Colors.black),
-            ],
-            borderRadius: BorderRadius.zero,
-            width: barsWidth,
-          ),
-        ],
-      ),
-      BarChartGroupData(
-        x: 4,
-        barsSpace: barsSpace,
-        barRods: [
-          BarChartRodData(
-            toY: 14000000000,
-            rodStackItems: [
-              BarChartRodStackItem(0, 1000000000.5, Colors.black),
-            ],
-            borderRadius: BorderRadius.zero,
-            width: barsWidth,
-          ),
-        ],
-      ),
-      BarChartGroupData(
-        x: 5,
-        barsSpace: barsSpace,
-        barRods: [
-          BarChartRodData(
-            toY: 14000000000,
-            rodStackItems: [
-              BarChartRodStackItem(0, 1000000000.5, Colors.black),
-            ],
-            borderRadius: BorderRadius.zero,
-            width: barsWidth,
-          ),
-        ],
-      ),
-      BarChartGroupData(
-        x: 6,
-        barsSpace: barsSpace,
-        barRods: [
-          BarChartRodData(
-            toY: 14000000000,
-            rodStackItems: [
-              BarChartRodStackItem(0, 1000000000.5, Colors.black),
-            ],
-            borderRadius: BorderRadius.zero,
-            width: barsWidth,
-          ),
-        ],
-      ),
-    ];
+  List<BarChartGroupData> getData(double barWidth, double barsSpace) {
+    List<BarChartGroupData> data = [];
+
+    for (int i = 0; i < listDiagramData.length; i++) {
+      data.add(
+        BarChartGroupData(
+          x: listDiagramData[i].doM,
+          barRods: [
+            BarChartRodData(
+              toY: listDiagramData[i].expectMoney.toDouble(),
+              width: barWidth,
+              color: Colors.green,
+              borderRadius: BorderRadius.zero,
+            ),
+            BarChartRodData(
+              toY: listDiagramData[i].actualMoney.toDouble(),
+              width: barWidth,
+              color: Color.fromARGB(255, 248, 213, 87),
+              borderRadius: BorderRadius.zero,
+            ),
+          ],
+          barsSpace: barsSpace,
+        ),
+      );
+    }
+
+    return data;
   }
+
+  // List<BarChartGroupData> getData(double barsWidth, double barsSpace) {
+  //   return [
+  //     BarChartGroupData(
+  //       x: 0,
+  //       barsSpace: barsSpace,
+  //       barRods: [
+  //         BarChartRodData(
+  //           toY: 17000000000,
+  //           rodStackItems: [
+  //             BarChartRodStackItem(0, 2000000000, Colors.black),
+  //           ],
+  //           borderRadius: BorderRadius.zero,
+  //           width: barsWidth,
+  //         ),
+  //       ],
+  //     ),
+  //     BarChartGroupData(
+  //       x: 1,
+  //       barsSpace: barsSpace,
+  //       barRods: [
+  //         BarChartRodData(
+  //           toY: 31000000000,
+  //           rodStackItems: [
+  //             BarChartRodStackItem(0, 11000000000, Colors.black),
+  //           ],
+  //           borderRadius: BorderRadius.zero,
+  //           width: barsWidth,
+  //         ),
+  //         BarChartRodData(
+  //           toY: 31000000000,
+  //           rodStackItems: [
+  //             BarChartRodStackItem(0, 11000000000, Colors.black),
+  //           ],
+  //           borderRadius: BorderRadius.zero,
+  //           width: barsWidth,
+  //         ),
+  //       ],
+  //     ),
+  //     BarChartGroupData(
+  //       x: 2,
+  //       barsSpace: barsSpace,
+  //       barRods: [
+  //         BarChartRodData(
+  //           toY: 34000000000,
+  //           rodStackItems: [
+  //             BarChartRodStackItem(0, 6000000000, Colors.black),
+  //             BarChartRodStackItem(0, 6000000000, Colors.black),
+  //           ],
+  //           borderRadius: BorderRadius.zero,
+  //           width: barsWidth,
+  //         ),
+  //         BarChartRodData(
+  //           toY: 34000000000,
+  //           rodStackItems: [
+  //             BarChartRodStackItem(0, 6000000000, Colors.black),
+  //             BarChartRodStackItem(0, 6000000000, Colors.black),
+  //           ],
+  //           borderRadius: BorderRadius.zero,
+  //           width: barsWidth,
+  //         ),
+  //       ],
+  //     ),
+  //     BarChartGroupData(
+  //       x: 3,
+  //       barsSpace: barsSpace,
+  //       barRods: [
+  //         BarChartRodData(
+  //           toY: 14000000000,
+  //           rodStackItems: [
+  //             BarChartRodStackItem(0, 1000000000.5, Colors.black),
+  //           ],
+  //           borderRadius: BorderRadius.zero,
+  //           width: barsWidth,
+  //         ),
+  //       ],
+  //     ),
+  //     BarChartGroupData(
+  //       x: 4,
+  //       barsSpace: barsSpace,
+  //       barRods: [
+  //         BarChartRodData(
+  //           toY: 14000000000,
+  //           rodStackItems: [
+  //             BarChartRodStackItem(0, 1000000000.5, Colors.black),
+  //           ],
+  //           borderRadius: BorderRadius.zero,
+  //           width: barsWidth,
+  //         ),
+  //       ],
+  //     ),
+  //     BarChartGroupData(
+  //       x: 5,
+  //       barsSpace: barsSpace,
+  //       barRods: [
+  //         BarChartRodData(
+  //           toY: 14000000000,
+  //           rodStackItems: [
+  //             BarChartRodStackItem(0, 1000000000.5, Colors.black),
+  //           ],
+  //           borderRadius: BorderRadius.zero,
+  //           width: barsWidth,
+  //         ),
+  //       ],
+  //     ),
+  //     BarChartGroupData(
+  //       x: 6,
+  //       barsSpace: barsSpace,
+  //       barRods: [
+  //         BarChartRodData(
+  //           toY: 14000000000,
+  //           rodStackItems: [
+  //             BarChartRodStackItem(0, 1000000000.5, Colors.black),
+  //           ],
+  //           borderRadius: BorderRadius.zero,
+  //           width: barsWidth,
+  //         ),
+  //       ],
+  //     ),
+  //   ];
+  // }
 }

@@ -27,4 +27,6 @@ class Config {
   static const String getMoneyPlan = "/api/user/money-plan/range-type";
   static const String deleteMoneyPlan = "/api/user/money-plan/delete-money-plan";
   static const String updateMoneyPlan = "/api/user/money-plan/update-money-plan";
+  static const String dashboard = "/api/user/dashboard-user";
+  
 }

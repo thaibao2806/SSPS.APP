@@ -30,6 +30,7 @@ import 'package:ssps_app/models/register_request_model.dart';
 import 'package:ssps_app/models/register_response_model.dart';
 import 'package:ssps_app/models/forgotPassword_request_model.dart';
 import 'package:ssps_app/models/forgotPassword_response_model.dart';
+import 'package:ssps_app/models/report/report_response_model.dart';
 import 'package:ssps_app/models/todolist/create_todo_card_request_model.dart';
 import 'package:ssps_app/models/todolist/create_todo_card_response_model.dart';
 import 'package:ssps_app/models/todolist/create_todo_note_request_model.dart';
@@ -710,6 +711,36 @@ class ApiService {
       // Kiểm tra nếu response.body không rỗng
       if (response.body != null && response.body.isNotEmpty) {
         return updateMoneyPlanResponseJson(response.body);
+      } else {
+        throw Exception('Empty or null response body');
+      }
+    } else {
+      // Xử lý lỗi HTTP tại đây
+      throw Exception('Failed to create categories: ${response.statusCode}');
+    }
+  }
+
+  static Future<ReportResponseModel> report(
+      String? Type, String? FromDate, String? ToDate) async {
+    var token = (await SharedService.loginDetails());
+    Map<String, dynamic> decodedToken =
+        JwtDecoder.decode(token!.data!.accessToken);
+
+    Map<String, String> requestHeaders = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${token?.data?.accessToken}'
+    };
+
+    var url = Uri.http(Config.apiUrl, Config.dashboard,  {"Type": Type, "FromDate": FromDate, "ToDate": ToDate}) ;
+    print(url);
+
+    var response = await client.get(url, headers: requestHeaders);
+    print(response);
+
+    if (response.statusCode == 200) {
+      // Kiểm tra nếu response.body không rỗng
+      if (response.body != null && response.body.isNotEmpty) {
+        return reportResponseJson(response.body);
       } else {
         throw Exception('Empty or null response body');
       }

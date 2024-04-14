@@ -96,7 +96,9 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
                 decoration: InputDecoration(labelText: 'Title'),
               ),
             ),
-            SizedBox(width: 20,),
+            SizedBox(
+              width: 20,
+            ),
             Expanded(
               child: TextFormField(
                 controller: formData['field2'],
@@ -105,7 +107,10 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
               ),
             ),
             IconButton(
-              icon: Icon(Icons.delete, color: Colors.red[400],),
+              icon: Icon(
+                Icons.delete,
+                color: Colors.red[400],
+              ),
               onPressed: () {
                 setState(() {
                   formDataList.removeAt(index);
@@ -142,7 +147,9 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
                 },
               ),
             ),
-            SizedBox(width: 20,),
+            SizedBox(
+              width: 20,
+            ),
             Expanded(
               child: ValueListenableBuilder<String>(
                 valueListenable: dropdownValues2[index],
@@ -168,7 +175,9 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
                 },
               ),
             ),
-            SizedBox(width: 25,),
+            SizedBox(
+              width: 25,
+            ),
           ],
         )
       ],
@@ -300,9 +309,9 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
                             decoration: InputDecoration(
                               labelText: 'From',
                               labelStyle: TextStyle(
-                                // fontWeight: FontWeight.bold,
-                                // color: Color.fromARGB(255, 0, 0, 0),
-                              ),
+                                  // fontWeight: FontWeight.bold,
+                                  // color: Color.fromARGB(255, 0, 0, 0),
+                                  ),
                             ),
                             // controller: TextEditingController(
                             //   text: _selectedFromDateTime != null
@@ -330,9 +339,9 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
                             decoration: InputDecoration(
                               labelText: 'To',
                               labelStyle: TextStyle(
-                                // fontWeight: FontWeight.bold,
-                                // color: Color.fromARGB(255, 0, 0, 0),
-                              ),
+                                  // fontWeight: FontWeight.bold,
+                                  // color: Color.fromARGB(255, 0, 0, 0),
+                                  ),
                             ),
                             // controller: TextEditingController(
                             //   text: _selectedToDateTime != null
@@ -352,16 +361,24 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
                   ),
                 ],
               ),
-              SizedBox(height: 10,),
+              SizedBox(
+                height: 10,
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Plan Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
+                  Text(
+                    "Plan Details",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
                   IconButton(
                       onPressed: () {
                         _addFormRow();
                       },
-                      icon: Icon(Icons.add, size: 30,)),
+                      icon: Icon(
+                        Icons.add,
+                        size: 30,
+                      )),
                 ],
               ),
               Column(
@@ -372,10 +389,9 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.blue[300],
-                  minimumSize: const Size(double.infinity, 50),
-                  textStyle: TextStyle(fontSize: 20)
-                ),
+                    primary: Colors.blue[300],
+                    minimumSize: const Size(double.infinity, 50),
+                    textStyle: TextStyle(fontSize: 20)),
                 onPressed: () {
                   if (expectAmounts.text.isEmpty ||
                       currencyUnit.text.isEmpty ||
@@ -419,26 +435,26 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
                     List<Map<String, dynamic>> data = [];
                     List<UsageMoneys> usageMoneys = [];
 
-                    if(_selectedToDateTime!.isBefore(_selectedFromDateTime!)) {
+                    if (_selectedToDateTime!.isBefore(_selectedFromDateTime!)) {
                       showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: Text('Notification'),
-                              content: Text(
-                                  'The start date must be before the end date'),
-                              actions: <Widget>[
-                                TextButton(
-                                  child: Text('OK'),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                        return;
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('Notification'),
+                            content: Text(
+                                'The start date must be before the end date'),
+                            actions: <Widget>[
+                              TextButton(
+                                child: Text('OK'),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                      return;
                     }
 
                     for (var formData in formDataList) {
@@ -449,8 +465,8 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
                           builder: (BuildContext context) {
                             return AlertDialog(
                               title: Text('Notification'),
-                              content: Text(
-                                  'Please enter complete information'),
+                              content:
+                                  Text('Please enter complete information'),
                               actions: <Widget>[
                                 TextButton(
                                   child: Text('OK'),
@@ -464,8 +480,10 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
                         );
                         break;
                       }
-                      return;
+                      // return;
                     }
+                    print("aaa");
+
                     for (Map<String, TextEditingController> formData
                         in formDataList) {
                       UsageMoneys usageMoney = UsageMoneys(
@@ -492,8 +510,6 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
                     double? expectedAmounts =
                         double.tryParse(expectAmounts.text);
 
-                    
-
                     CreateMoneyPlanRequestModel model =
                         CreateMoneyPlanRequestModel(
                             currencyUnit: currencyUnit.text,
@@ -504,11 +520,33 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
                     // CreateMoneyPlanRequestModel model =
                     //     _createMoneyPlanRequestModel();
                     ApiService.createMoneyPlan(model).then((value) {
-                      print(value.result);
+                      print(value.msgCode);
                       if (value.result) {
                         // print(value.msgDesc);
                         widget.getNote();
+
                         Navigator.of(context).pop();
+                      } else {
+                        if (value.msgCode == "EXPECT_AMOUNT_IS_NOT_ENOUGH") {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text('Notification'),
+                                content: Text(
+                                    'The expected amount is not enough. Note: The time you need to create could have been planned with a higher spend'),
+                                actions: <Widget>[
+                                  TextButton(
+                                    child: Text('OK'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        }
                       }
                     });
                     // CreateNoteRequestModel model = CreateNoteRequestModel(
