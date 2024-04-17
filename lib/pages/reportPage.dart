@@ -28,22 +28,24 @@ class _ReportPage extends State<ReportPage> {
   String? selectedValue = "Day";
   DateTime currentDate = DateTime.now();
   String? month;
-  bool isMonthSelected = true;
+  bool isMonthSelected = false;
   num totalExpectAmount = 0;
   num totalActualAmount = 0;
   DateTimeRange dateRange =
       DateTimeRange(start: DateTime.now(), end: DateTime.now());
-  String? type = "MONTH";
+  String? type = "YEAR";
   String? fromDate;
   String? toDate;
+  DateTime firstDayOfMonth = DateTime.now();
+  DateTime lastDayOfMonth = DateTime.now();
   List<ListDiagramData> listDiagramData = [];
 
   @override
   void initState() {
     super.initState();
     DateTime now = DateTime.now();
-    DateTime firstDayOfMonth = new DateTime(now.year, now.month, 1);
-    DateTime lastDayOfMonth = new DateTime(now.year, now.month + 1, 0);
+    firstDayOfMonth = new DateTime(now.year, now.month, 1);
+    lastDayOfMonth = new DateTime(now.year, now.month + 1, 0);
     fromDate = formatMonthYear(firstDayOfMonth);
     toDate = formatMonthYear(lastDayOfMonth);
     dateRange = DateTimeRange(start: firstDayOfMonth, end: lastDayOfMonth);
@@ -51,7 +53,7 @@ class _ReportPage extends State<ReportPage> {
     _decodeToken();
     _getData(type, fromDate, toDate);
 
-    month = formatMonthYear(currentDate);
+    month = formatYear(currentDate);
   }
 
   @override
@@ -61,12 +63,18 @@ class _ReportPage extends State<ReportPage> {
   }
 
   _changeTypeDate(bool isType) {
-    if(isType) {
+    if (isType) {
       type = "MONTH";
+      DateTime now = DateTime.now();
+      firstDayOfMonth = new DateTime(now.year, now.month, 1);
+      lastDayOfMonth = new DateTime(now.year, now.month + 1, 0);
+      fromDate = formatMonthYear(firstDayOfMonth);
+      toDate = formatMonthYear(lastDayOfMonth);
       _getData(type, fromDate, toDate);
     } else {
-       type = "YEAR";
+      type = "YEAR";
       _getData(type, fromDate, toDate);
+      month = formatYear(firstDayOfMonth);
     }
   }
 
@@ -281,6 +289,11 @@ class _ReportPage extends State<ReportPage> {
     return formattedDate;
   }
 
+  String formatYear(DateTime dateString) {
+    String formattedDate = DateFormat('yyyy').format(dateString);
+    return formattedDate;
+  }
+
   _openDatePicker(BuildContext context) {
     BottomPicker.date(
       title: "Select a year",
@@ -289,10 +302,10 @@ class _ReportPage extends State<ReportPage> {
           const TextStyle(color: Color.fromARGB(255, 15, 15, 15), fontSize: 20),
       titleStyle: const TextStyle(fontSize: 20),
       onChange: (index) {
-        print(formatMonthYear(index));
+        print(formatYear(index));
         print(currentDate);
         setState(() {
-          month = formatMonthYear(index);
+          month = formatYear(index);
           type = "YEAR";
           fromDate = formatMonthYear(index);
           toDate = formatMonthYear(index);
@@ -365,6 +378,94 @@ class _ReportPage extends State<ReportPage> {
           padding: const EdgeInsets.all(15.0),
           child: Column(
             children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Overview",
+                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Color.fromARGB(107, 104, 104, 104),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          isMonthSelected = !isMonthSelected;
+                          _changeTypeDate(isMonthSelected);
+                        });
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(5.0),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[250],
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        child: RichText(
+                          text: TextSpan(
+                            children: [
+                              WidgetSpan(
+                                child: DecoratedBox(
+                                    decoration: BoxDecoration(
+                                      color:
+                                          isMonthSelected ? Colors.white : null,
+                                      borderRadius: BorderRadius.circular(5.0),
+                                    ),
+                                    child: Padding(
+                                      padding: EdgeInsets.all(5),
+                                      child: Text(
+                                        'Month',
+                                        style: TextStyle(
+                                          color: isMonthSelected
+                                              ? const Color.fromARGB(
+                                                  255, 6, 6, 6)
+                                              : Colors.white,
+                                          fontSize: 18.0,
+                                        ),
+                                      ),
+                                    )),
+                              ),
+                              TextSpan(
+                                text: '  ',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18.0,
+                                ),
+                              ),
+                              WidgetSpan(
+                                child: DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    color:
+                                        isMonthSelected ? null : Colors.white,
+                                    borderRadius: BorderRadius.circular(5.0),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(5.0),
+                                    child: Text(
+                                      'Year',
+                                      style: TextStyle(
+                                        color: isMonthSelected
+                                            ? Colors.white
+                                            : Color.fromARGB(255, 0, 0, 0),
+                                        fontSize: 18.0,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 15,
+              ),
               Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -537,7 +638,7 @@ class _ReportPage extends State<ReportPage> {
                   child: Padding(
                     padding: const EdgeInsets.only(top: 10.0, bottom: 30),
                     child: Container(
-                      height: 300, // Đặt chiều cao tùy ý tại đây
+                      height: 292, // Đặt chiều cao tùy ý tại đây
                       width: double.infinity,
                       child: Padding(
                         padding: const EdgeInsets.only(top: 0),
@@ -570,119 +671,6 @@ class _ReportPage extends State<ReportPage> {
                                           //   "10000\$",
                                           //   style: TextStyle(fontSize: 20),
                                           // ),
-                                          Container(
-                                            decoration: BoxDecoration(
-                                              color: Color.fromARGB(
-                                                  107, 77, 77, 77),
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0),
-                                            ),
-                                            child: GestureDetector(
-                                              onTap: () {
-                                                setState(() {
-                                                  isMonthSelected =
-                                                      !isMonthSelected;
-                                                   _changeTypeDate(isMonthSelected);
-                                                  
-                                                });
-                                              },
-                                              child: Container(
-                                                padding: EdgeInsets.all(5.0),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.grey[250],
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10.0),
-                                                ),
-                                                child: RichText(
-                                                  text: TextSpan(
-                                                    children: [
-                                                      WidgetSpan(
-                                                        child: DecoratedBox(
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              color:
-                                                                  isMonthSelected
-                                                                      ? Colors
-                                                                          .white
-                                                                      : null,
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          5.0),
-                                                            ),
-                                                            child: Padding(
-                                                              padding:
-                                                                  EdgeInsets
-                                                                      .all(5),
-                                                              child: Text(
-                                                                'Month',
-                                                                style:
-                                                                    TextStyle(
-                                                                  color: isMonthSelected
-                                                                      ? const Color
-                                                                          .fromARGB(
-                                                                          255,
-                                                                          6,
-                                                                          6,
-                                                                          6)
-                                                                      : Colors
-                                                                          .white,
-                                                                  fontSize:
-                                                                      18.0,
-                                                                ),
-                                                              ),
-                                                            )),
-                                                      ),
-                                                      TextSpan(
-                                                        text: '  ',
-                                                        style: TextStyle(
-                                                          color: Colors.white,
-                                                          fontSize: 18.0,
-                                                        ),
-                                                      ),
-                                                      WidgetSpan(
-                                                        child: DecoratedBox(
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color:
-                                                                isMonthSelected
-                                                                    ? null
-                                                                    : Colors
-                                                                        .white,
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        5.0),
-                                                          ),
-                                                          child: Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .all(5.0),
-                                                            child: Text(
-                                                              'Year',
-                                                              style: TextStyle(
-                                                                color: isMonthSelected
-                                                                    ? Colors
-                                                                        .white
-                                                                    : Color
-                                                                        .fromARGB(
-                                                                            255,
-                                                                            0,
-                                                                            0,
-                                                                            0),
-                                                                fontSize: 18.0,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
                                         ],
                                       ),
                                       SizedBox(
@@ -699,57 +687,95 @@ class _ReportPage extends State<ReportPage> {
                                                 child: Row(
                                                   children: [
                                                     Expanded(
-                                                      child: TextField(
-                                                        decoration:
-                                                            InputDecoration(
-                                                          // labelText: 'From',
-                                                          labelStyle: TextStyle(
-                                                              // fontWeight: FontWeight.bold,
-                                                              // color: Color.fromARGB(255, 0, 0, 0),
+                                                      child: Row(
+                                                        children: [
+                                                          Text(
+                                                            "From:",
+                                                            style: TextStyle(
+                                                                fontSize: 18,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500),
+                                                          ),
+                                                          SizedBox(
+                                                            width: 10,
+                                                          ),
+                                                          Expanded(
+                                                            child: TextField(
+                                                              decoration:
+                                                                  InputDecoration(
+                                                                // labelText: 'From',
+                                                                labelStyle: TextStyle(
+                                                                    // fontWeight: FontWeight.bold,
+                                                                    // color: Color.fromARGB(255, 0, 0, 0),
+                                                                    ),
                                                               ),
-                                                        ),
-                                                        // controller: TextEditingController(
-                                                        //   text: _selectedToDateTime != null
-                                                        //       ? _selectedToDateTime.toString()
-                                                        //       : '',
-                                                        // ),
-                                                        controller:
-                                                            TextEditingController(
-                                                          text:
-                                                              "${start.day}/${start.month}/${start.year}",
-                                                        ),
+                                                              // controller: TextEditingController(
+                                                              //   text: _selectedToDateTime != null
+                                                              //       ? _selectedToDateTime.toString()
+                                                              //       : '',
+                                                              // ),
+                                                              controller:
+                                                                  TextEditingController(
+                                                                text:
+                                                                    "${start.day}/${start.month}/${start.year}",
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
                                                       ),
                                                     ),
                                                     // SizedBox(
                                                     //   width: 10,
                                                     // ),
                                                     Text(
-                                                      "  ",
+                                                      " - ",
                                                       style: TextStyle(
-                                                          fontSize: 15),
+                                                        fontSize: 18,
+                                                      ),
                                                     ),
-                                                    SizedBox(width: 15,),
+                                                    // SizedBox(width: 15,),
                                                     // Icon(Icons.minimize),
                                                     Expanded(
-                                                      child: TextField(
-                                                        decoration:
-                                                            InputDecoration(
-                                                          // labelText: 'To',
-                                                          labelStyle: TextStyle(
-                                                              // fontWeight: FontWeight.bold,
-                                                              // color: Color.fromARGB(255, 0, 0, 0),
+                                                      child: Row(
+                                                        children: [
+                                                          Text(
+                                                            "To:",
+                                                            style: TextStyle(
+                                                                fontSize: 18,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500),
+                                                          ),
+                                                          SizedBox(
+                                                            width: 10,
+                                                          ),
+                                                          Expanded(
+                                                            child: TextField(
+                                                              decoration:
+                                                                  InputDecoration(
+                                                                // labelText: 'To',
+                                                                labelStyle: TextStyle(
+                                                                    // fontWeight: FontWeight.bold,
+                                                                    // color: Color.fromARGB(255, 0, 0, 0),
+                                                                    ),
                                                               ),
-                                                        ),
-                                                        // controller: TextEditingController(
-                                                        //   text: _selectedToDateTime != null
-                                                        //       ? _selectedToDateTime.toString()
-                                                        //       : '',
-                                                        // ),
-                                                        controller:
-                                                            TextEditingController(
-                                                          text:
-                                                              "${end.day}/${end.month}/${end.year}",
-                                                        ),
+                                                              // controller: TextEditingController(
+                                                              //   text: _selectedToDateTime != null
+                                                              //       ? _selectedToDateTime.toString()
+                                                              //       : '',
+                                                              // ),
+                                                              controller:
+                                                                  TextEditingController(
+                                                                text:
+                                                                    "${end.day}/${end.month}/${end.year}",
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          SizedBox(
+                                                            width: 10,
+                                                          )
+                                                        ],
                                                       ),
                                                     ),
                                                   ],
@@ -762,41 +788,111 @@ class _ReportPage extends State<ReportPage> {
                                       // {!isMonthSelected ? }
                                       Visibility(
                                         visible: !isMonthSelected,
-                                        child: ElevatedButton(
-                                          style: ButtonStyle(
-                                            backgroundColor:
-                                                MaterialStateProperty.all<
-                                                        Color>(
-                                                    const Color.fromARGB(
-                                                        255,
-                                                        251,
-                                                        251,
-                                                        251)), // Xoá nền
-                                            shape: MaterialStateProperty.all<
-                                                OutlinedBorder>(
-                                              // Thêm border
-                                              RoundedRectangleBorder(
-                                                side: const BorderSide(
-                                                    color: Color.fromARGB(
-                                                        255,
-                                                        91,
-                                                        91,
-                                                        91)), // Màu và độ dày của border
-                                                borderRadius:
-                                                    BorderRadius.circular(
-                                                        8), // Độ cong của border
+                                        child: Expanded(
+                                          child: Row(
+                                            // crossAxisAlignment: CrossAxisAlignment.center,
+                                            // mainAxisAlignment: MainAxisAlignment.end,
+                                            children: [
+                                              Expanded(
+                                                child: Row(
+                                                  children: [
+                                                    Expanded(
+                                                      child: GestureDetector(
+                                                        onTap: () =>
+                                                            _openDatePicker(
+                                                                context),
+                                                        child: AbsorbPointer(
+                                                          child: Row(
+                                                            mainAxisAlignment: MainAxisAlignment.end,
+                                                            children: [
+                                                              SizedBox(
+                                                                width: 210,
+                                                              ),
+                                                              Text(
+                                                                "Year:",
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        18,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500),
+                                                              ),
+                                                              SizedBox(
+                                                                width: 10,
+                                                              ),
+                                                              Expanded(
+                                                                child:
+                                                                    TextField(
+                                                                  decoration:
+                                                                      InputDecoration(
+                                                                    // labelText: 'From',
+                                                                    labelStyle: TextStyle(
+                                                                        // fontWeight: FontWeight.bold,
+                                                                        // color: Color.fromARGB(255, 0, 0, 0),
+                                                                        ),
+                                                                  ),
+                                                                  // controller: TextEditingController(
+                                                                  //   text: _selectedToDateTime != null
+                                                                  //       ? _selectedToDateTime.toString()
+                                                                  //       : '',
+                                                                  // ),
+                                                                  controller:
+                                                                      TextEditingController(
+                                                                    text:
+                                                                        "${month}",
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              // SizedBox(
+                                                              //   width: 10,
+                                                              // ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
-                                            ),
+
+                                              // ElevatedButton(
+                                              //   style: ButtonStyle(
+                                              //     backgroundColor:
+                                              //         MaterialStateProperty.all<
+                                              //                 Color>(
+                                              //             const Color.fromARGB(
+                                              //                 255,
+                                              //                 251,
+                                              //                 251,
+                                              //                 251)), // Xoá nền
+                                              //     shape: MaterialStateProperty.all<
+                                              //         OutlinedBorder>(
+                                              //       // Thêm border
+                                              //       RoundedRectangleBorder(
+                                              //         side: const BorderSide(
+                                              //             color: Color.fromARGB(
+                                              //                 255,
+                                              //                 91,
+                                              //                 91,
+                                              //                 91)), // Màu và độ dày của border
+                                              //         borderRadius:
+                                              //             BorderRadius.circular(
+                                              //                 8), // Độ cong của border
+                                              //       ),
+                                              //     ),
+                                              //   ),
+                                              //   child: Text(
+                                              //     '${month}',
+                                              //     style: const TextStyle(
+                                              //       color: Colors.black,
+                                              //     ),
+                                              //   ),
+                                              //   onPressed: () {
+                                              //     _openDatePicker(context);
+                                              //   },
+                                              // ),
+                                            ],
                                           ),
-                                          child: Text(
-                                            '${month}',
-                                            style: const TextStyle(
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                          onPressed: () {
-                                            _openDatePicker(context);
-                                          },
                                         ),
                                       ),
                                     ],
@@ -814,14 +910,16 @@ class _ReportPage extends State<ReportPage> {
                                               constraints.maxWidth /
                                               1000000;
                                           double barsWidth = 0;
-                                          if(isMonthSelected) {
-                                             barsWidth =
-                                              8.0 * constraints.maxWidth / 480;
+                                          if (isMonthSelected) {
+                                            barsWidth = 8.0 *
+                                                constraints.maxWidth /
+                                                480;
                                           } else {
-                                             barsWidth =
-                                              8.0 * constraints.maxWidth / 200;
+                                            barsWidth = 8.0 *
+                                                constraints.maxWidth /
+                                                200;
                                           }
-                                          
+
                                           return BarChart(
                                             BarChartData(
                                               alignment:
@@ -899,7 +997,7 @@ class _ReportPage extends State<ReportPage> {
               Center(
                 child: DataTable(
                   decoration: BoxDecoration(),
-                  columns:  <DataColumn>[
+                  columns: <DataColumn>[
                     DataColumn(
                       label: Expanded(
                         child: Text(
@@ -933,32 +1031,8 @@ class _ReportPage extends State<ReportPage> {
                     //   ),
                     // ),
                   ],
-                  rows: const <DataRow>[
-                    DataRow(
-                      cells: <DataCell>[
-                        DataCell(Text('Sarah')),
-                        DataCell(Text('19')),
-                        DataCell(Text('Student')),
-                        // DataCell(Text('vnd')),
-                      ],
-                    ),
-                    DataRow(
-                      cells: <DataCell>[
-                        DataCell(Text('Janine')),
-                        DataCell(Text('43')),
-                        DataCell(Text('Professor')),
-                        // DataCell(Text('vnd')),
-                      ],
-                    ),
-                    DataRow(
-                      cells: <DataCell>[
-                        DataCell(Text('William')),
-                        DataCell(Text('27')),
-                        DataCell(Text('Associate Professor')),
-                        // DataCell(Text('vnd')),
-                      ],
-                    ),
-                  ],
+                  //
+                  rows: buildDataRows(),
                 ),
               )
             ],
@@ -988,6 +1062,31 @@ class _ReportPage extends State<ReportPage> {
         )),
       ),
     );
+  }
+
+  List<DataRow> buildDataRows() {
+    // Khởi tạo danh sách DataRow
+    List<DataRow> rows = [];
+
+    // Duyệt qua mỗi dòng dữ liệu trong apiData và tạo DataRow tương ứng
+    for (var data in listDiagramData) {
+      // Tạo một list cells chứa các DataCell tương ứng với từng trường dữ liệu
+      List<DataCell> cells = [];
+      // data.actualMoney
+
+      cells.add(DataCell(Text('${data.doM}')));
+      cells.add(DataCell(Text('${data.expectMoney.toStringAsFixed(2)}')));
+      cells.add(DataCell(Text('${data.actualMoney.toStringAsFixed(2)}')));
+      // Duyệt qua mỗi trường dữ liệu trong dòng hiện tại và thêm vào cells
+      // data.forEach((key, value) {
+      //   cells.add(DataCell(Text('$value')));
+      // });
+
+      // Thêm DataRow mới vào danh sách rows
+      rows.add(DataRow(cells: cells));
+    }
+
+    return rows;
   }
 
   List<BarChartGroupData> getData(double barWidth, double barsSpace) {

@@ -8,6 +8,7 @@ import 'package:ssps_app/models/categories/delete_category_response_model.dart';
 import 'package:ssps_app/models/categories/get_category_response_model.dart';
 import 'package:ssps_app/models/categories/update_category_request_model.dart';
 import 'package:ssps_app/models/categories/update_category_response_model.dart';
+import 'package:ssps_app/models/chatbox/chatbox_response_model.dart';
 import 'package:ssps_app/models/get_user_response_model.dart';
 import 'package:ssps_app/models/login_request_model.dart';
 import 'package:ssps_app/models/login_response_model.dart';
@@ -670,7 +671,7 @@ class ApiService {
       'Authorization': 'Bearer ${token?.data?.accessToken}'
     };
 
-    var url = Uri.http(Config.apiUrl, Config.getMoneyPlanById + "/${id}") ;
+    var url = Uri.http(Config.apiUrl, Config.getMoneyPlanById + "/${id}");
     print(url);
 
     var response = await client.get(url, headers: requestHeaders);
@@ -700,10 +701,11 @@ class ApiService {
       'Authorization': 'Bearer ${token?.data?.accessToken}'
     };
 
-    var url = Uri.http(Config.apiUrl, Config.updateMoneyPlan ) ;
+    var url = Uri.http(Config.apiUrl, Config.updateMoneyPlan);
     print(url);
 
-    var response = await client.post(url, headers: requestHeaders, body: jsonEncode(model.toJson()));
+    var response = await client.post(url,
+        headers: requestHeaders, body: jsonEncode(model.toJson()));
     print(response);
     print(jsonEncode(model.toJson()));
 
@@ -731,7 +733,8 @@ class ApiService {
       'Authorization': 'Bearer ${token?.data?.accessToken}'
     };
 
-    var url = Uri.http(Config.apiUrl, Config.dashboard,  {"Type": Type, "FromDate": FromDate, "ToDate": ToDate}) ;
+    var url = Uri.http(Config.apiUrl, Config.dashboard,
+        {"Type": Type, "FromDate": FromDate, "ToDate": ToDate});
     print(url);
 
     var response = await client.get(url, headers: requestHeaders);
@@ -747,6 +750,49 @@ class ApiService {
     } else {
       // Xử lý lỗi HTTP tại đây
       throw Exception('Failed to create categories: ${response.statusCode}');
+    }
+  }
+
+  static Future<ChatboxResponseModel> chatBox(String? message) async {
+    var token = (await SharedService.loginDetails());
+    Map<String, dynamic> decodedToken =
+        JwtDecoder.decode(token!.data!.accessToken);
+
+    var url = Uri.http(Config.apiUrlChat, Config.chatBox);
+    print(url);
+
+    // Tạo một yêu cầu POST multipart
+    var request = http.MultipartRequest('POST', url);
+
+    // Thêm headers vào yêu cầu
+    request.headers.addAll({
+      'Content-Type': 'multipart/form-data',
+      'Authorization': 'Bearer ${token?.data?.accessToken}'
+    });
+
+    // Thêm trường form 'message' vào yêu cầu
+    request.fields['message'] = message!;
+
+    // Gửi yêu cầu và nhận phản hồi
+    var response = await request.send();
+
+    // Chuyển đổi phản hồi thành http.Response
+    var httpResponse = await http.Response.fromStream(response);
+    print(httpResponse.body);
+
+    if (httpResponse.statusCode == 200 || httpResponse.statusCode == 201) {
+      // Kiểm tra nếu httpResponse.body không rỗng
+      if (httpResponse.body != null && httpResponse.body.isNotEmpty) {
+        return chatboxResponseModelJson(httpResponse.body);
+      } else {
+        throw Exception('Empty or null response body');
+      }
+    }
+    if (httpResponse.statusCode == 500) {
+      throw Exception('Internal Server Error');
+    } else {
+      throw Exception(
+          'Failed to create categories: ${httpResponse.statusCode}');
     }
   }
 }

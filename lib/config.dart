@@ -1,6 +1,7 @@
 class Config {
   static const String appName = "SSPS";
   static const String apiUrl = "10.0.2.2:5031";
+  static const String apiUrlChat = "10.0.2.2:5000";
   static const String loginApi = "/api/authenticate/login";
   static const String registerApi = "/api/authenticate/register";
   static const String forgotPasswordApi = "/api/authenticate/forgot-password";
@@ -28,5 +29,6 @@ class Config {
   static const String deleteMoneyPlan = "/api/user/money-plan/delete-money-plan";
   static const String updateMoneyPlan = "/api/user/money-plan/update-money-plan";
   static const String dashboard = "/api/user/dashboard-user";
+  static const String chatBox = "/chatbox";
   
 }
