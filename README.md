@@ -13,7 +13,7 @@
 ## App interface
 
 1. Wellcome page
-<img src="./assets/images/img_demo/wellcom.png"width="250px"/>
+<img src="./assets/images/img_demo/wellcom.png" width="250px"/>
 2. Login Page
 <img src="./assets/images/img_demo/login.png" width="250px"/>
 3. Sign up Page
