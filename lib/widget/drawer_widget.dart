@@ -3,6 +3,7 @@ import 'package:ssps_app/pages/accountPage.dart';
 import 'package:ssps_app/pages/homePage.dart';
 import 'package:ssps_app/pages/pomodoroPage.dart';
 import 'package:ssps_app/pages/reportPage.dart';
+import 'package:ssps_app/pages/resetPassword.dart';
 import 'package:ssps_app/pages/todolistPage.dart';
 import 'package:ssps_app/service/shared_service.dart';
 
@@ -23,7 +24,9 @@ Widget MyDrawerList(BuildContext context) {
         menuItem(
             context, 5, "Account", Icons.person_outline, false, AccountPage()),
         Divider(),
-        menuItem(context, 6, "Logout", Icons.logout_outlined, false, null),
+        menuItem(
+            context, 6, "Change Password", Icons.password, false, ResetPassword()),
+        menuItem(context, 7, "Logout", Icons.logout_outlined, false, null),
       ],
     ),
   );

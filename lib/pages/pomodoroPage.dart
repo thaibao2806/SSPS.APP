@@ -414,7 +414,7 @@ class _PomodoroPage extends State<PomodoroPage> {
         LocalNotifications.showSimpleNotification(
                       title: "SSPS",
                       body: "Pomodoro: time is up!",
-                      payload: "This is simple data");
+                      payload: "Pomodoro");
         pomodoroNum++;
         _cancelTimer();
         if (pomodoroNum % pomodoroPerSet == 0) {
@@ -450,7 +450,7 @@ class _PomodoroPage extends State<PomodoroPage> {
         LocalNotifications.showSimpleNotification(
                       title: "SSPS",
                       body: "Pomodoro: time is up!",
-                      payload: "This is simple data");
+                      payload: "Pomodoro");
         remainingTime = pomodoroTotalTime;
         _cancelTimer();
         pomodoroStatus = PomodoroStatus.pausePomodoro;
@@ -477,7 +477,7 @@ class _PomodoroPage extends State<PomodoroPage> {
         LocalNotifications.showSimpleNotification(
                       title: "SSPS",
                       body: "Pomodoro: time is up!",
-                      payload: "This is simple data");
+                      payload: "Pomodoro");
         remainingTime = pomodoroTotalTime;
         _cancelTimer();
         pomodoroStatus = PomodoroStatus.setFinished;

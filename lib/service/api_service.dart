@@ -8,6 +8,8 @@ import 'package:ssps_app/models/categories/delete_category_response_model.dart';
 import 'package:ssps_app/models/categories/get_category_response_model.dart';
 import 'package:ssps_app/models/categories/update_category_request_model.dart';
 import 'package:ssps_app/models/categories/update_category_response_model.dart';
+import 'package:ssps_app/models/changePassword_request_model.dart';
+import 'package:ssps_app/models/changePassword_response_model.dart';
 import 'package:ssps_app/models/chatbox/chatbox_response_model.dart';
 import 'package:ssps_app/models/get_user_response_model.dart';
 import 'package:ssps_app/models/login_request_model.dart';
@@ -753,7 +755,37 @@ class ApiService {
     }
   }
 
-  static Future<ChatboxResponseModel> chatBox(String? message) async {
+  static Future<ChangePasswordResponseModel> changePassword(
+      ChangePasswordRequestModel model,String? id) async {
+    var token = (await SharedService.loginDetails());
+    Map<String, dynamic> decodedToken =
+        JwtDecoder.decode(token!.data!.accessToken);
+
+    Map<String, String> requestHeaders = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${token?.data?.accessToken}'
+    };
+
+    var url = Uri.http(Config.apiUrl, Config.changePasswords + "${id}");
+    print(url);
+
+    var response = await client.post(url, headers: requestHeaders, body: jsonEncode(model.toJson()));
+    print(response);
+
+    if (response.statusCode == 200) {
+      // Kiểm tra nếu response.body không rỗng
+      if (response.body != null && response.body.isNotEmpty) {
+        return changePasswordResponseJson(response.body);
+      } else {
+        throw Exception('Empty or null response body');
+      }
+    } else {
+      // Xử lý lỗi HTTP tại đây
+      throw Exception('Failed to create categories: ${response.statusCode}');
+    }
+  }
+
+  static Future<ChatboxResponseModel> chatBox(String? message, String? username) async {
     var token = (await SharedService.loginDetails());
     Map<String, dynamic> decodedToken =
         JwtDecoder.decode(token!.data!.accessToken);
@@ -772,6 +804,7 @@ class ApiService {
 
     // Thêm trường form 'message' vào yêu cầu
     request.fields['message'] = message!;
+    request.fields['username'] = username!;
 
     // Gửi yêu cầu và nhận phản hồi
     var response = await request.send();

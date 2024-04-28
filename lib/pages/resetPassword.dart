@@ -1,27 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:snippet_coder_utils/FormHelper.dart';
 import 'package:ssps_app/config.dart';
+import 'package:ssps_app/models/changePassword_request_model.dart';
 import 'package:ssps_app/models/login_request_model.dart';
 import 'package:ssps_app/pages/forgotPassword.dart';
 import 'package:ssps_app/pages/homePage.dart';
 import 'package:ssps_app/pages/registerPage.dart';
 import 'package:ssps_app/pages/reportPage.dart';
 import 'package:ssps_app/service/api_service.dart';
+import 'package:ssps_app/service/shared_service.dart';
 
-class loginPage extends StatefulWidget {
-  loginPage({Key? key}) : super(key: key);
+class ResetPassword extends StatefulWidget {
+  ResetPassword({Key? key}) : super(key: key);
 
   @override
-  State<loginPage> createState() => _loginPageState();
+  State<ResetPassword> createState() => _ResetPasswordState();
 }
 
-class _loginPageState extends State<loginPage> {
+class _ResetPasswordState extends State<ResetPassword> {
   bool _isPasswordVisible = false;
-  TextEditingController _emailController = TextEditingController();
+  bool _isCurrentPasswordVisible = false;
+  TextEditingController _currentController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+  TextEditingController _confirmPasswordController = TextEditingController();
   bool _isEmailEmpty = false;
   bool _isPasswordEmpty = false;
-  bool _isLoading = false;
+  String? id;
+
+  @override
+  void initState() {
+    super.initState();
+    _decodeToken();
+  }
+
+  _decodeToken() async {
+    var token = (await SharedService
+        .loginDetails()); // Assume this method retrieves the token
+    String? accessToken =
+        token?.data?.accessToken; // Access token might be null
+    if (accessToken != null) {
+      Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
+      id = decodedToken['id'];
+    } else {
+      print("Access token is null");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +81,7 @@ class _loginPageState extends State<loginPage> {
                         // Để tránh bo góc vượt qua phần border
                         borderRadius: BorderRadius.circular(10),
                         child: const Image(
-                          image: AssetImage('assets/images/signup.png'),
+                          image: AssetImage('assets/images/reset-password.png'),
                           fit: BoxFit
                               .cover, // Đảm bảo hình ảnh vừa với kích thước container
                         ),
@@ -87,7 +111,7 @@ class _loginPageState extends State<loginPage> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         const Text(
-                          'Login',
+                          'Change Password',
                           style: TextStyle(
                               fontSize: 30,
                               fontWeight: FontWeight.bold,
@@ -97,27 +121,39 @@ class _loginPageState extends State<loginPage> {
                           height: 10,
                         ),
                         TextField(
-                          controller: _emailController,
+                          controller: _currentController,
+                          obscureText: !_isCurrentPasswordVisible,
                           onChanged: (value) {
                             setState(() {
                               _isEmailEmpty = value.isEmpty;
                             });
                           },
                           decoration: InputDecoration(
-                              errorText: _isEmailEmpty
-                                  ? 'Please enter your email'
-                                  : null,
-                              suffixIcon: Icon(
-                                Icons.check,
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _isCurrentPasswordVisible
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
                                 color: Colors.grey,
                               ),
-                              label: Text(
-                                'Email',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Color.fromARGB(255, 0, 0, 0),
-                                ),
-                              )),
+                              onPressed: () {
+                                setState(() {
+                                  _isCurrentPasswordVisible =
+                                      !_isCurrentPasswordVisible;
+                                });
+                              },
+                            ),
+                            label: const Text(
+                              'Current Password',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromARGB(255, 0, 0, 0),
+                              ),
+                            ),
+                            errorText: _isPasswordEmpty
+                                ? 'Please enter your password'
+                                : null,
+                          ),
                         ),
                         const SizedBox(
                           height: 20,
@@ -145,7 +181,7 @@ class _loginPageState extends State<loginPage> {
                               },
                             ),
                             label: const Text(
-                              'Password',
+                              'New Password',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Color.fromARGB(255, 0, 0, 0),
@@ -157,26 +193,38 @@ class _loginPageState extends State<loginPage> {
                           ),
                         ),
                         const SizedBox(
-                          height: 15,
+                          height: 20,
                         ),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.pop(context);
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => forgotPassword()));
-                            },
-                            child: const Text(
-                              'Forgot Password?',
+                        TextField(
+                          controller: _confirmPasswordController,
+                          // obscureText: !_isPasswordVisible,
+                          onChanged: (value) {
+                            setState(() {
+                              _isPasswordEmpty = value.isEmpty;
+                            });
+                          },
+                          decoration: InputDecoration(
+                            // suffixIcon: IconButton(
+                            //   icon: Icon(
+                            //     _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                            //     color: Colors.grey,
+                            //   ),
+                            //   onPressed: () {
+                            //     setState(() {
+                            //       _isPasswordVisible = !_isPasswordVisible;
+                            //     });
+                            //   },
+                            // ),
+                            label: const Text(
+                              'Confirm Password',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                                color: Color(0xff281537),
+                                color: Color.fromARGB(255, 0, 0, 0),
                               ),
                             ),
+                            errorText: _isPasswordEmpty
+                                ? 'Please enter your password'
+                                : null,
                           ),
                         ),
                         const SizedBox(
@@ -184,60 +232,79 @@ class _loginPageState extends State<loginPage> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            if (!_isLoading) {
-                              setState(() {
-                                _isLoading = true;
+                            RegExp passwordRegex = new RegExp(
+                                r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$');
+                            String password = _passwordController.text;
+                            if (!passwordRegex.hasMatch(password)) {
+                              FormHelper.showSimpleAlertDialog(
+                                  context,
+                                  Config.appName,
+                                  "Password must have 8 digits including uppercase letters, lowercase letters, numbers and special characters",
+                                  "OK", () {
+                                Navigator.pop(context);
                               });
-                              if (_emailController.text.isEmpty ||
-                                  _passwordController.text.isEmpty) {
-                                // Hiển thị thông báo nếu ô input rỗng
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                        'Please enter email and password.'),
-                                  ),
-                                );
-                              } else {
-                                LoginRequestModel model = LoginRequestModel(
-                                    email: _emailController.text!,
-                                    password: _passwordController.text!,
-                                    deviceToken:
-                                        'dz1Ee6tnTm6poFFo8tfu-V:APA91bFg1TZUsTfTi-IXzw8EPQN0avxpJOyC24fKnmNQ_HlUtSlRNglM1ro77NIS8X0ewr-evueH7hB5raZgDVlZNnsLSV7Iidrp5zbzFAYku3ZfvnZKI6F6Y6i9X2yfA23um4GSQUxm');
-                                ApiService.login(model)
-                                    .then((response) => {
-                                          if (response)
-                                            {
-                                              Navigator.pop(context),
+                              return;
+                            }else 
+                            if (_currentController.text.isEmpty ||
+                                _passwordController.text.isEmpty ||
+                                _confirmPasswordController.text.isEmpty) {
+                              // Hiển thị thông báo nếu ô input rỗng
+                              FormHelper.showSimpleAlertDialog(
+                                  context,
+                                  Config.appName,
+                                  "Please enter current password, new password and confirm password.",
+                                  "OK", () {
+                                Navigator.pop(context);
+                              });
+                              return;
+                            } else if (_passwordController.text !=
+                                _confirmPasswordController.text) {
+                              FormHelper.showSimpleAlertDialog(
+                                  context,
+                                  Config.appName,
+                                  "Confirm password is incorrect",
+                                  "OK", () {
+                                Navigator.pop(context);
+                              });
+                              return;
+                            } else {
+                              ChangePasswordRequestModel model =
+                                  ChangePasswordRequestModel(
+                                      currentPassword: _currentController.text,
+                                      newPassword: _passwordController.text,
+                                      confirmPassword:
+                                          _confirmPasswordController.text);
+                              ApiService.changePassword(model, id)
+                                  .then((response) => {
+                                        print(response.msgDesc),
+                                        if (response.result)
+                                          {
+                                            FormHelper.showSimpleAlertDialog(
+                                                context,
+                                                Config.appName,
+                                                "Change password success!!!",
+                                                "OK", () {
+                                              Navigator.pop(context);
                                               Navigator.push(
                                                   context,
                                                   MaterialPageRoute(
                                                       builder: (context) =>
-                                                          ReportPage())),
-                                            }
-                                          else
-                                            {
-                                              FormHelper.showSimpleAlertDialog(
-                                                  context,
-                                                  Config.appName,
-                                                  "Invalid Email/Password !",
-                                                  "OK", () {
-                                                Navigator.pop(context);
-                                              })
-                                            }
-                                        })
-                                    .whenComplete(() {
-                                  setState(() {
-                                    _isLoading = false;
-                                  });
-                                });
-                                // Thực hiện hành động khi cả hai ô input không rỗng
-                                // Ví dụ: Thực hiện đăng nhập
-                                // Nếu muốn điều hướng đến màn hình khác sau khi nhấn nút "Login", bạn có thể sử dụng Navigator
-                                // Navigator.push(
-                                //   context,
-                                //   MaterialPageRoute(builder: (context) => NextScreen()), // Thay NextScreen() bằng màn hình bạn muốn điều hướng đến
-                                // );
-                              }
+                                                          ReportPage()));
+                                            })
+                                          }
+                                        else
+                                          {
+                                            FormHelper.showSimpleAlertDialog(
+                                                context,
+                                                Config.appName,
+                                                "Invalid Password !",
+                                                "OK", () {
+                                              Navigator.pop(context);
+                                            })
+                                          
+                                          }
+                                      });
+
                             }
                           },
                           child: Container(
@@ -250,16 +317,14 @@ class _loginPageState extends State<loginPage> {
                                 Color(0xff2E4DF2),
                               ]),
                             ),
-                            child: Center(
-                              child: _isLoading
-                                  ? CircularProgressIndicator()
-                                  : Text(
-                                      'LOGIN',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 20,
-                                          color: Colors.white),
-                                    ),
+                            child: const Center(
+                              child: Text(
+                                'SET PASSWORD',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20,
+                                    color: Colors.white),
+                              ),
                             ),
                           ),
                         ),
@@ -273,7 +338,7 @@ class _loginPageState extends State<loginPage> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               const Text(
-                                "Don't have account?",
+                                "Back to",
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: Colors.grey),
@@ -285,8 +350,7 @@ class _loginPageState extends State<loginPage> {
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) =>
-                                              const RegisterPage()));
+                                          builder: (context) => ReportPage()));
                                 },
                                 child: Container(
                                   padding: EdgeInsets.symmetric(
@@ -300,7 +364,7 @@ class _loginPageState extends State<loginPage> {
                                         8), // Đặt bo tròn cho nút
                                   ),
                                   child: const Text(
-                                    "Register",
+                                    "Home",
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 17,

@@ -1,9 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:ssps_app/service/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'dart:convert';
+
+import 'package:ssps_app/service/shared_service.dart';
 
 class MessengerPage extends StatefulWidget {
   @override
@@ -19,12 +23,16 @@ class _MessengerPageState extends State<MessengerPage> {
   TextEditingController _textController = TextEditingController();
 
   FocusNode myFocusNode = FocusNode();
+  final player = AudioPlayer();
 
   SharedPreferences? _prefs;
   late DateTime _lastChatTime;
   static const String _lastChatTimeKey = 'last_chat_time';
   static const String _messagesKey = 'messages';
   Timer? _timer;
+  bool isSoundOn = true;
+  String? firstName;
+  String? lastName;
 
   @override
   void initState() {
@@ -33,6 +41,18 @@ class _MessengerPageState extends State<MessengerPage> {
     _timer = Timer(Duration(days: 7), () {
       _deletePrefs();
     });
+
+    _decodeToken() async {
+      var token = await SharedService.loginDetails();
+      String? accessToken = token?.data?.accessToken;
+      if (accessToken != null) {
+        Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
+        firstName = decodedToken['firstName'];
+        lastName = decodedToken['lastName'];
+      } else {
+        print("Access token is null");
+      }
+    }
 
     myFocusNode.addListener(() {
       if (myFocusNode.hasFocus) {
@@ -49,6 +69,7 @@ class _MessengerPageState extends State<MessengerPage> {
     final lastChatTimeMillis = _prefs!.getInt(_lastChatTimeKey) ?? 0;
     _lastChatTime = DateTime.fromMillisecondsSinceEpoch(lastChatTimeMillis);
     _loadMessages();
+    _loadSoundSettings();
     // _checkAndClearMessages();
     scrollDown();
   }
@@ -82,6 +103,16 @@ class _MessengerPageState extends State<MessengerPage> {
     }
   }
 
+  Future<void> _saveSoundSettings() async {
+    await _prefs!.setBool('isSoundOn', isSoundOn);
+  }
+
+  void _loadSoundSettings() {
+    setState(() {
+      isSoundOn = _prefs!.getBool('isSoundOn') ?? true;
+    });
+  }
+
   Future<void> _saveMessages() async {
     final messagesJson =
         _messages.map((message) => jsonEncode(message)).toList();
@@ -103,6 +134,11 @@ class _MessengerPageState extends State<MessengerPage> {
         _scrollController.position.maxScrollExtent + 1000,
         duration: const Duration(seconds: 1),
         curve: Curves.fastOutSlowIn);
+  }
+
+  void _playSound() async {
+    String audioPath = "audio/tingting.mp3";
+    await player.play(AssetSource(audioPath));
   }
 
   @override
@@ -150,15 +186,84 @@ class _MessengerPageState extends State<MessengerPage> {
           ],
         ),
         actions: [
-          IconButton(
-              onPressed: () {
-                _deletePrefs();
-              },
-              icon: Icon(
-                Icons.delete,
-                color: Color.fromARGB(255, 251, 251, 251),
+          Padding(
+            padding: const EdgeInsets.only(right: 10),
+            child: PopupMenuButton<String>(
+              child: Icon(
+                Icons.settings,
+                color: Colors.white,
                 size: 30,
-              ))
+              ),
+              onSelected: (value) async {
+                if (value == 'Delete') {
+                  final isConfirmDelete = await showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('Confirm'),
+                        content: const Text(
+                            'Are you sure you wish to delete this message?'),
+                        actions: <Widget>[
+                          
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(false),
+                            child: const Text('CANCEL'),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(true),
+                            child: const Text('DELETE'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+
+                  if (isConfirmDelete == true) {
+                    _deletePrefs();
+                  }
+                } else if (value == 'Sound') {
+                  setState(() {
+                    isSoundOn = !isSoundOn;
+                    _saveSoundSettings();
+                  });
+                  print('Sound button pressed, Sound is $isSoundOn');
+                }
+              },
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                const PopupMenuItem<String>(
+                  value: 'Delete',
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.delete,
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Text(
+                        'Clear conversation',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ],
+                  ),
+                ),
+                PopupMenuItem<String>(
+                  value: 'Sound',
+                  child: Row(
+                    children: [
+                      Icon(
+                          isSoundOn ? Icons.volume_off : Icons.volume_down_alt),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Text(isSoundOn ? 'Turn Off Sound' : 'Turn On Sound',
+                          style: TextStyle(fontSize: 16)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
       body: Column(
@@ -266,15 +371,18 @@ class _MessengerPageState extends State<MessengerPage> {
       scrollDown();
 
       try {
-        ApiService.chatBox(text).then((value) {
+        ApiService.chatBox(text, "Phan Thai Bao").then((value) {
           _messages.removeLast();
           print(value.result);
           if (value.result) {
+            isSoundOn ? _playSound() : null;
             _messages.add({'sender': 'other', 'text': value.data!.message!});
             _saveMessages();
             scrollDown();
+
             setState(() {});
           } else {
+            isSoundOn ? _playSound() : null;
             _messages.add({'sender': 'other', 'text': value.data!.message!});
             _saveMessages();
             scrollDown();

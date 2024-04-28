@@ -29,6 +29,7 @@ class Config {
   static const String deleteMoneyPlan = "/api/user/money-plan/delete-money-plan";
   static const String updateMoneyPlan = "/api/user/money-plan/update-money-plan";
   static const String dashboard = "/api/user/dashboard-user";
+  static const String changePasswords = "/api/authenticate/change-password/";
   static const String chatBox = "/chatbox";
   
 }

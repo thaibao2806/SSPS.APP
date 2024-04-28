@@ -51,6 +51,7 @@ dependencies:
   rxdart: ^0.27.7
   bottom_picker: ^2.6.0
   shared_preferences: ^2.2.3
+  pinput: ^4.0.0
   
 
 dev_dependencies:
@@ -79,11 +80,14 @@ flutter:
     - assets/images/home.jpg
     - assets/images/signup.png
     - assets/images/forgot-password.png
+    - assets/images/reset-password.png
     - assets/images/tien-bac.jpg
     - assets/images/expectual.jpg
     - assets/images/tien.jpg
+    - assets/images/img1.png
     - assets/images/ai.jpg
     - assets/audio/audio.mp3
+    - assets/audio/tingting.mp3
 
   # To add assets to your application, add an assets section, like this:
   # assets:

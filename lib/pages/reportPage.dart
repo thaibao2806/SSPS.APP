@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:ssps_app/components/my_drawer_header.dart';
+import 'package:ssps_app/models/moneyPlans/get_moneyPlan_response_model.dart' as MoneyPlan;
 import 'package:ssps_app/models/report/report_response_model.dart';
 import 'package:ssps_app/pages/accountPage.dart';
 import 'package:ssps_app/pages/messagePage.dart';
@@ -39,6 +40,9 @@ class _ReportPage extends State<ReportPage> {
   DateTime firstDayOfMonth = DateTime.now();
   DateTime lastDayOfMonth = DateTime.now();
   List<ListDiagramData> listDiagramData = [];
+  List<MoneyPlan.Data> listData = [];
+  final firstDayOfYear = DateTime(DateTime.now().year, 1, 1);
+  final lastDayOfYear = DateTime(DateTime.now().year, 12, 31);
 
   @override
   void initState() {
@@ -49,10 +53,10 @@ class _ReportPage extends State<ReportPage> {
     fromDate = formatMonthYear(firstDayOfMonth);
     toDate = formatMonthYear(lastDayOfMonth);
     dateRange = DateTimeRange(start: firstDayOfMonth, end: lastDayOfMonth);
-
     _decodeToken();
     _getData(type, fromDate, toDate);
-
+    _getMoneyPlan(
+        formatMonthYear(firstDayOfYear), formatMonthYear(lastDayOfYear));
     month = formatYear(currentDate);
   }
 
@@ -71,11 +75,24 @@ class _ReportPage extends State<ReportPage> {
       fromDate = formatMonthYear(firstDayOfMonth);
       toDate = formatMonthYear(lastDayOfMonth);
       _getData(type, fromDate, toDate);
+      _getMoneyPlan(fromDate, toDate);
     } else {
       type = "YEAR";
       _getData(type, fromDate, toDate);
+      _getMoneyPlan(
+          formatMonthYear(firstDayOfYear), formatMonthYear(lastDayOfYear));
       month = formatYear(firstDayOfMonth);
     }
+  }
+
+  _getMoneyPlan(String? fromDate, String? toDate) {
+    ApiService.getMoneyPlan(fromDate, toDate).then((value) {
+      print(value.result);
+      if (value.result) {
+        print(value.msgDesc);
+        listData = value.data!;
+      }
+    });
   }
 
   _getData(String? type, String? fromDate, String? toDate) async {
@@ -310,6 +327,8 @@ class _ReportPage extends State<ReportPage> {
           fromDate = formatMonthYear(index);
           toDate = formatMonthYear(index);
           _getData(type, fromDate, toDate);
+          _getMoneyPlan(DateFormat("yyyy-01-01").format(index),
+              DateFormat("yyyy-12-31").format(index));
         });
       },
       bottomPickerTheme: BottomPickerTheme.blue,
@@ -332,6 +351,7 @@ class _ReportPage extends State<ReportPage> {
       toDate = formatMonthYear(newDateRange.end);
       dateRange = newDateRange;
       _getData(type, fromDate, toDate);
+      _getMoneyPlan(fromDate, toDate);
     });
   }
 
@@ -680,7 +700,7 @@ class _ReportPage extends State<ReportPage> {
                                         visible: isMonthSelected,
                                         child: Expanded(
                                           child: Padding(
-                                            padding: EdgeInsets.only(left: 8.0),
+                                            padding: EdgeInsets.only(left: 15.0),
                                             child: GestureDetector(
                                               onTap: () => pickDateRange(),
                                               child: AbsorbPointer(
@@ -689,95 +709,99 @@ class _ReportPage extends State<ReportPage> {
                                                     Expanded(
                                                       child: Row(
                                                         children: [
-                                                          Text(
-                                                            "From:",
-                                                            style: TextStyle(
-                                                                fontSize: 18,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500),
-                                                          ),
-                                                          SizedBox(
-                                                            width: 10,
-                                                          ),
-                                                          Expanded(
-                                                            child: TextField(
-                                                              decoration:
-                                                                  InputDecoration(
-                                                                // labelText: 'From',
-                                                                labelStyle: TextStyle(
-                                                                    // fontWeight: FontWeight.bold,
-                                                                    // color: Color.fromARGB(255, 0, 0, 0),
-                                                                    ),
-                                                              ),
-                                                              // controller: TextEditingController(
-                                                              //   text: _selectedToDateTime != null
-                                                              //       ? _selectedToDateTime.toString()
-                                                              //       : '',
-                                                              // ),
-                                                              controller:
-                                                                  TextEditingController(
-                                                                text:
-                                                                    "${start.day}/${start.month}/${start.year}",
-                                                              ),
-                                                            ),
-                                                          ),
+                                                          // Text(
+                                                          //   "From:",
+                                                          //   style: TextStyle(
+                                                          //       fontSize: 18,
+                                                          //       fontWeight:
+                                                          //           FontWeight
+                                                          //               .w500),
+                                                          // ),
+                                                          // SizedBox(
+                                                          //   width: 10,
+                                                          // ),
+                                                          Text("From: ${start.day}/${start.month}/${start.year} - To: ${end.day}/${end.month}/${end.year}", style: TextStyle(fontSize: 18),),
+                                                          // Expanded(
+                                                          //   child: TextField(
+                                                          //     decoration:
+                                                          //         InputDecoration(
+                                                          //       // labelText: 'From',
+                                                          //       labelStyle: TextStyle(
+                                                          //           // fontWeight: FontWeight.bold,
+                                                          //           // color: Color.fromARGB(255, 0, 0, 0),
+                                                          //           ),
+                                                          //     ),
+                                                          //     // controller: TextEditingController(
+                                                          //     //   text: _selectedToDateTime != null
+                                                          //     //       ? _selectedToDateTime.toString()
+                                                          //     //       : '',
+                                                          //     // ),
+                                                          //     controller:
+                                                          //         TextEditingController(
+                                                          //       text:
+                                                          //           "${start.day}/${start.month}/${start.year}",
+                                                          //     ),
+                                                          //   ),
+                                                          // ),
                                                         ],
                                                       ),
                                                     ),
                                                     // SizedBox(
                                                     //   width: 10,
                                                     // ),
-                                                    Text(
-                                                      " - ",
-                                                      style: TextStyle(
-                                                        fontSize: 18,
-                                                      ),
-                                                    ),
+                                                    // Text(
+                                                    //   " - ",
+                                                    //   style: TextStyle(
+                                                    //     fontSize: 18,
+                                                    //   ),
+                                                    // ),
                                                     // SizedBox(width: 15,),
                                                     // Icon(Icons.minimize),
-                                                    Expanded(
-                                                      child: Row(
-                                                        children: [
-                                                          Text(
-                                                            "To:",
-                                                            style: TextStyle(
-                                                                fontSize: 18,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w500),
-                                                          ),
-                                                          SizedBox(
-                                                            width: 10,
-                                                          ),
-                                                          Expanded(
-                                                            child: TextField(
-                                                              decoration:
-                                                                  InputDecoration(
-                                                                // labelText: 'To',
-                                                                labelStyle: TextStyle(
-                                                                    // fontWeight: FontWeight.bold,
-                                                                    // color: Color.fromARGB(255, 0, 0, 0),
-                                                                    ),
-                                                              ),
-                                                              // controller: TextEditingController(
-                                                              //   text: _selectedToDateTime != null
-                                                              //       ? _selectedToDateTime.toString()
-                                                              //       : '',
-                                                              // ),
-                                                              controller:
-                                                                  TextEditingController(
-                                                                text:
-                                                                    "${end.day}/${end.month}/${end.year}",
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          SizedBox(
-                                                            width: 10,
-                                                          )
-                                                        ],
-                                                      ),
-                                                    ),
+                                                    // Expanded(
+                                                    //   child: Row(
+                                                    //     children: [
+                                                    //       Text(
+                                                    //         "To:",
+                                                    //         style: TextStyle(
+                                                    //             fontSize: 18,
+                                                    //             fontWeight:
+                                                    //                 FontWeight
+                                                    //                     .w500),
+                                                    //       ),
+                                                    //       // SizedBox(
+                                                    //       //   width: 10,
+                                                    //       // ),
+                                                    //       Text("${end.day}/${end.month}/${end.year}", style: TextStyle(fontSize: 18),),
+                                                    //       // Expanded(
+                                                    //       //   child: TextField(
+                                                    //       //     decoration:
+                                                    //       //         InputDecoration(
+                                                    //       //       // labelText: 'To',
+                                                    //       //       labelStyle: TextStyle(
+                                                    //       //           // fontWeight: FontWeight.bold,
+                                                    //       //           // color: Color.fromARGB(255, 0, 0, 0),
+                                                    //       //           ),
+                                                    //       //     ),
+                                                    //       //     // controller: TextEditingController(
+                                                    //       //     //   text: _selectedToDateTime != null
+                                                    //       //     //       ? _selectedToDateTime.toString()
+                                                    //       //     //       : '',
+                                                    //       //     // ),
+                                                    //       //     controller:
+                                                    //       //         TextEditingController(
+                                                    //       //       text:
+                                                    //       //           "${end.day}/${end.month}/${end.year}",
+                                                    //       //     ),
+                                                    //       //   ),
+                                                    //       // ),
+                                                    //       // SizedBox(
+                                                    //       //   width: 10,
+                                                    //       // ),
+                                                    //       IconButton(onPressed: () {}, icon: Icon(Icons.edit))
+                                                    //     ],
+                                                    //   ),
+                                                    // ),
+                                                    IconButton(onPressed: () {}, icon: Icon(Icons.edit))
                                                   ],
                                                 ),
                                               ),
@@ -803,10 +827,12 @@ class _ReportPage extends State<ReportPage> {
                                                                 context),
                                                         child: AbsorbPointer(
                                                           child: Row(
-                                                            mainAxisAlignment: MainAxisAlignment.end,
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .end,
                                                             children: [
                                                               SizedBox(
-                                                                width: 210,
+                                                                width: 180,
                                                               ),
                                                               Text(
                                                                 "Year:",
@@ -820,29 +846,31 @@ class _ReportPage extends State<ReportPage> {
                                                               SizedBox(
                                                                 width: 10,
                                                               ),
-                                                              Expanded(
-                                                                child:
-                                                                    TextField(
-                                                                  decoration:
-                                                                      InputDecoration(
-                                                                    // labelText: 'From',
-                                                                    labelStyle: TextStyle(
-                                                                        // fontWeight: FontWeight.bold,
-                                                                        // color: Color.fromARGB(255, 0, 0, 0),
-                                                                        ),
-                                                                  ),
-                                                                  // controller: TextEditingController(
-                                                                  //   text: _selectedToDateTime != null
-                                                                  //       ? _selectedToDateTime.toString()
-                                                                  //       : '',
-                                                                  // ),
-                                                                  controller:
-                                                                      TextEditingController(
-                                                                    text:
-                                                                        "${month}",
-                                                                  ),
-                                                                ),
-                                                              ),
+                                                              Text("${month}", style: TextStyle(fontSize: 18),),
+                                                              IconButton(onPressed: () {}, icon: Icon(Icons.edit))
+                                                              // Expanded(
+                                                              //   child:
+                                                              //       TextField(
+                                                              //     decoration:
+                                                              //         InputDecoration(
+                                                              //       // labelText: 'From',
+                                                              //       labelStyle: TextStyle(
+                                                              //           // fontWeight: FontWeight.bold,
+                                                              //           // color: Color.fromARGB(255, 0, 0, 0),
+                                                              //           ),
+                                                              //     ),
+                                                              //     // controller: TextEditingController(
+                                                              //     //   text: _selectedToDateTime != null
+                                                              //     //       ? _selectedToDateTime.toString()
+                                                              //     //       : '',
+                                                              //     // ),
+                                                              //     controller:
+                                                              //         TextEditingController(
+                                                              //       text:
+                                                              //           "${month}",
+                                                              //     ),
+                                                              //   ),
+                                                              // ),
                                                               // SizedBox(
                                                               //   width: 10,
                                                               // ),
@@ -911,9 +939,10 @@ class _ReportPage extends State<ReportPage> {
                                               1000000;
                                           double barsWidth = 0;
                                           if (isMonthSelected) {
-                                            barsWidth = 8.0 *
-                                                constraints.maxWidth /
-                                                480;
+                                            // barsWidth = 8.0 *
+                                            //     constraints.maxWidth /
+                                            //     280;
+                                            barsWidth = constraints.maxWidth/ 55;
                                           } else {
                                             barsWidth = 8.0 *
                                                 constraints.maxWidth /
@@ -988,7 +1017,7 @@ class _ReportPage extends State<ReportPage> {
                 height: 15,
               ),
               Row(children: [
-                Text("Report list: ",
+                Text("Report details: ",
                     style: TextStyle(fontSize: 25, fontWeight: FontWeight.w500))
               ]),
               SizedBox(
@@ -1022,14 +1051,6 @@ class _ReportPage extends State<ReportPage> {
                         ),
                       ),
                     ),
-                    // DataColumn(
-                    //   label: Expanded(
-                    //     child: Text(
-                    //       'Unit',
-                    //       style: TextStyle(fontStyle: FontStyle.italic),
-                    //     ),
-                    //   ),
-                    // ),
                   ],
                   //
                   rows: buildDataRows(),

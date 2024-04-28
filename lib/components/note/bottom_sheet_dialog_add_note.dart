@@ -6,7 +6,9 @@ import 'package:ssps_app/service/api_service.dart';
 
 class DraggableSheet extends StatefulWidget {
   final Function getNote;
-  const DraggableSheet({super.key, required this.getNote});
+  final DateTime startTime;
+  final DateTime endTime;
+  const DraggableSheet({super.key, required this.getNote, required this.startTime, required this.endTime});
 
   @override
   State<DraggableSheet> createState() => _DraggableSheetState();
@@ -18,6 +20,13 @@ class _DraggableSheetState extends State<DraggableSheet> {
   DateTime? _selectedFromDateTime;
   DateTime? _selectedToDateTime;
   Color _selectedColor = Colors.black;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedFromDateTime = widget.startTime;
+    _selectedToDateTime = widget.endTime;
+  }
 
   Future<void> _selectDate(BuildContext context, bool isFrom) async {
     final DateTime? picked = await showDatePicker(

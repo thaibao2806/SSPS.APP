@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:ssps_app/components/my_drawer_header.dart';
+import 'package:ssps_app/components/notification/local_notification.dart';
 import 'package:ssps_app/components/todolist/Dialog_add_card.dart';
 import 'package:ssps_app/components/todolist/Dialog_add_todonote.dart';
 import 'package:ssps_app/components/todolist/Dialog_delete_card.dart';
@@ -68,6 +69,20 @@ class _TodolistPage extends State<TodolistPage> {
     }
   }
 
+  int daysBetween(DateTime fromDate, DateTime toDate) {
+    return toDate.difference(fromDate).inDays;
+  }
+
+// Tính phần trăm tiến độ từ fromDate đến toDate
+  double calculateProgress(DateTime fromDate, DateTime toDate) {
+    DateTime now = DateTime.now();
+    int totalDays = daysBetween(fromDate, toDate);
+    int passedDays =
+        toDate.isBefore(now) ? totalDays : daysBetween(fromDate, now);
+    double progress = (totalDays != 0) ? (passedDays / totalDays) * 100 : 100;
+    return progress;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -119,6 +134,13 @@ class _TodolistPage extends State<TodolistPage> {
                   DateTime.parse(todo.fromDate!).isBefore(currentDate);
               bool isToDateLate =
                   DateTime.parse(todo.toDate!).isBefore(currentDate);
+              double progress = calculateProgress(
+                  DateTime.parse(todo.fromDate!), DateTime.parse(todo.toDate!));
+
+              // if(progress >= 60) {
+              //   LocalNotifications.showSimpleNotification(title: "SSPS", body: "TodoList: ${todo.title} has reached 50%.", payload: "Todo");
+              // }
+
               return Container(
                 decoration: BoxDecoration(
                   color: Colors.grey[300],
@@ -130,6 +152,7 @@ class _TodolistPage extends State<TodolistPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    //  - ${progress.toStringAsFixed(2)}%
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [

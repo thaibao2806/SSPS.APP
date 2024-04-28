@@ -4,6 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:ssps_app/main.dart';
 import 'package:ssps_app/pages/homePage.dart';
+import 'package:ssps_app/pages/pomodoroPage.dart';
 import 'package:ssps_app/pages/todolistPage.dart';
 import 'package:flutter/material.dart';
 
@@ -54,6 +55,12 @@ class PushNotifications {
     if(pageValue == "todo") {
       naviatorKey.currentState
             ?.push(MaterialPageRoute(builder: (context) => TodolistPage()));
+    }else if(pageValue == "Todo") {
+      naviatorKey.currentState
+            ?.push(MaterialPageRoute(builder: (context) => TodolistPage()));
+    }else if(pageValue == "Pomodoro") {
+      naviatorKey.currentState
+            ?.push(MaterialPageRoute(builder: (context) => PomodoroPage()));
     } else {
       naviatorKey.currentState
             ?.push(MaterialPageRoute(builder: (context) => HomePage()));

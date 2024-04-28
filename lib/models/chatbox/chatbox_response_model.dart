@@ -38,12 +38,14 @@ class Data {
   });
   late final String? message;
 
-  factory Data.fromJson(Map<String, dynamic> json) => Data(
-        // Kiểm tra nếu dữ liệu có kiểu double, chuyển đổi sang kiểu String
-        message: json['message'] is double
-            ? json['message'].toString()
-            : json['message'],
-      );
+  factory Data.fromJson(Map<String, dynamic> json) {
+  return Data(
+    message: json['message'] is int || json['message'] is double
+        ? json['message'].toString()
+        : json['message'],
+  );
+}
+
 
   Map<String, dynamic> toJson() {
     final _data = <String, dynamic>{};

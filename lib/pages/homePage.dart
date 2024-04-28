@@ -111,11 +111,13 @@ class _HomePage extends State<HomePage> {
                 from: DateTime.parse(money.date!),
                 to: DateTime.parse(money.date!),
                 eventName: usage.name ?? '',
-                background: hexToColor(usage.expectAmount < usage.actualAmount ? "ca4f4f" : usage.priority == 1
-                    ? '039BE5'
-                    : usage.priority == 2
-                        ? '33B679'
-                        : '919191b2'),
+                background: hexToColor(usage.expectAmount < usage.actualAmount
+                    ? "ca4f4f"
+                    : usage.priority == 1
+                        ? '039BE5'
+                        : usage.priority == 2
+                            ? '33B679'
+                            : '919191b2'),
                 isAllDay: true,
                 notes: usage.categoryName,
                 expectAmount: usage.expectAmount,
@@ -186,192 +188,34 @@ class _HomePage extends State<HomePage> {
   }
 
   void handleEventTap(CalendarTapDetails details) {
-    // if (details.targetElement is CalendarElement &&
-    //     details.appointments != null) {
-
-    DateTime selectedDate = details.date!;
-    List<Appointment> eventsOnSelectedDate = getEventsOnDate(selectedDate);
-
-    if (dropdownValue == "Month") {
-      // WidgetsBinding.instance!.addPostFrameCallback((_) {
-      print(details.appointments);
-
-      // showModalBottomSheet(
-      //   context: context,
-      //   builder: (context) {
-      //     return Padding(
-      //       padding: const EdgeInsets.only(top: 25),
-      //       child: ListView.builder(
-      //         itemCount: eventsOnSelectedDate.length,
-      //         itemBuilder: (context, index) {
-      //           final Appointment event = eventsOnSelectedDate[index];
-      //           return ListTile(
-      //             title: Container(
-      //                 decoration: BoxDecoration(
-      //                   borderRadius: BorderRadius.only(
-      //                       topLeft: Radius.circular(10),
-      //                       topRight: Radius.circular(10),
-      //                       bottomLeft: Radius.circular(10),
-      //                       bottomRight: Radius.circular(10)),
-      //                   color: event.background,
-      //                 ),
-      //                 child: Padding(
-      //                   padding: const EdgeInsets.all(8.0),
-      //                   child: Text(event.eventName ?? ''),
-      //                 )),
-      //             onTap: () {
-      //               final Appointment tappedAppointment = event;
-      //               String eventId = tappedAppointment.id ?? '';
-      //               DateTime startTime = tappedAppointment.from;
-      //               DateTime endTime = tappedAppointment.to;
-      //               String? eventName = tappedAppointment.eventName;
-      //               Color eventColor = tappedAppointment.background;
-      //               bool isAllDay = tappedAppointment.isAllDay;
-      //               String? notes = tappedAppointment.notes;
-      //               num expectAmount = tappedAppointment.expectAmount!;
-      //               num actualAmount = tappedAppointment.actualAmount!;
-      //               int priority = tappedAppointment.priority;
-      //               print(tappedAppointment.background);
-      //               if (expectAmount > 0) {
-      //                 showModalBottomSheet(
-      //                   context: context,
-      //                   builder: (context) {
-      //                     return UpdateMoneyPlan(
-      //                       getNote: () async {
-      //                         firstDateFormatted = formatDate(firstDate);
-      //                         lastDateFormatted = formatDate(lastDate);
-      //                         await getMoneyPlan(
-      //                             firstDateFormatted, lastDateFormatted);
-      //                       },
-      //                       moneyPlanId: eventId,
-      //                       expectualAmount: expectAmount,
-      //                       actualAmount: actualAmount,
-      //                       title: eventName!,
-      //                       priority: priority,
-      //                       notes: notes!,
-      //                       getMoneyPla: () {
-      //                         firstDateFormatted = formatDate(firstDate);
-      //                         lastDateFormatted = formatDate(lastDate);
-      //                         getNote(firstDateFormatted, lastDateFormatted);
-      //                       },
-      //                       // notes: notes ?? "",
-      //                     );
-      //                   },
-      //                 );
-      //               } else {
-      //                 showModalBottomSheet(
-      //                   context: context,
-      //                   builder: (context) {
-      //                     return DraggableSheetUpdate(
-      //                       getNote: () {
-      //                         firstDateFormatted = formatDate(firstDate);
-      //                         lastDateFormatted = formatDate(lastDate);
-      //                         getNote(firstDateFormatted, lastDateFormatted);
-      //                       },
-      //                       enventId: eventId,
-      //                       startTime: startTime,
-      //                       endTime: endTime,
-      //                       eventColor: eventColor,
-      //                       notes: notes,
-      //                       enventName: eventName,
-      //                     );
-      //                   },
-      //                 );
-      //               }
-      //               // Hiển thị chi tiết sự kiện khi được chọn
-      //             },
-      //           );
-      //         },
-      //       ),
-      //     );
-      //   },
-      // );
-      // }
-      // );
+    if (details.appointments != null && details.appointments!.isNotEmpty) {
+      DateTime selectedDate = details.date!;
       final Appointment tappedAppointment = details.appointments![0];
-      String eventId = tappedAppointment.id ?? '';
-      DateTime startTime = tappedAppointment.from;
-      DateTime endTime = tappedAppointment.to;
-      String? eventName = tappedAppointment.eventName;
-      Color eventColor = tappedAppointment.background;
-      bool isAllDay = tappedAppointment.isAllDay;
-      String? notes = tappedAppointment.notes;
-      num expectAmount = tappedAppointment.expectAmount!;
-      num actualAmount = tappedAppointment.actualAmount!;
-      int priority = tappedAppointment.priority;
-      print(tappedAppointment.background);
-      if (expectAmount > 0) {
-        showModalBottomSheet(
-          context: context,
-          builder: (context) {
-            return UpdateMoneyPlan(
-              getNote: () async {
-                firstDateFormatted = formatDate(firstDate);
-                lastDateFormatted = formatDate(lastDate);
-                await getMoneyPlan(firstDateFormatted, lastDateFormatted);
-              },
-              moneyPlanId: eventId,
-              expectualAmount: expectAmount,
-              actualAmount: actualAmount,
-              title: eventName!,
-              priority: priority,
-              notes: notes!,
-              getMoneyPla: () {
-                firstDateFormatted = formatDate(firstDate);
-                lastDateFormatted = formatDate(lastDate);
-                getNote(firstDateFormatted, lastDateFormatted);
-              },
-              // notes: notes ?? "",
-            );
-          },
-        );
-      } else {
-        showModalBottomSheet(
-          context: context,
-          builder: (context) {
-            return DraggableSheetUpdate(
-              getNote: () {
-                firstDateFormatted = formatDate(firstDate);
-                lastDateFormatted = formatDate(lastDate);
-                getNote(firstDateFormatted, lastDateFormatted);
-                getMoneyPlan(firstDateFormatted, lastDateFormatted);
-              },
-              enventId: eventId,
-              startTime: startTime,
-              endTime: endTime,
-              eventColor: eventColor,
-              notes: notes,
-              enventName: eventName,
-            );
-          },
-        );
-      }
-    } else {
-      final Appointment tappedAppointment = details.appointments![0];
-      String eventId = tappedAppointment.id ?? '';
-      DateTime startTime = tappedAppointment.from;
-      DateTime endTime = tappedAppointment.to;
-      String? eventName = tappedAppointment.eventName;
-      Color eventColor = tappedAppointment.background;
-      bool isAllDay = tappedAppointment.isAllDay;
-      String? notes = tappedAppointment.notes;
-      num expectAmount = tappedAppointment.expectAmount!;
-      num actualAmount = tappedAppointment.actualAmount!;
-      int priority = tappedAppointment.priority;
-      print(tappedAppointment.background);
-      WidgetsBinding.instance!.addPostFrameCallback((_) {
+      List<Appointment> eventsOnSelectedDate = getEventsOnDate(selectedDate);
+      
+
+      if (dropdownValue == "Month") {
+        // WidgetsBinding.instance!.addPostFrameCallback((_) {
+        final Appointment tappedAppointment = details.appointments![0];
+        String eventId = tappedAppointment.id ?? '';
+        DateTime startTime = tappedAppointment.from;
+        DateTime endTime = tappedAppointment.to;
+        String? eventName = tappedAppointment.eventName;
+        Color eventColor = tappedAppointment.background;
+        bool isAllDay = tappedAppointment.isAllDay;
+        String? notes = tappedAppointment.notes;
+        num expectAmount = tappedAppointment.expectAmount!;
+        num actualAmount = tappedAppointment.actualAmount!;
+        int priority = tappedAppointment.priority;
+        print(tappedAppointment.background);
         if (expectAmount > 0) {
           showModalBottomSheet(
             context: context,
             builder: (context) {
               return UpdateMoneyPlan(
                 getNote: () async {
-                  actualAmountTotal = 0;
-                  expectAmountTotal = 0;
                   firstDateFormatted = formatDate(firstDate);
                   lastDateFormatted = formatDate(lastDate);
-                  getNote(firstDateFormatted, lastDateFormatted);
-
                   await getMoneyPlan(firstDateFormatted, lastDateFormatted);
                 },
                 moneyPlanId: eventId,
@@ -384,7 +228,6 @@ class _HomePage extends State<HomePage> {
                   firstDateFormatted = formatDate(firstDate);
                   lastDateFormatted = formatDate(lastDate);
                   getNote(firstDateFormatted, lastDateFormatted);
-                  getMoneyPlan(firstDateFormatted, lastDateFormatted);
                 },
                 // notes: notes ?? "",
               );
@@ -411,10 +254,92 @@ class _HomePage extends State<HomePage> {
             },
           );
         }
-      });
+      } else {
+        final Appointment tappedAppointment = details.appointments![0];
+        String eventId = tappedAppointment.id ?? '';
+        DateTime startTime = tappedAppointment.from;
+        DateTime endTime = tappedAppointment.to;
+        String? eventName = tappedAppointment.eventName;
+        Color eventColor = tappedAppointment.background;
+        bool isAllDay = tappedAppointment.isAllDay;
+        String? notes = tappedAppointment.notes;
+        num expectAmount = tappedAppointment.expectAmount!;
+        num actualAmount = tappedAppointment.actualAmount!;
+        int priority = tappedAppointment.priority;
+        print(tappedAppointment.background);
+        WidgetsBinding.instance!.addPostFrameCallback((_) {
+          if (expectAmount > 0) {
+            showModalBottomSheet(
+              context: context,
+              builder: (context) {
+                return UpdateMoneyPlan(
+                  getNote: () async {
+                    actualAmountTotal = 0;
+                    expectAmountTotal = 0;
+                    firstDateFormatted = formatDate(firstDate);
+                    lastDateFormatted = formatDate(lastDate);
+                    getNote(firstDateFormatted, lastDateFormatted);
+
+                    await getMoneyPlan(firstDateFormatted, lastDateFormatted);
+                  },
+                  moneyPlanId: eventId,
+                  expectualAmount: expectAmount,
+                  actualAmount: actualAmount,
+                  title: eventName!,
+                  priority: priority,
+                  notes: notes!,
+                  getMoneyPla: () {
+                    firstDateFormatted = formatDate(firstDate);
+                    lastDateFormatted = formatDate(lastDate);
+                    getNote(firstDateFormatted, lastDateFormatted);
+                    getMoneyPlan(firstDateFormatted, lastDateFormatted);
+                  },
+                  // notes: notes ?? "",
+                );
+              },
+            );
+          } else {
+            showModalBottomSheet(
+              context: context,
+              builder: (context) {
+                return DraggableSheetUpdate(
+                  getNote: () {
+                    firstDateFormatted = formatDate(firstDate);
+                    lastDateFormatted = formatDate(lastDate);
+                    getNote(firstDateFormatted, lastDateFormatted);
+                    getMoneyPlan(firstDateFormatted, lastDateFormatted);
+                  },
+                  enventId: eventId,
+                  startTime: startTime,
+                  endTime: endTime,
+                  eventColor: eventColor,
+                  notes: notes,
+                  enventName: eventName,
+                );
+              },
+            );
+          }
+        });
+      }
+    }else {
+      print(details.date);
+      showModalBottomSheet(
+                    // isScrollControlled: true,
+                    shape: const RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.vertical(top: Radius.circular(20))),
+                    isScrollControlled: true,
+                    context: context,
+                    builder: (BuildContext context) {
+                      return DraggableSheet(getNote: () {
+                        firstDateFormatted = formatDate(firstDate);
+                        lastDateFormatted = formatDate(lastDate);
+                        getNote(firstDateFormatted, lastDateFormatted);
+                      }, startTime: details.date!, endTime: details.date!);
+                    },
+                  );
     }
   }
-  // }
 
   List<Appointment> getEventsOnDate(DateTime date) {
     return appointments.where((event) {
@@ -469,7 +394,7 @@ class _HomePage extends State<HomePage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
-                    decoration:  BoxDecoration(
+                    decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
                       color: Color.fromARGB(41, 161, 161, 161),
                       // boxShadow: [
@@ -489,8 +414,13 @@ class _HomePage extends State<HomePage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          Icon(Icons.payment, size: 40,),
-                          SizedBox(height: 5,),
+                          Icon(
+                            Icons.payment,
+                            size: 40,
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
                           Text(
                             "Total expect: ",
                             style: TextStyle(
@@ -507,16 +437,8 @@ class _HomePage extends State<HomePage> {
                       ),
                     )),
                 Container(
-                    decoration:  BoxDecoration(
+                    decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
-                      // boxShadow: [
-                      //   BoxShadow(
-                      //     color: Color.fromARGB(54, 214, 214, 214),
-                      //     spreadRadius: 1,
-                      //     blurRadius: 1,
-                      //     offset: Offset(0, 3),
-                      //   ),
-                      // ],
                       color: Color.fromARGB(41, 161, 161, 161),
                     ),
                     height: 120,
@@ -527,8 +449,13 @@ class _HomePage extends State<HomePage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          Icon(Icons.money_outlined, size: 40,),
-                          SizedBox(height: 5,),
+                          Icon(
+                            Icons.money_outlined,
+                            size: 40,
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
                           Text("Total actual:",
                               style: TextStyle(
                                   fontSize: 16,
@@ -556,16 +483,6 @@ class _HomePage extends State<HomePage> {
                         topRight: Radius.circular(10),
                         bottomLeft: Radius.circular(10),
                         bottomRight: Radius.circular(10)),
-                    // boxShadow: [
-                    //   BoxShadow(
-                    //     color: Color.fromARGB(54, 214, 214, 214),
-                    //     spreadRadius: 1,
-                    //     blurRadius: 1,
-                    //     offset: Offset(0, 3),
-                    //   ),
-                    // ],
-
-                    // color: Color.fromARGB(41, 229, 228, 228),
                   ),
                   child: Row(
                     children: [
@@ -591,16 +508,6 @@ class _HomePage extends State<HomePage> {
                       width: 1,
                       color: const Color.fromARGB(255, 157, 157, 157),
                     ),
-                    // boxShadow: [
-                    //   BoxShadow(
-                    //     color: Color.fromARGB(54, 214, 214, 214),
-                    //     spreadRadius: 1,
-                    //     blurRadius: 1,
-                    //     offset: Offset(0, 3),
-                    //   ),
-                    // ],
-                    // // border: Border.all(width: 1, color: Colors.grey),
-                    // color: Color.fromARGB(41, 229, 228, 228),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.only(
@@ -668,9 +575,6 @@ class _HomePage extends State<HomePage> {
                   getNote(firstDateFormatted, lastDateFormatted);
                   getMoneyPlan(firstDateFormatted, lastDateFormatted);
                   _currentDate = details.visibleDates[0];
-                  //  setState(() {
-                  //     _currentDate = details.visibleDates[0];
-                  //   });
                 },
               ),
             ))
@@ -680,7 +584,6 @@ class _HomePage extends State<HomePage> {
       floatingActionButton: Builder(
         builder: (BuildContext context) {
           return SpeedDial(
-            // animatedIcon: AnimatedIcons.menu_close,
             icon: Icons.add,
             activeIcon: Icons.close,
             backgroundColor: Color.fromARGB(255, 57, 161, 247),
@@ -731,11 +634,13 @@ class _HomePage extends State<HomePage> {
                     isScrollControlled: true,
                     context: context,
                     builder: (BuildContext context) {
+                      final startTime = DateTime.now();
+                      final endTime = DateTime.now();
                       return DraggableSheet(getNote: () {
                         firstDateFormatted = formatDate(firstDate);
                         lastDateFormatted = formatDate(lastDate);
                         getNote(firstDateFormatted, lastDateFormatted);
-                      });
+                      }, startTime: startTime, endTime: endTime);
                     },
                   );
                 },
