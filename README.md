@@ -13,22 +13,22 @@ Step 7: Type the command flutter run to start the program.
 ## App interface
 
 1. Wellcome page
-![](./assets/images/img_demo/wellcom.png)
+<img src="./assets/images/img_demo/wellcom.png"width="250px"/>
 2. Login Page
-![](./assets/images/img_demo/login.png)
+<img src="./assets/images/img_demo/login.png" width="250px"/>
 3. Sign up Page
-![](./assets/images/img_demo/signup.png)
+<img src="./assets/images/img_demo/signup.png" width="250px"/>
 4. Forgot password
-![](./assets/images/img_demo/checkemail.png)
+<img src="./assets/images/img_demo/checkemail.png" width="250px"/>
 5. Change password
-![](./assets/images/img_demo/changepassword.png)
+<img src="./assets/images/img_demo/changepassword.png" width="250px"/>
 6. Home page
-![](./assets/images/img_demo/home.png)
+<img src="./assets/images/img_demo/home.png" width="250px"/>
 7. Money plan
-![](./assets/images/img_demo/moneyplan.png)
+<img src="./assets/images/img_demo/moneyplan.png" width="250px"/>
 8. Todo
-![](./assets/images/img_demo/todo.png)
+<img src="./assets/images/img_demo/todo.png" width="250px"/>
 9. Pomodoro
-![](./assets/images/img_demo/pomodoro.png)
+<img src="./assets/images/img_demo/pomodoro.png" width="250px"/>
 10. Account
-![](./assets/images/img_demo/account.png)
+<img src="./assets/images/img_demo/account.png" width="250px"/>
