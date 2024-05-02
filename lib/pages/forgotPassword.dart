@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:snippet_coder_utils/FormHelper.dart';
 import 'package:ssps_app/config.dart';
 import 'package:ssps_app/models/forgotPassword_request_model.dart';
 import 'package:ssps_app/pages/loginPage.dart';
 import 'package:ssps_app/pages/otpPage.dart';
+import 'package:ssps_app/pages/changePassword.dart';
 import 'package:ssps_app/service/api_service.dart';
 
 class forgotPassword extends StatefulWidget {
@@ -14,12 +16,13 @@ class forgotPassword extends StatefulWidget {
 }
 
 class _forgotPasswordState extends State<forgotPassword> {
+
   TextEditingController _emailController = TextEditingController();
   bool _isEmailEmpty = false;
   bool _isLoading = false;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context)  {
     return Scaffold(
         resizeToAvoidBottomInset: false,
         body: Stack(
@@ -116,40 +119,53 @@ class _forgotPasswordState extends State<forgotPassword> {
                         height: 25,
                       ),
                       GestureDetector(
-                        onTap: () {
+                        onTap: () async{
+                          SharedPreferences prefs = await SharedPreferences.getInstance();
+                          RegExp regex = RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$');
+                          String email = _emailController.text;
+                          if(!regex.hasMatch(email)) {
+                            FormHelper.showSimpleAlertDialog(
+                                                context,
+                                                Config.appName,
+                                                "Email invalid.",
+                                                "OK", () {
+                                              Navigator.pop(context);
+                                            });
+                          }
                           if (!_isLoading) {
-                            // Kiểm tra không phải đang trong quá trình loading
                             setState(() {
                               _isLoading =
-                                  true; // Bắt đầu hiển thị vòng loading
+                                  true; 
                             });
                             if (_emailController.text.isEmpty) {
-                              // Hiển thị thông báo nếu ô input rỗng
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Please enter email.'),
-                                ),
-                              );
+                              FormHelper.showSimpleAlertDialog(
+                                                context,
+                                                Config.appName,
+                                                "Please enter email.",
+                                                "OK", () {
+                                              Navigator.pop(context);
+                                            });
                             } else {
                               ForgotPasswordRequestModel model =
                                   ForgotPasswordRequestModel(
                                       email: _emailController.text!);
-                              ApiService.fotgotPassword(model)
+                              ApiService.fotgotPasswordOTP(model)
                                   .then((response) => {
                                         if (response.result)
                                           {
+
+                                            prefs.setString("emailOTP",  _emailController.text!),
                                             FormHelper.showSimpleAlertDialog(
                                                 context,
                                                 Config.appName,
                                                 "Email has been sent. Please check your email.",
                                                 "OK", () {
                                               Navigator.pop(context);
-
                                               Navigator.push(
                                                   context,
                                                   MaterialPageRoute(
                                                       builder: (context) =>
-                                                          MyVerify()));
+                                                          ChangePassword()));
                                             })
                                           }
                                         else

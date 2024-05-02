@@ -4,7 +4,10 @@ class Config {
   static const String apiUrlChat = "10.0.2.2:5000";
   static const String loginApi = "/api/authenticate/login";
   static const String registerApi = "/api/authenticate/register";
+  static const String registerOTP = "/api/authenticate/register-otp";
+  static const String activeAccount = "/api/authenticate/active-account-otp";
   static const String forgotPasswordApi = "/api/authenticate/forgot-password";
+  static const String forgotPasswordOtp = "/api/authenticate/forgot-password-otp";
   static const String getUser = "/api/user";
   static const String updateUser = "/api/user";
   static const String getAllTodo = "/api/user/to-do-note/get-all";
@@ -30,6 +33,7 @@ class Config {
   static const String updateMoneyPlan = "/api/user/money-plan/update-money-plan";
   static const String dashboard = "/api/user/dashboard-user";
   static const String changePasswords = "/api/authenticate/change-password/";
+  static const String resetPasswordOtp = "/api/authenticate/reset-password-otp";
   static const String chatBox = "/chatbox";
   
 }

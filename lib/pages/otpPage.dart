@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:pinput/pinput.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:snippet_coder_utils/FormHelper.dart';
+import 'package:ssps_app/config.dart';
+import 'package:ssps_app/models/active_account_request_model.dart';
 import 'package:ssps_app/pages/forgotPassword.dart';
+import 'package:ssps_app/pages/loginPage.dart';
+import 'package:ssps_app/pages/registerPage.dart';
+import 'package:ssps_app/service/api_service.dart';
 
 class MyVerify extends StatefulWidget {
   const MyVerify({Key? key}) : super(key: key);
@@ -10,6 +17,7 @@ class MyVerify extends StatefulWidget {
 }
 
 class _MyVerifyState extends State<MyVerify> {
+  String? otp;
   @override
   Widget build(BuildContext context) {
     final defaultPinTheme = PinTheme(
@@ -90,7 +98,12 @@ class _MyVerifyState extends State<MyVerify> {
                 // submittedPinTheme: submittedPinTheme,
 
                 showCursor: true,
-                onCompleted: (pin) => print(pin),
+                onCompleted: (pin) {
+                  print(pin);
+                  setState(() {
+                    otp = pin;
+                  });
+                },
               ),
               SizedBox(
                 height: 20,
@@ -103,9 +116,36 @@ class _MyVerifyState extends State<MyVerify> {
                         primary: Color(0xff2E4DF2),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10))),
-                    onPressed: () {},
+                    onPressed: ()async {
+                      SharedPreferences prefs = await SharedPreferences.getInstance();
+                      String? email = prefs.getString("emailRegister");
+                      ActiveAccountRequestModel model = ActiveAccountRequestModel(email: email, otp: otp);
+                      ApiService.activeAccountOTP(model).then((value) {
+                        if(value.result) {
+                          FormHelper.showSimpleAlertDialog(
+                                            context,
+                                            Config.appName,
+                                            "Register successfull. Please login to the account",
+                                            "OK", () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      loginPage()));
+                                        });
+                        }else {
+                          FormHelper.showSimpleAlertDialog(
+                                            context,
+                                            Config.appName,
+                                            value.msgDesc as String,
+                                            "OK", () {
+                                         Navigator.pop(context);
+                                        });
+                        }
+                      });
+                    },
                     child: Text(
-                      "Verify Email",
+                      "Verify account",
                       style: TextStyle(color: Colors.white),
                     )),
               ),
@@ -117,10 +157,10 @@ class _MyVerifyState extends State<MyVerify> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => forgotPassword()));
+                                builder: (context) => RegisterPage()));
                       },
                       child: Text(
-                        "Edit Email ?",
+                        "Back to register?",
                         style: TextStyle(color: Colors.black),
                       ))
                 ],

@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:ssps_app/components/notification/local_notification.dart';
 import 'package:ssps_app/firebase_options.dart';
 import 'package:ssps_app/pages/homePage.dart';
@@ -18,6 +19,15 @@ import 'package:ssps_app/pages/pomodoroPage.dart';
 Widget _defaultHome = const WelcomePage();
 
 final naviatorKey = GlobalKey<NavigatorState>();
+
+const AndroidNotificationChannel channel = AndroidNotificationChannel(
+    'your channel id',
+    'your channel name',
+    importance: Importance.max,
+);
+
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
 Future _firebaseBackgroundMessage(RemoteMessage message) async {
   print(message);
@@ -38,6 +48,10 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
   }
+
+  await flutterLocalNotificationsPlugin
+    .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+    ?.createNotificationChannel(channel);
 
   await LocalNotifications.init();
 
@@ -71,13 +85,12 @@ void main() async {
   FirebaseMessaging.onBackgroundMessage(_firebaseBackgroundMessage);
 
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    String payloadData = jsonEncode(message.data);
-    print("Got a message in foreground");
     if (message.notification != null) {
+      String payloadData = jsonEncode(message.data);
+      String title = message.notification!.title ?? "Default title";
+      String body = message.notification!.body ?? "Default body";
       PushNotifications.showSimpleNotification(
-          title: message.notification!.title!,
-          body: message.notification!.body!,
-          payload: payloadData);
+          title: title, body: body, payload: payloadData);
     }
   });
 

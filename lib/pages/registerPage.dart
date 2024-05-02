@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:snippet_coder_utils/FormHelper.dart';
 import 'package:ssps_app/config.dart';
 import 'package:ssps_app/models/register_request_model.dart';
 import 'package:ssps_app/pages/loginPage.dart';
+import 'package:ssps_app/pages/otpPage.dart';
 import 'package:ssps_app/service/api_service.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -327,7 +329,9 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                         const SizedBox(height: 20),
                         GestureDetector(
-                          onTap: () {
+                          onTap: () async {
+                            SharedPreferences prefs = await SharedPreferences.getInstance();
+                            prefs.setString("emailRegister", _emailController.text);
                             RegExp passwordRegex = new RegExp(
                                 r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$');
                             String password = _passwordController.text;
@@ -344,12 +348,13 @@ class _RegisterPageState extends State<RegisterPage> {
                             if (_emailController.text.isEmpty ||
                                 _passwordController.text.isEmpty) {
                               // Hiển thị thông báo nếu ô input rỗng
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content:
-                                      Text('Please enter email and password.'),
-                                ),
-                              );
+                              FormHelper.showSimpleAlertDialog(
+                                  context,
+                                  Config.appName,
+                                  "Please enter email and password",
+                                  "OK", () {
+                                Navigator.pop(context);
+                              });
                             } else {
                               RegisterRequestModel model = RegisterRequestModel(
                                   code: _codeController.text!,
@@ -367,13 +372,13 @@ class _RegisterPageState extends State<RegisterPage> {
                                         FormHelper.showSimpleAlertDialog(
                                             context,
                                             Config.appName,
-                                            "Register successfull. Please login to the account",
+                                            "Please check your email and enter the OTP code to complete registration",
                                             "OK", () {
                                           Navigator.push(
                                               context,
                                               MaterialPageRoute(
                                                   builder: (context) =>
-                                                      loginPage()));
+                                                      MyVerify()));
                                         })
                                       }
                                     else

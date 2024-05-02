@@ -1,51 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:snippet_coder_utils/FormHelper.dart';
 import 'package:ssps_app/config.dart';
+import 'package:ssps_app/models/changePasswordOTP_request_model.dart';
 import 'package:ssps_app/models/changePassword_request_model.dart';
 import 'package:ssps_app/models/login_request_model.dart';
 import 'package:ssps_app/pages/forgotPassword.dart';
 import 'package:ssps_app/pages/homePage.dart';
+import 'package:ssps_app/pages/loginPage.dart';
 import 'package:ssps_app/pages/registerPage.dart';
 import 'package:ssps_app/pages/reportPage.dart';
 import 'package:ssps_app/service/api_service.dart';
 import 'package:ssps_app/service/shared_service.dart';
 
-class ResetPassword extends StatefulWidget {
-  ResetPassword({Key? key}) : super(key: key);
+class ChangePassword extends StatefulWidget {
+  ChangePassword({Key? key}) : super(key: key);
 
   @override
-  State<ResetPassword> createState() => _ResetPasswordState();
+  State<ChangePassword> createState() => _ChangePasswordState();
 }
 
-class _ResetPasswordState extends State<ResetPassword> {
+class _ChangePasswordState extends State<ChangePassword> {
   bool _isPasswordVisible = false;
   bool _isCurrentPasswordVisible = false;
   TextEditingController _currentController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   TextEditingController _confirmPasswordController = TextEditingController();
-  bool _isEmailEmpty = false;
+  bool _isOTPEmpty = false;
   bool _isPasswordEmpty = false;
+  bool _isConfirmPasswordEmpty = false;
   String? id;
 
   @override
   void initState() {
     super.initState();
-    _decodeToken();
   }
 
-  _decodeToken() async {
-    var token = (await SharedService
-        .loginDetails()); // Assume this method retrieves the token
-    String? accessToken =
-        token?.data?.accessToken; // Access token might be null
-    if (accessToken != null) {
-      Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
-      id = decodedToken['id'];
-    } else {
-      print("Access token is null");
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +72,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                         // Để tránh bo góc vượt qua phần border
                         borderRadius: BorderRadius.circular(10),
                         child: const Image(
-                          image: AssetImage('assets/images/reset-password.png'),
+                          image: AssetImage('assets/images/change-password.png'),
                           fit: BoxFit
                               .cover, // Đảm bảo hình ảnh vừa với kích thước container
                         ),
@@ -122,36 +113,36 @@ class _ResetPasswordState extends State<ResetPassword> {
                         ),
                         TextField(
                           controller: _currentController,
-                          obscureText: !_isCurrentPasswordVisible,
+                          // obscureText: !_isCurrentPasswordVisible,
                           onChanged: (value) {
                             setState(() {
-                              _isEmailEmpty = value.isEmpty;
+                              _isOTPEmpty = value.isEmpty;
                             });
                           },
                           decoration: InputDecoration(
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _isCurrentPasswordVisible
-                                    ? Icons.visibility
-                                    : Icons.visibility_off,
-                                color: Colors.grey,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  _isCurrentPasswordVisible =
-                                      !_isCurrentPasswordVisible;
-                                });
-                              },
-                            ),
+                            // suffixIcon: IconButton(
+                            //   icon: Icon(
+                            //     _isCurrentPasswordVisible
+                            //         ? Icons.visibility
+                            //         : Icons.visibility_off,
+                            //     color: Colors.grey,
+                            //   ),
+                            //   onPressed: () {
+                            //     setState(() {
+                            //       _isCurrentPasswordVisible =
+                            //           !_isCurrentPasswordVisible;
+                            //     });
+                            //   },
+                            // ),
                             label: const Text(
-                              'Current Password',
+                              'OTP',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Color.fromARGB(255, 0, 0, 0),
                               ),
                             ),
-                            errorText: _isPasswordEmpty
-                                ? 'Please enter your password'
+                            errorText: _isOTPEmpty
+                                ? 'Please enter your OTP'
                                 : null,
                           ),
                         ),
@@ -197,10 +188,10 @@ class _ResetPasswordState extends State<ResetPassword> {
                         ),
                         TextField(
                           controller: _confirmPasswordController,
-                          // obscureText: !_isPasswordVisible,
+                          obscureText: true,
                           onChanged: (value) {
                             setState(() {
-                              _isPasswordEmpty = value.isEmpty;
+                              _isConfirmPasswordEmpty = value.isEmpty;
                             });
                           },
                           decoration: InputDecoration(
@@ -222,8 +213,8 @@ class _ResetPasswordState extends State<ResetPassword> {
                                 color: Color.fromARGB(255, 0, 0, 0),
                               ),
                             ),
-                            errorText: _isPasswordEmpty
-                                ? 'Please enter your password'
+                            errorText: _isConfirmPasswordEmpty
+                                ? 'Please enter confirm password'
                                 : null,
                           ),
                         ),
@@ -231,10 +222,12 @@ class _ResetPasswordState extends State<ResetPassword> {
                           height: 20,
                         ),
                         GestureDetector(
-                          onTap: () {
+                          onTap: () async {
                             RegExp passwordRegex = new RegExp(
                                 r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$');
                             String password = _passwordController.text;
+                            SharedPreferences prefs = await SharedPreferences.getInstance();
+
                             if (!passwordRegex.hasMatch(password)) {
                               FormHelper.showSimpleAlertDialog(
                                   context,
@@ -252,7 +245,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                               FormHelper.showSimpleAlertDialog(
                                   context,
                                   Config.appName,
-                                  "Please enter current password, new password and confirm password.",
+                                  "Please enter OTP, new password and confirm password.",
                                   "OK", () {
                                 Navigator.pop(context);
                               });
@@ -268,13 +261,10 @@ class _ResetPasswordState extends State<ResetPassword> {
                               });
                               return;
                             } else {
-                              ChangePasswordRequestModel model =
-                                  ChangePasswordRequestModel(
-                                      currentPassword: _currentController.text,
-                                      newPassword: _passwordController.text,
-                                      confirmPassword:
-                                          _confirmPasswordController.text);
-                              ApiService.changePassword(model, id)
+                              String? email = prefs.getString("emailOTP");
+                              ChangePasswordOtpRequestModel model =
+                                  ChangePasswordOtpRequestModel(otp: _currentController.text, email: email, password: _passwordController.text, confirmPassword: _confirmPasswordController.text);
+                              ApiService.changePasswordOTP(model)
                                   .then((response) => {
                                         print(response.msgDesc),
                                         if (response.result)
@@ -289,7 +279,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                                                   context,
                                                   MaterialPageRoute(
                                                       builder: (context) =>
-                                                          ReportPage()));
+                                                          loginPage()));
                                             })
                                           }
                                         else
@@ -297,7 +287,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                                             FormHelper.showSimpleAlertDialog(
                                                 context,
                                                 Config.appName,
-                                                "Invalid Password !",
+                                                response.msgDesc as String,
                                                 "OK", () {
                                               Navigator.pop(context);
                                             })
@@ -319,7 +309,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                             ),
                             child: const Center(
                               child: Text(
-                                'Set password',
+                                'Change password',
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 20,
@@ -338,7 +328,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               const Text(
-                                "Back to",
+                                "Edit",
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: Colors.grey),
@@ -350,7 +340,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) => ReportPage()));
+                                          builder: (context) => forgotPassword()));
                                 },
                                 child: Container(
                                   padding: EdgeInsets.symmetric(
@@ -364,7 +354,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                                         8), // Đặt bo tròn cho nút
                                   ),
                                   child: const Text(
-                                    "Home",
+                                    "Email",
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 17,

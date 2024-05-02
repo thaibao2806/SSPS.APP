@@ -61,7 +61,6 @@ class _PomodoroPage extends State<PomodoroPage> {
   void initState() {
     super.initState();
     _decodeToken();
-    
   }
 
   _decodeToken() async {
@@ -186,7 +185,6 @@ class _PomodoroPage extends State<PomodoroPage> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -200,7 +198,7 @@ class _PomodoroPage extends State<PomodoroPage> {
                   ),
                 ],
               ),
-              SizedBox(height: 10),
+              SizedBox(height: 15),
               CircularPercentIndicator(
                 radius: 150.0,
                 lineWidth: 15.0,
@@ -228,6 +226,7 @@ class _PomodoroPage extends State<PomodoroPage> {
                 onTap: _mainButtonPressed,
                 text: mainBtnText,
               ),
+              // SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -412,9 +411,7 @@ class _PomodoroPage extends State<PomodoroPage> {
       } else {
         _playSound();
         LocalNotifications.showSimpleNotification(
-                      title: "SSPS",
-                      body: "Pomodoro: time is up!",
-                      payload: "Pomodoro");
+            title: "SSPS", body: "Pomodoro: time is up!", payload: "Pomodoro");
         pomodoroNum++;
         _cancelTimer();
         if (pomodoroNum % pomodoroPerSet == 0) {
@@ -448,9 +445,7 @@ class _PomodoroPage extends State<PomodoroPage> {
       } else {
         _playSound();
         LocalNotifications.showSimpleNotification(
-                      title: "SSPS",
-                      body: "Pomodoro: time is up!",
-                      payload: "Pomodoro");
+            title: "SSPS", body: "Pomodoro: time is up!", payload: "Pomodoro");
         remainingTime = pomodoroTotalTime;
         _cancelTimer();
         pomodoroStatus = PomodoroStatus.pausePomodoro;
@@ -475,9 +470,7 @@ class _PomodoroPage extends State<PomodoroPage> {
       } else {
         _playSound();
         LocalNotifications.showSimpleNotification(
-                      title: "SSPS",
-                      body: "Pomodoro: time is up!",
-                      payload: "Pomodoro");
+            title: "SSPS", body: "Pomodoro: time is up!", payload: "Pomodoro");
         remainingTime = pomodoroTotalTime;
         _cancelTimer();
         pomodoroStatus = PomodoroStatus.setFinished;

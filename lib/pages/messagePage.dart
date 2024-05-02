@@ -2,9 +2,14 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:ssps_app/components/note/bottom_sheet_dialog_add_note.dart';
+import 'package:ssps_app/components/todolist/Dialog_add_card.dart';
+import 'package:ssps_app/components/todolist/Dialog_add_card_chat.dart';
+import 'package:ssps_app/components/todolist/Dialog_add_todonote.dart';
 import 'package:ssps_app/service/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:ssps_app/components/moneyPlan/dialog_create_moneyPlan.dart';
 import 'dart:convert';
 
 import 'package:ssps_app/service/shared_service.dart';
@@ -17,7 +22,11 @@ class MessengerPage extends StatefulWidget {
 class _MessengerPageState extends State<MessengerPage> {
   final List<Map<String, String>> _messages = [
     {'sender': 'me', 'text': 'Hello there!'},
-    {'sender': 'other', 'text': 'Hi! How are you?'},
+    {
+      'sender': 'other',
+      'text':
+          'Hi! Can I help you?\n You can also create quick: \n - Money plan: @moneyplan\n - Note: @note \n - Todolist: @todolist \n - Add task in todolist: @task'
+    },
   ]; // Danh sách các tin nhắn
 
   TextEditingController _textController = TextEditingController();
@@ -33,6 +42,12 @@ class _MessengerPageState extends State<MessengerPage> {
   bool isSoundOn = true;
   String? firstName;
   String? lastName;
+  DateTime firstDate = DateTime.now();
+  DateTime lastDate = DateTime.now();
+
+  String formatDate(DateTime date) {
+    return '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  }
 
   @override
   void initState() {
@@ -204,7 +219,6 @@ class _MessengerPageState extends State<MessengerPage> {
                         content: const Text(
                             'Are you sure you wish to delete this message?'),
                         actions: <Widget>[
-                          
                           TextButton(
                             onPressed: () => Navigator.of(context).pop(false),
                             child: const Text('CANCEL'),
@@ -359,7 +373,105 @@ class _MessengerPageState extends State<MessengerPage> {
   Future<void> _sendMessage() async {
     setState(() {
       final text = _textController.text;
+      if (text.trim().toLowerCase() == "@moneyplan") {
+        _messages.add({'sender': 'me', 'text': text});
+        _saveMessages();
+        scrollDown();
+        _messages.add({'sender': 'other', 'text': "Create moneyplan"});
+        _saveMessages();
+        scrollDown();
+        setState(() {});
+        showModalBottomSheet(
+          // isScrollControlled: true,
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+          isScrollControlled: true,
+          context: context,
+          builder: (BuildContext context) {
+            return CreateMoneyPlan(getNote: () async {
+              print("check");
+              // firstDateFormatted = formatDate(firstDate);
+              // lastDateFormatted = formatDate(lastDate);
+              // getNote(firstDateFormatted, lastDateFormatted);
 
+              // await getMoneyPlan(
+              //     firstDateFormatted, lastDateFormatted);
+            });
+          },
+        );
+        _textController.clear();
+        return;
+      }
+      if (text.trim().toLowerCase() == "@note") {
+        _messages.add({'sender': 'me', 'text': text});
+        _saveMessages();
+        scrollDown();
+        _messages.add({'sender': 'other', 'text': "Create note"});
+        _saveMessages();
+        scrollDown();
+        setState(() {});
+        showModalBottomSheet(
+          // isScrollControlled: true,
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+          isScrollControlled: true,
+          context: context,
+          builder: (BuildContext context) {
+            final startTime = DateTime.now();
+            final endTime = DateTime.now();
+            return DraggableSheet(
+                getNote: () {
+                  print("check note");
+                },
+                startTime: startTime,
+                endTime: endTime);
+          },
+        );
+        _textController.clear();
+        return;
+      }
+      if (text.trim().toLowerCase() == "@todolist") {
+        _messages.add({'sender': 'me', 'text': text});
+        _saveMessages();
+        scrollDown();
+        _messages.add({'sender': 'other', 'text': "Create column todolist"});
+        _saveMessages();
+        scrollDown();
+        setState(() {});
+        showDialog(
+            context: context,
+            builder: (context) {
+              return CustomDialog(
+                onDeleteSuccess: () {
+                  // refreshTodoList();
+                  print("check todolist");
+                },
+              );
+            });
+        _textController.clear();
+        return;
+      }
+      if (text.trim().toLowerCase() == "@task") {
+        _messages.add({'sender': 'me', 'text': text});
+        _saveMessages();
+        scrollDown();
+        _messages.add({'sender': 'other', 'text': "Create task in todolist"});
+        _saveMessages();
+        scrollDown();
+        setState(() {});
+        showDialog(
+            context: context,
+            builder: (context) {
+              return AddCardChatDialog(
+                // toDoNoteId: todo.id,
+                onDeleteSuccess: () {
+                  print("check card");
+                },
+              );
+            });
+        _textController.clear();
+        return;
+      }
       if (text.isNotEmpty) {
         _messages.add({'sender': 'me', 'text': text});
         _saveMessages();

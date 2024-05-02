@@ -205,7 +205,7 @@ class _loginPageState extends State<loginPage> {
                                         'dz1Ee6tnTm6poFFo8tfu-V:APA91bFg1TZUsTfTi-IXzw8EPQN0avxpJOyC24fKnmNQ_HlUtSlRNglM1ro77NIS8X0ewr-evueH7hB5raZgDVlZNnsLSV7Iidrp5zbzFAYku3ZfvnZKI6F6Y6i9X2yfA23um4GSQUxm');
                                 ApiService.login(model)
                                     .then((response) => {
-                                          if (response)
+                                          if (response.result)
                                             {
                                               Navigator.pop(context),
                                               Navigator.push(
@@ -219,7 +219,7 @@ class _loginPageState extends State<loginPage> {
                                               FormHelper.showSimpleAlertDialog(
                                                   context,
                                                   Config.appName,
-                                                  "Invalid Email/Password !",
+                                                  response.msgDesc != null ? response.msgDesc  as String : response.msgCode as String,
                                                   "OK", () {
                                                 Navigator.pop(context);
                                               })

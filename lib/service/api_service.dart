@@ -3,11 +3,15 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:ssps_app/config.dart';
+import 'package:ssps_app/models/active_account_request_model.dart';
+import 'package:ssps_app/models/active_account_response_model.dart';
 import 'package:ssps_app/models/categories/delete_category_request_model.dart';
 import 'package:ssps_app/models/categories/delete_category_response_model.dart';
 import 'package:ssps_app/models/categories/get_category_response_model.dart';
 import 'package:ssps_app/models/categories/update_category_request_model.dart';
 import 'package:ssps_app/models/categories/update_category_response_model.dart';
+import 'package:ssps_app/models/changePasswordOTP_request_model.dart';
+import 'package:ssps_app/models/changePasswordOTP_response_model.dart';
 import 'package:ssps_app/models/changePassword_request_model.dart';
 import 'package:ssps_app/models/changePassword_response_model.dart';
 import 'package:ssps_app/models/chatbox/chatbox_response_model.dart';
@@ -53,7 +57,7 @@ import 'package:ssps_app/service/shared_service.dart';
 class ApiService {
   static var client = http.Client();
 
-  static Future<bool> login(LoginRequestModel model) async {
+  static Future<LoginResponseModel> login(LoginRequestModel model) async {
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
     };
@@ -62,14 +66,14 @@ class ApiService {
 
     var response = await client.post(url,
         headers: requestHeaders, body: jsonEncode(model.toJson()));
-    // print(response.body);
+    print(response.body);
     if (response.statusCode == 200) {
       //SHARED
       // print(response.body);
       await SharedService.setLoginDetails(loginResponseJson(response.body));
-      return true;
+      return loginResponseJson(response.body);
     } else {
-      return false;
+      return loginResponseJson(response.body);
     }
   }
 
@@ -79,13 +83,28 @@ class ApiService {
       'Content-Type': 'application/json',
     };
 
-    var url = Uri.http(Config.apiUrl, Config.registerApi);
+    var url = Uri.http(Config.apiUrl, Config.registerOTP);
 
     var response = await client.post(url,
         headers: requestHeaders, body: jsonEncode(model.toJson()));
     print(response.body);
 
     return registerResponseModel(response.body);
+  }
+
+  static Future<ActiveAccountResponseModel> activeAccountOTP(
+      ActiveAccountRequestModel model) async {
+    Map<String, String> requestHeaders = {
+      'Content-Type': 'application/json',
+    };
+
+    var url = Uri.http(Config.apiUrl, Config.activeAccount);
+
+    var response = await client.post(url,
+        headers: requestHeaders, body: jsonEncode(model.toJson()));
+    print(response.body);
+
+    return activeAccountResponseModel(response.body);
   }
 
   static Future<ForgotPasswordResponseModel> fotgotPassword(
@@ -95,6 +114,20 @@ class ApiService {
     };
 
     var url = Uri.http(Config.apiUrl, Config.forgotPasswordApi);
+
+    var response = await client.post(url,
+        headers: requestHeaders, body: jsonEncode(model.toJson()));
+
+    return forgotPasswordResponseJson(response.body);
+  }
+
+  static Future<ForgotPasswordResponseModel> fotgotPasswordOTP(
+      ForgotPasswordRequestModel model) async {
+    Map<String, String> requestHeaders = {
+      'Content-Type': 'application/json',
+    };
+
+    var url = Uri.http(Config.apiUrl, Config.forgotPasswordOtp);
 
     var response = await client.post(url,
         headers: requestHeaders, body: jsonEncode(model.toJson()));
@@ -783,6 +816,38 @@ class ApiService {
       // Xử lý lỗi HTTP tại đây
       throw Exception('Failed to create categories: ${response.statusCode}');
     }
+  }
+
+  static Future<ChangePasswordOtpResponseModel> changePasswordOTP(
+      ChangePasswordOtpRequestModel model) async {
+    var token = (await SharedService.loginDetails());
+    // Map<String, dynamic> decodedToken =
+    //     JwtDecoder.decode(token!.data!.accessToken);
+
+    Map<String, String> requestHeaders = {
+      'Content-Type': 'application/json',
+      // 'Authorization': 'Bearer ${token?.data?.accessToken}'
+    };
+
+    var url = Uri.http(Config.apiUrl, Config.resetPasswordOtp);
+    print(url);
+
+    var response = await client.post(url, headers: requestHeaders, body: jsonEncode(model.toJson()));
+    print( jsonEncode(model.toJson()));
+    return changePasswordOTPResponseJson(response.body);
+
+
+    // if (response.statusCode == 200) {
+    //   // Kiểm tra nếu response.body không rỗng
+    //   if (response.body != null && response.body.isNotEmpty) {
+    //     return changePasswordOTPResponseJson(response.body);
+    //   } else {
+    //     throw Exception('Empty or null response body');
+    //   }
+    // } else {
+    //   // Xử lý lỗi HTTP tại đây
+    //   throw Exception('Failed to create categories: ${response.statusCode}');
+    // }
   }
 
   static Future<ChatboxResponseModel> chatBox(String? message, String? username) async {
