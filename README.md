@@ -12,6 +12,7 @@
 
 ## App interface
 
+<<<<<<< HEAD
 1. Wellcome page: The page is displayed for beginners to use the app
    <img src="./assets/images/img_demo/wellcom.png" width="250px"/>
 2. Login Page: Users enter their account and password to use the app
@@ -32,3 +33,25 @@
    <img src="./assets/images/img_demo/pomodoro.png" width="250px"/>
 10. Account: User information editing page
     <img src="./assets/images/img_demo/account.png" width="250px"/>
+=======
+1. Wellcome page
+<img src="./assets/images/img_demo/wellcom.png" width="250px"/>
+2. Login Page
+<img src="./assets/images/img_demo/login.png" width="250px"/>
+3. Sign up Page
+<img src="./assets/images/img_demo/signup.png" width="250px"/>
+4. Forgot password
+<img src="./assets/images/img_demo/checkemail.png" width="250px"/>
+5. Change password
+<img src="./assets/images/img_demo/changepassword.png" width="250px"/>
+6. Home page
+<img src="./assets/images/img_demo/home.png" width="250px"/>
+7. Money plan
+<img src="./assets/images/img_demo/moneyplan.png" width="250px"/>
+8. Todo
+<img src="./assets/images/img_demo/todo.png" width="250px"/>
+9. Pomodoro
+<img src="./assets/images/img_demo/pomodoro.png" width="250px"/>
+10. Account
+<img src="./assets/images/img_demo/account.png" width="250px"/>
+>>>>>>> 0ef11a49319797c1991e3a655495ce8e47e9d317
