@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
@@ -188,6 +190,7 @@ class _HomePage extends State<HomePage> {
   }
 
   void handleEventTap(CalendarTapDetails details) {
+    // print(jsonEncode(details));
     if (details.appointments != null && details.appointments!.isNotEmpty) {
       DateTime selectedDate = details.date!;
       final Appointment tappedAppointment = details.appointments![0];
@@ -216,6 +219,7 @@ class _HomePage extends State<HomePage> {
                 getNote: () async {
                   firstDateFormatted = formatDate(firstDate);
                   lastDateFormatted = formatDate(lastDate);
+                  getNote(firstDateFormatted, lastDateFormatted);
                   await getMoneyPlan(firstDateFormatted, lastDateFormatted);
                 },
                 moneyPlanId: eventId,
@@ -228,6 +232,7 @@ class _HomePage extends State<HomePage> {
                   firstDateFormatted = formatDate(firstDate);
                   lastDateFormatted = formatDate(lastDate);
                   getNote(firstDateFormatted, lastDateFormatted);
+                  getMoneyPlan(firstDateFormatted, lastDateFormatted);
                 },
                 // notes: notes ?? "",
               );
@@ -335,6 +340,7 @@ class _HomePage extends State<HomePage> {
                         firstDateFormatted = formatDate(firstDate);
                         lastDateFormatted = formatDate(lastDate);
                         getNote(firstDateFormatted, lastDateFormatted);
+                        getMoneyPlan(firstDateFormatted, lastDateFormatted);
                       }, startTime: details.date!, endTime: details.date!);
                     },
                   );
@@ -376,7 +382,7 @@ class _HomePage extends State<HomePage> {
                         fontSize: 15,
                         onTap: () {
                           Navigator.pop(context);
-                          Navigator.push(
+                          Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => AccountPage()));
@@ -563,6 +569,7 @@ class _HomePage extends State<HomePage> {
                 firstDayOfWeek: 6,
                 dataSource: MeetingDataSource(appointments),
                 initialDisplayDate: currentDate,
+                initialSelectedDate: currentDate,
                 onTap: handleEventTap,
                 onViewChanged: (ViewChangedDetails details) {
                   expectAmountTotal = 0;
@@ -651,7 +658,7 @@ class _HomePage extends State<HomePage> {
                 foregroundColor: Colors.white,
                 label: "Category",
                 onTap: () {
-                  Navigator.push(
+                  Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => Categories()),
                   );
@@ -663,7 +670,7 @@ class _HomePage extends State<HomePage> {
                 foregroundColor: Colors.white,
                 label: "Chat",
                 onTap: () {
-                  Navigator.push(
+                  Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => MessengerPage()),
                   );

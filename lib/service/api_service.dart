@@ -1,8 +1,11 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:ssps_app/config.dart';
+import 'package:ssps_app/main.dart';
 import 'package:ssps_app/models/active_account_request_model.dart';
 import 'package:ssps_app/models/active_account_response_model.dart';
 import 'package:ssps_app/models/categories/delete_category_request_model.dart';
@@ -18,6 +21,7 @@ import 'package:ssps_app/models/chatbox/chatbox_response_model.dart';
 import 'package:ssps_app/models/get_user_response_model.dart';
 import 'package:ssps_app/models/login_request_model.dart';
 import 'package:ssps_app/models/login_response_model.dart';
+import 'package:ssps_app/models/login_response_model.dart' as LoginData;
 import 'package:ssps_app/models/moneyPlans/create_moneyPlan_request_model.dart';
 import 'package:ssps_app/models/moneyPlans/create_moneyPlan_response_model.dart';
 import 'package:ssps_app/models/moneyPlans/delete_moneyPlan_response_model.dart';
@@ -33,6 +37,7 @@ import 'package:ssps_app/models/notes/delete_note_response_model.dart';
 import 'package:ssps_app/models/notes/get_note_response_model.dart';
 import 'package:ssps_app/models/notes/update_note_request_model.dart';
 import 'package:ssps_app/models/notes/update_note_response_model.dart';
+import 'package:ssps_app/models/refresh_token_response_model.dart';
 import 'package:ssps_app/models/register_request_model.dart';
 import 'package:ssps_app/models/register_response_model.dart';
 import 'package:ssps_app/models/forgotPassword_request_model.dart';
@@ -52,10 +57,21 @@ import 'package:ssps_app/models/todolist/update_todo_note_request_model.dart';
 import 'package:ssps_app/models/todolist/update_todo_note_response_model.dart';
 import 'package:ssps_app/models/update_user_request_model.dart';
 import 'package:ssps_app/models/update_user_response_model.dart';
+import 'package:ssps_app/pages/loginPage.dart';
 import 'package:ssps_app/service/shared_service.dart';
 
 class ApiService {
   static var client = http.Client();
+
+  static bool isAccessTokenExpired(String accessToken) {
+    var expirationTime;
+    if (accessToken != null) {
+      Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
+      expirationTime = decodedToken['exp'] as int;
+    }
+    var currentTime = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    return expirationTime < currentTime;
+  }
 
   static Future<LoginResponseModel> login(LoginRequestModel model) async {
     Map<String, String> requestHeaders = {
@@ -75,6 +91,24 @@ class ApiService {
     } else {
       return loginResponseJson(response.body);
     }
+  }
+
+  static Future<RefreshTokenResponseModel> refreshToken(
+      String? refreshToken) async {
+    var token = (await SharedService.loginDetails());
+    Map<String, dynamic> decodedToken =
+        JwtDecoder.decode(token!.data!.accessToken);
+
+    Map<String, String> requestHeaders = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${token?.data?.accessToken}'
+    };
+
+    var url = Uri.http(
+        Config.apiUrl, Config.refreshTokenAPI, {'refreshToken': refreshToken});
+
+    var response = await client.get(url, headers: requestHeaders);
+    return refreshResponseModel(response.body);
   }
 
   static Future<RegisterResponseModel> register(
@@ -137,15 +171,39 @@ class ApiService {
 
   static Future<GetUserResponseModel> getUserProfile() async {
     var token = (await SharedService.loginDetails());
+    var accessToken = token!.data!.accessToken;
     Map<String, dynamic> decodedToken =
         JwtDecoder.decode(token!.data!.accessToken);
+    if (token != null) {
+      if (isAccessTokenExpired(token.data!.accessToken)) {
+        var refreshedToken = await refreshToken(token.data!.refreshToken);
+        if (refreshedToken != null) {
+          accessToken = refreshedToken.data!.accessToken;
+
+          var newTokenData = LoginData.Data(
+            accessToken: refreshedToken.data!.accessToken,
+            refreshToken: token.data!.refreshToken,
+          );
+
+          var newToken = LoginResponseModel(
+            result: token.result,
+            msgCode: token.msgCode,
+            msgDesc: token.msgDesc,
+            data: newTokenData,
+          );
+          await SharedService.setLoginDetails(newToken);
+        } else {
+          Navigator.of(naviatorKey.currentContext!).pushReplacement(
+              MaterialPageRoute(builder: (context) => loginPage()));
+        }
+      }
+    }
     String? id = '/${decodedToken['id']}';
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${token?.data?.accessToken}'
+      'Authorization': 'Bearer ${accessToken}'
     };
-
     var url = Uri.http(Config.apiUrl, Config.getUser + id);
 
     var response = await client.get(url, headers: requestHeaders);
@@ -159,13 +217,38 @@ class ApiService {
   static Future<UpdateUserResponseModel> updateUserProfile(
       UpdateUserRequestModel model) async {
     var token = (await SharedService.loginDetails());
+    var accessToken = token!.data!.accessToken;
     Map<String, dynamic> decodedToken =
         JwtDecoder.decode(token!.data!.accessToken);
+    if (token != null) {
+      if (isAccessTokenExpired(token.data!.accessToken)) {
+        var refreshedToken = await refreshToken(token.data!.refreshToken);
+        if (refreshedToken != null) {
+          accessToken = refreshedToken.data!.accessToken;
+
+          var newTokenData = LoginData.Data(
+            accessToken: refreshedToken.data!.accessToken,
+            refreshToken: token.data!.refreshToken,
+          );
+
+          var newToken = LoginResponseModel(
+            result: token.result,
+            msgCode: token.msgCode,
+            msgDesc: token.msgDesc,
+            data: newTokenData,
+          );
+          await SharedService.setLoginDetails(newToken);
+        } else {
+          Navigator.of(naviatorKey.currentContext!).pushReplacement(
+              MaterialPageRoute(builder: (context) => loginPage()));
+        }
+      }
+    }
     String? id = '/${decodedToken['id']}';
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${token?.data?.accessToken}'
+      'Authorization': 'Bearer ${accessToken}'
     };
 
     var url = Uri.http(Config.apiUrl, Config.updateUser + id);
@@ -180,29 +263,79 @@ class ApiService {
 
   static Future<GetAllTodoResponseModel> getAllTodo() async {
     var token = (await SharedService.loginDetails());
+    var accessToken = token!.data!.accessToken;
     Map<String, dynamic> decodedToken =
         JwtDecoder.decode(token!.data!.accessToken);
-    String? id = '/${decodedToken['id']}';
+    if (token != null) {
+      if (isAccessTokenExpired(token.data!.accessToken)) {
+        var refreshedToken = await refreshToken(token.data!.refreshToken);
+        if (refreshedToken != null) {
+          accessToken = refreshedToken.data!.accessToken;
+
+          var newTokenData = LoginData.Data(
+            accessToken: refreshedToken.data!.accessToken,
+            refreshToken: token.data!.refreshToken,
+          );
+
+          var newToken = LoginResponseModel(
+            result: token.result,
+            msgCode: token.msgCode,
+            msgDesc: token.msgDesc,
+            data: newTokenData,
+          );
+          await SharedService.setLoginDetails(newToken);
+        } else {
+          Navigator.of(naviatorKey.currentContext!).pushReplacement(
+              MaterialPageRoute(builder: (context) => loginPage()));
+        }
+      }
+    }
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${token?.data?.accessToken}'
+      'Authorization': 'Bearer ${accessToken}'
     };
 
-    var url = Uri.http(Config.apiUrl, Config.getAllTodo);
+      var url = Uri.http(Config.apiUrl, Config.getAllTodo);
+      print(url);
+      var response = await client.get(url, headers: requestHeaders);
+      return getAllTodoResponseJson(response.body);
 
-    var response = await client.get(url, headers: requestHeaders);
-    return getAllTodoResponseJson(response.body);
   }
 
   static Future<DeleteTodoNoteResponseModel> deleteTodoNote(String? id) async {
     var token = (await SharedService.loginDetails());
+    var accessToken = token!.data!.accessToken;
     Map<String, dynamic> decodedToken =
         JwtDecoder.decode(token!.data!.accessToken);
+    if (token != null) {
+      if (isAccessTokenExpired(token.data!.accessToken)) {
+        var refreshedToken = await refreshToken(token.data!.refreshToken);
+        if (refreshedToken != null) {
+          accessToken = refreshedToken.data!.accessToken;
+
+          var newTokenData = LoginData.Data(
+            accessToken: refreshedToken.data!.accessToken,
+            refreshToken: token.data!.refreshToken,
+          );
+
+          var newToken = LoginResponseModel(
+            result: token.result,
+            msgCode: token.msgCode,
+            msgDesc: token.msgDesc,
+            data: newTokenData,
+          );
+          await SharedService.setLoginDetails(newToken);
+        } else {
+          Navigator.of(naviatorKey.currentContext!).pushReplacement(
+              MaterialPageRoute(builder: (context) => loginPage()));
+        }
+      }
+    }
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${token?.data?.accessToken}'
+      'Authorization': 'Bearer ${accessToken}'
     };
 
     var url = Uri.http(Config.apiUrl, Config.deleteTodoNote, {'id': id});
@@ -218,12 +351,38 @@ class ApiService {
   static Future<DeleteTodoCardResponseModel> deleteTodoCard(
       String? ToDoNoteId, String? CardId) async {
     var token = (await SharedService.loginDetails());
+    var accessToken = token!.data!.accessToken;
     Map<String, dynamic> decodedToken =
         JwtDecoder.decode(token!.data!.accessToken);
+    if (token != null) {
+      if (isAccessTokenExpired(token.data!.accessToken)) {
+        var refreshedToken = await refreshToken(token.data!.refreshToken);
+        if (refreshedToken != null) {
+          accessToken = refreshedToken.data!.accessToken;
+
+          var newTokenData = LoginData.Data(
+            accessToken: refreshedToken.data!.accessToken,
+            refreshToken: token.data!.refreshToken,
+          );
+
+          var newToken = LoginResponseModel(
+            result: token.result,
+            msgCode: token.msgCode,
+            msgDesc: token.msgDesc,
+            data: newTokenData,
+          );
+          await SharedService.setLoginDetails(newToken);
+        } else {
+          Navigator.of(naviatorKey.currentContext!).pushReplacement(
+              MaterialPageRoute(builder: (context) => loginPage()));
+        }
+      }
+    }
+    String? id = '/${decodedToken['id']}';
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${token?.data?.accessToken}'
+      'Authorization': 'Bearer ${accessToken}'
     };
 
     var url = Uri.http(Config.apiUrl, Config.deleteTodoCart,
@@ -237,12 +396,38 @@ class ApiService {
   static Future<CreateTodoCardResponseModel> createTodoCard(
       CreateTodoCardRequestModel model) async {
     var token = (await SharedService.loginDetails());
+    var accessToken = token!.data!.accessToken;
     Map<String, dynamic> decodedToken =
         JwtDecoder.decode(token!.data!.accessToken);
+    if (token != null) {
+      if (isAccessTokenExpired(token.data!.accessToken)) {
+        var refreshedToken = await refreshToken(token.data!.refreshToken);
+        if (refreshedToken != null) {
+          accessToken = refreshedToken.data!.accessToken;
+
+          var newTokenData = LoginData.Data(
+            accessToken: refreshedToken.data!.accessToken,
+            refreshToken: token.data!.refreshToken,
+          );
+
+          var newToken = LoginResponseModel(
+            result: token.result,
+            msgCode: token.msgCode,
+            msgDesc: token.msgDesc,
+            data: newTokenData,
+          );
+          await SharedService.setLoginDetails(newToken);
+        } else {
+          Navigator.of(naviatorKey.currentContext!).pushReplacement(
+              MaterialPageRoute(builder: (context) => loginPage()));
+        }
+      }
+    }
+    String? id = '/${decodedToken['id']}';
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${token?.data?.accessToken}'
+      'Authorization': 'Bearer ${accessToken}'
     };
 
     var url = Uri.http(Config.apiUrl, Config.createTodoCart);
@@ -257,12 +442,38 @@ class ApiService {
   static Future<CreateTodoNoteResponseModel> createTodoNote(
       CreateTodoNoteRequestModel model) async {
     var token = (await SharedService.loginDetails());
+    var accessToken = token!.data!.accessToken;
     Map<String, dynamic> decodedToken =
         JwtDecoder.decode(token!.data!.accessToken);
+    if (token != null) {
+      if (isAccessTokenExpired(token.data!.accessToken)) {
+        var refreshedToken = await refreshToken(token.data!.refreshToken);
+        if (refreshedToken != null) {
+          accessToken = refreshedToken.data!.accessToken;
+
+          var newTokenData = LoginData.Data(
+            accessToken: refreshedToken.data!.accessToken,
+            refreshToken: token.data!.refreshToken,
+          );
+
+          var newToken = LoginResponseModel(
+            result: token.result,
+            msgCode: token.msgCode,
+            msgDesc: token.msgDesc,
+            data: newTokenData,
+          );
+          await SharedService.setLoginDetails(newToken);
+        } else {
+          Navigator.of(naviatorKey.currentContext!).pushReplacement(
+              MaterialPageRoute(builder: (context) => loginPage()));
+        }
+      }
+    }
+    String? id = '/${decodedToken['id']}';
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${token?.data?.accessToken}'
+      'Authorization': 'Bearer ${accessToken}'
     };
 
     var url = Uri.http(Config.apiUrl, Config.createTodoNote);
@@ -288,12 +499,37 @@ class ApiService {
   static Future<UpdateTodoCartResponseModel> updateTodoCard(
       UpdateTodoCartRequestModel model) async {
     var token = (await SharedService.loginDetails());
+    var accessToken = token!.data!.accessToken;
     Map<String, dynamic> decodedToken =
         JwtDecoder.decode(token!.data!.accessToken);
+    if (token != null) {
+      if (isAccessTokenExpired(token.data!.accessToken)) {
+        var refreshedToken = await refreshToken(token.data!.refreshToken);
+        if (refreshedToken != null) {
+          accessToken = refreshedToken.data!.accessToken;
+
+          var newTokenData = LoginData.Data(
+            accessToken: refreshedToken.data!.accessToken,
+            refreshToken: token.data!.refreshToken,
+          );
+
+          var newToken = LoginResponseModel(
+            result: token.result,
+            msgCode: token.msgCode,
+            msgDesc: token.msgDesc,
+            data: newTokenData,
+          );
+          await SharedService.setLoginDetails(newToken);
+        } else {
+          Navigator.of(naviatorKey.currentContext!).pushReplacement(
+              MaterialPageRoute(builder: (context) => loginPage()));
+        }
+      }
+    }
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${token?.data?.accessToken}'
+      'Authorization': 'Bearer ${accessToken}'
     };
 
     var url = Uri.http(Config.apiUrl, Config.updateTodoCart);
@@ -301,7 +537,7 @@ class ApiService {
 
     var response = await client.put(url,
         headers: requestHeaders, body: jsonEncode(model.toJson()));
-    print(response.body);
+    print(jsonEncode(response.body));
     if (response.statusCode == 200) {
       // Kiểm tra nếu response.body không phải là null
       if (response.body != null) {
@@ -319,12 +555,38 @@ class ApiService {
   static Future<UpdateTodoNoteResponseModel> updateTodoNote(
       UpdateTodoNoteRequestModel model) async {
     var token = (await SharedService.loginDetails());
+    var accessToken = token!.data!.accessToken;
     Map<String, dynamic> decodedToken =
         JwtDecoder.decode(token!.data!.accessToken);
+    if (token != null) {
+      if (isAccessTokenExpired(token.data!.accessToken)) {
+        var refreshedToken = await refreshToken(token.data!.refreshToken);
+        if (refreshedToken != null) {
+          accessToken = refreshedToken.data!.accessToken;
+
+          var newTokenData = LoginData.Data(
+            accessToken: refreshedToken.data!.accessToken,
+            refreshToken: token.data!.refreshToken,
+          );
+
+          var newToken = LoginResponseModel(
+            result: token.result,
+            msgCode: token.msgCode,
+            msgDesc: token.msgDesc,
+            data: newTokenData,
+          );
+          await SharedService.setLoginDetails(newToken);
+        } else {
+          Navigator.of(naviatorKey.currentContext!).pushReplacement(
+              MaterialPageRoute(builder: (context) => loginPage()));
+        }
+      }
+    }
+    String? id = '/${decodedToken['id']}';
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${token?.data?.accessToken}'
+      'Authorization': 'Bearer ${accessToken}'
     };
 
     var url = Uri.http(Config.apiUrl, Config.updateTodoNote);
@@ -351,12 +613,38 @@ class ApiService {
   static Future<SwapResponseModel> swapCart(
       String? CardId, String? FromToDoNoteId, String? ToToDoNoteId) async {
     var token = (await SharedService.loginDetails());
+    var accessToken = token!.data!.accessToken;
     Map<String, dynamic> decodedToken =
         JwtDecoder.decode(token!.data!.accessToken);
+    if (token != null) {
+      if (isAccessTokenExpired(token.data!.accessToken)) {
+        var refreshedToken = await refreshToken(token.data!.refreshToken);
+        if (refreshedToken != null) {
+          accessToken = refreshedToken.data!.accessToken;
+
+          var newTokenData = LoginData.Data(
+            accessToken: refreshedToken.data!.accessToken,
+            refreshToken: token.data!.refreshToken,
+          );
+
+          var newToken = LoginResponseModel(
+            result: token.result,
+            msgCode: token.msgCode,
+            msgDesc: token.msgDesc,
+            data: newTokenData,
+          );
+          await SharedService.setLoginDetails(newToken);
+        } else {
+          Navigator.of(naviatorKey.currentContext!).pushReplacement(
+              MaterialPageRoute(builder: (context) => loginPage()));
+        }
+      }
+    }
+    String? id = '/${decodedToken['id']}';
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${token?.data?.accessToken}'
+      'Authorization': 'Bearer ${accessToken}'
     };
 
     var url = Uri.http(Config.apiUrl, Config.swapTodoCart, {
@@ -372,29 +660,81 @@ class ApiService {
 
   static Future<GetCategoryResponseModel> getCategories() async {
     var token = (await SharedService.loginDetails());
+    var accessToken = token!.data!.accessToken;
     Map<String, dynamic> decodedToken =
         JwtDecoder.decode(token!.data!.accessToken);
+    if (token != null) {
+      if (isAccessTokenExpired(token.data!.accessToken)) {
+        var refreshedToken = await refreshToken(token.data!.refreshToken);
+        if (refreshedToken != null) {
+          accessToken = refreshedToken.data!.accessToken;
 
+          var newTokenData = LoginData.Data(
+            accessToken: refreshedToken.data!.accessToken,
+            refreshToken: token.data!.refreshToken,
+          );
+
+          var newToken = LoginResponseModel(
+            result: token.result,
+            msgCode: token.msgCode,
+            msgDesc: token.msgDesc,
+            data: newTokenData,
+          );
+          await SharedService.setLoginDetails(newToken);
+        } else {
+          Navigator.of(naviatorKey.currentContext!).pushReplacement(
+              MaterialPageRoute(builder: (context) => loginPage()));
+        }
+      }
+    }
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${token?.data?.accessToken}'
+      'Authorization': 'Bearer ${accessToken}'
     };
 
     var url = Uri.http(Config.apiUrl, Config.getCategories);
+    print(url);
 
     var response = await client.get(url, headers: requestHeaders);
+    print(jsonEncode(response.body));
     return getCategoryResponseJson(response.body);
   }
 
   static Future<UpdateCategoryResponseModel> createCategories(
       UpdateCategoryRequestModel model) async {
     var token = (await SharedService.loginDetails());
+    var accessToken = token!.data!.accessToken;
     Map<String, dynamic> decodedToken =
         JwtDecoder.decode(token!.data!.accessToken);
+    if (token != null) {
+      if (isAccessTokenExpired(token.data!.accessToken)) {
+        var refreshedToken = await refreshToken(token.data!.refreshToken);
+        if (refreshedToken != null) {
+          accessToken = refreshedToken.data!.accessToken;
+
+          var newTokenData = LoginData.Data(
+            accessToken: refreshedToken.data!.accessToken,
+            refreshToken: token.data!.refreshToken,
+          );
+
+          var newToken = LoginResponseModel(
+            result: token.result,
+            msgCode: token.msgCode,
+            msgDesc: token.msgDesc,
+            data: newTokenData,
+          );
+          await SharedService.setLoginDetails(newToken);
+        } else {
+          Navigator.of(naviatorKey.currentContext!).pushReplacement(
+              MaterialPageRoute(builder: (context) => loginPage()));
+        }
+      }
+    }
+    String? id = '/${decodedToken['id']}';
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${token?.data?.accessToken}'
+      'Authorization': 'Bearer ${accessToken}'
     };
 
     var url = Uri.http(Config.apiUrl, Config.createAndUpdateCategories);
@@ -420,12 +760,38 @@ class ApiService {
   static Future<CreateNoteResponseModel> createNote(
       CreateNoteRequestModel model) async {
     var token = (await SharedService.loginDetails());
+    var accessToken = token!.data!.accessToken;
     Map<String, dynamic> decodedToken =
         JwtDecoder.decode(token!.data!.accessToken);
+    if (token != null) {
+      if (isAccessTokenExpired(token.data!.accessToken)) {
+        var refreshedToken = await refreshToken(token.data!.refreshToken);
+        if (refreshedToken != null) {
+          accessToken = refreshedToken.data!.accessToken;
+
+          var newTokenData = LoginData.Data(
+            accessToken: refreshedToken.data!.accessToken,
+            refreshToken: token.data!.refreshToken,
+          );
+
+          var newToken = LoginResponseModel(
+            result: token.result,
+            msgCode: token.msgCode,
+            msgDesc: token.msgDesc,
+            data: newTokenData,
+          );
+          await SharedService.setLoginDetails(newToken);
+        } else {
+          Navigator.of(naviatorKey.currentContext!).pushReplacement(
+              MaterialPageRoute(builder: (context) => loginPage()));
+        }
+      }
+    }
+    String? id = '/${decodedToken['id']}';
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${token?.data?.accessToken}'
+      'Authorization': 'Bearer ${accessToken}'
     };
 
     var url = Uri.http(Config.apiUrl, Config.createNote);
@@ -451,12 +817,38 @@ class ApiService {
   static Future<UpdateNoteResponseModel> updateNote(
       UpdateNoteRequestModel model) async {
     var token = (await SharedService.loginDetails());
+    var accessToken = token!.data!.accessToken;
     Map<String, dynamic> decodedToken =
         JwtDecoder.decode(token!.data!.accessToken);
+    if (token != null) {
+      if (isAccessTokenExpired(token.data!.accessToken)) {
+        var refreshedToken = await refreshToken(token.data!.refreshToken);
+        if (refreshedToken != null) {
+          accessToken = refreshedToken.data!.accessToken;
+
+          var newTokenData = LoginData.Data(
+            accessToken: refreshedToken.data!.accessToken,
+            refreshToken: token.data!.refreshToken,
+          );
+
+          var newToken = LoginResponseModel(
+            result: token.result,
+            msgCode: token.msgCode,
+            msgDesc: token.msgDesc,
+            data: newTokenData,
+          );
+          await SharedService.setLoginDetails(newToken);
+        } else {
+          Navigator.of(naviatorKey.currentContext!).pushReplacement(
+              MaterialPageRoute(builder: (context) => loginPage()));
+        }
+      }
+    }
+    String? id = '/${decodedToken['id']}';
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${token?.data?.accessToken}'
+      'Authorization': 'Bearer ${accessToken}'
     };
 
     var url = Uri.http(Config.apiUrl, Config.updateNote);
@@ -481,12 +873,38 @@ class ApiService {
 
   static Future<DeleteNoteResponseModel> deleteNote(String? id) async {
     var token = (await SharedService.loginDetails());
+    var accessToken = token!.data!.accessToken;
     Map<String, dynamic> decodedToken =
         JwtDecoder.decode(token!.data!.accessToken);
+    if (token != null) {
+      if (isAccessTokenExpired(token.data!.accessToken)) {
+        var refreshedToken = await refreshToken(token.data!.refreshToken);
+        if (refreshedToken != null) {
+          accessToken = refreshedToken.data!.accessToken;
+
+          var newTokenData = LoginData.Data(
+            accessToken: refreshedToken.data!.accessToken,
+            refreshToken: token.data!.refreshToken,
+          );
+
+          var newToken = LoginResponseModel(
+            result: token.result,
+            msgCode: token.msgCode,
+            msgDesc: token.msgDesc,
+            data: newTokenData,
+          );
+          await SharedService.setLoginDetails(newToken);
+        } else {
+          Navigator.of(naviatorKey.currentContext!).pushReplacement(
+              MaterialPageRoute(builder: (context) => loginPage()));
+        }
+      }
+    }
+    String? id = '/${decodedToken['id']}';
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${token?.data?.accessToken}'
+      'Authorization': 'Bearer ${accessToken}'
     };
 
     var url = Uri.http(Config.apiUrl, Config.deleteNote, {'Id': id});
@@ -511,12 +929,38 @@ class ApiService {
   static Future<GetNoteResponseModel> getNote(
       String? fromDate, String? toDate) async {
     var token = (await SharedService.loginDetails());
+    var accessToken = token!.data!.accessToken;
     Map<String, dynamic> decodedToken =
         JwtDecoder.decode(token!.data!.accessToken);
+    if (token != null) {
+      if (isAccessTokenExpired(token.data!.accessToken)) {
+        var refreshedToken = await refreshToken(token.data!.refreshToken);
+        if (refreshedToken != null) {
+          accessToken = refreshedToken.data!.accessToken;
+
+          var newTokenData = LoginData.Data(
+            accessToken: refreshedToken.data!.accessToken,
+            refreshToken: token.data!.refreshToken,
+          );
+
+          var newToken = LoginResponseModel(
+            result: token.result,
+            msgCode: token.msgCode,
+            msgDesc: token.msgDesc,
+            data: newTokenData,
+          );
+          await SharedService.setLoginDetails(newToken);
+        } else {
+          Navigator.of(naviatorKey.currentContext!).pushReplacement(
+              MaterialPageRoute(builder: (context) => loginPage()));
+        }
+      }
+    }
+    String? id = '/${decodedToken['id']}';
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${token?.data?.accessToken}'
+      'Authorization': 'Bearer ${accessToken}'
     };
 
     var url = Uri.http(Config.apiUrl, Config.getNote,
@@ -542,12 +986,38 @@ class ApiService {
   static Future<DeleteCategoryResponseModel> deleteCategory(
       DeleteCategoryRequestModel model) async {
     var token = (await SharedService.loginDetails());
+    var accessToken = token!.data!.accessToken;
     Map<String, dynamic> decodedToken =
         JwtDecoder.decode(token!.data!.accessToken);
+    if (token != null) {
+      if (isAccessTokenExpired(token.data!.accessToken)) {
+        var refreshedToken = await refreshToken(token.data!.refreshToken);
+        if (refreshedToken != null) {
+          accessToken = refreshedToken.data!.accessToken;
+
+          var newTokenData = LoginData.Data(
+            accessToken: refreshedToken.data!.accessToken,
+            refreshToken: token.data!.refreshToken,
+          );
+
+          var newToken = LoginResponseModel(
+            result: token.result,
+            msgCode: token.msgCode,
+            msgDesc: token.msgDesc,
+            data: newTokenData,
+          );
+          await SharedService.setLoginDetails(newToken);
+        } else {
+          Navigator.of(naviatorKey.currentContext!).pushReplacement(
+              MaterialPageRoute(builder: (context) => loginPage()));
+        }
+      }
+    }
+    String? id = '/${decodedToken['id']}';
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${token?.data?.accessToken}'
+      'Authorization': 'Bearer ${accessToken}'
     };
 
     var url = Uri.http(Config.apiUrl, Config.deleteCategory);
@@ -573,12 +1043,38 @@ class ApiService {
   static Future<CreateMoneyPlanResponseModel> createMoneyPlan(
       CreateMoneyPlanRequestModel model) async {
     var token = (await SharedService.loginDetails());
+    var accessToken = token!.data!.accessToken;
     Map<String, dynamic> decodedToken =
         JwtDecoder.decode(token!.data!.accessToken);
+    if (token != null) {
+      if (isAccessTokenExpired(token.data!.accessToken)) {
+        var refreshedToken = await refreshToken(token.data!.refreshToken);
+        if (refreshedToken != null) {
+          accessToken = refreshedToken.data!.accessToken;
+
+          var newTokenData = LoginData.Data(
+            accessToken: refreshedToken.data!.accessToken,
+            refreshToken: token.data!.refreshToken,
+          );
+
+          var newToken = LoginResponseModel(
+            result: token.result,
+            msgCode: token.msgCode,
+            msgDesc: token.msgDesc,
+            data: newTokenData,
+          );
+          await SharedService.setLoginDetails(newToken);
+        } else {
+          Navigator.of(naviatorKey.currentContext!).pushReplacement(
+              MaterialPageRoute(builder: (context) => loginPage()));
+        }
+      }
+    }
+    String? id = '/${decodedToken['id']}';
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${token?.data?.accessToken}'
+      'Authorization': 'Bearer ${accessToken}'
     };
 
     var url = Uri.http(Config.apiUrl, Config.createMoneyPlan);
@@ -605,12 +1101,38 @@ class ApiService {
   static Future<UpdateMoneyPlanResponseModel> updateMoneyPlan(
       UpdateMoneyPlanRequestModel model) async {
     var token = (await SharedService.loginDetails());
+    var accessToken = token!.data!.accessToken;
     Map<String, dynamic> decodedToken =
         JwtDecoder.decode(token!.data!.accessToken);
+    if (token != null) {
+      if (isAccessTokenExpired(token.data!.accessToken)) {
+        var refreshedToken = await refreshToken(token.data!.refreshToken);
+        if (refreshedToken != null) {
+          accessToken = refreshedToken.data!.accessToken;
+
+          var newTokenData = LoginData.Data(
+            accessToken: refreshedToken.data!.accessToken,
+            refreshToken: token.data!.refreshToken,
+          );
+
+          var newToken = LoginResponseModel(
+            result: token.result,
+            msgCode: token.msgCode,
+            msgDesc: token.msgDesc,
+            data: newTokenData,
+          );
+          await SharedService.setLoginDetails(newToken);
+        } else {
+          Navigator.of(naviatorKey.currentContext!).pushReplacement(
+              MaterialPageRoute(builder: (context) => loginPage()));
+        }
+      }
+    }
+    String? id = '/${decodedToken['id']}';
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${token?.data?.accessToken}'
+      'Authorization': 'Bearer ${accessToken}'
     };
 
     var url = Uri.http(Config.apiUrl, Config.updateUsageMoneyPlan);
@@ -636,12 +1158,38 @@ class ApiService {
   static Future<GetMoneyPlanResponseModel> getMoneyPlan(
       String? FromDate, String? ToDate) async {
     var token = (await SharedService.loginDetails());
+    var accessToken = token!.data!.accessToken;
     Map<String, dynamic> decodedToken =
         JwtDecoder.decode(token!.data!.accessToken);
+    if (token != null) {
+      if (isAccessTokenExpired(token.data!.accessToken)) {
+        var refreshedToken = await refreshToken(token.data!.refreshToken);
+        if (refreshedToken != null) {
+          accessToken = refreshedToken.data!.accessToken;
+
+          var newTokenData = LoginData.Data(
+            accessToken: refreshedToken.data!.accessToken,
+            refreshToken: token.data!.refreshToken,
+          );
+
+          var newToken = LoginResponseModel(
+            result: token.result,
+            msgCode: token.msgCode,
+            msgDesc: token.msgDesc,
+            data: newTokenData,
+          );
+          await SharedService.setLoginDetails(newToken);
+        } else {
+          Navigator.of(naviatorKey.currentContext!).pushReplacement(
+              MaterialPageRoute(builder: (context) => loginPage()));
+        }
+      }
+    }
+    String? id = '/${decodedToken['id']}';
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${token?.data?.accessToken}'
+      'Authorization': 'Bearer ${accessToken}'
     };
 
     var url = Uri.http(Config.apiUrl, Config.getMoneyPlan,
@@ -667,12 +1215,38 @@ class ApiService {
   static Future<DeleteMoneyPlanResponseModel> deleteMoneyPlan(
       String? MoneyPlanId) async {
     var token = (await SharedService.loginDetails());
+    var accessToken = token!.data!.accessToken;
     Map<String, dynamic> decodedToken =
         JwtDecoder.decode(token!.data!.accessToken);
+    if (token != null) {
+      if (isAccessTokenExpired(token.data!.accessToken)) {
+        var refreshedToken = await refreshToken(token.data!.refreshToken);
+        if (refreshedToken != null) {
+          accessToken = refreshedToken.data!.accessToken;
+
+          var newTokenData = LoginData.Data(
+            accessToken: refreshedToken.data!.accessToken,
+            refreshToken: token.data!.refreshToken,
+          );
+
+          var newToken = LoginResponseModel(
+            result: token.result,
+            msgCode: token.msgCode,
+            msgDesc: token.msgDesc,
+            data: newTokenData,
+          );
+          await SharedService.setLoginDetails(newToken);
+        } else {
+          Navigator.of(naviatorKey.currentContext!).pushReplacement(
+              MaterialPageRoute(builder: (context) => loginPage()));
+        }
+      }
+    }
+    String? id = '/${decodedToken['id']}';
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${token?.data?.accessToken}'
+      'Authorization': 'Bearer ${accessToken}'
     };
 
     var url = Uri.http(
@@ -698,19 +1272,44 @@ class ApiService {
   static Future<GetMoneyPlanByIdResponseModel> getMoneyPlanById(
       String? id) async {
     var token = (await SharedService.loginDetails());
+    var accessToken = token!.data!.accessToken;
     Map<String, dynamic> decodedToken =
         JwtDecoder.decode(token!.data!.accessToken);
+    if (token != null) {
+      if (isAccessTokenExpired(token.data!.accessToken)) {
+        var refreshedToken = await refreshToken(token.data!.refreshToken);
+        if (refreshedToken != null) {
+          accessToken = refreshedToken.data!.accessToken;
+
+          var newTokenData = LoginData.Data(
+            accessToken: refreshedToken.data!.accessToken,
+            refreshToken: token.data!.refreshToken,
+          );
+
+          var newToken = LoginResponseModel(
+            result: token.result,
+            msgCode: token.msgCode,
+            msgDesc: token.msgDesc,
+            data: newTokenData,
+          );
+          await SharedService.setLoginDetails(newToken);
+        } else {
+          Navigator.of(naviatorKey.currentContext!).pushReplacement(
+              MaterialPageRoute(builder: (context) => loginPage()));
+        }
+      }
+    }
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${token?.data?.accessToken}'
+      'Authorization': 'Bearer ${accessToken}'
     };
 
     var url = Uri.http(Config.apiUrl, Config.getMoneyPlanById + "/${id}");
     print(url);
 
     var response = await client.get(url, headers: requestHeaders);
-    print(response);
+    print(jsonEncode(response.body));
 
     if (response.statusCode == 200) {
       // Kiểm tra nếu response.body không rỗng
@@ -728,12 +1327,38 @@ class ApiService {
   static Future<UpdateMoneyPlanResponseModels> updateMoneyPlans(
       UpdateMoneyPlanRequestModels model) async {
     var token = (await SharedService.loginDetails());
+    var accessToken = token!.data!.accessToken;
     Map<String, dynamic> decodedToken =
         JwtDecoder.decode(token!.data!.accessToken);
+    if (token != null) {
+      if (isAccessTokenExpired(token.data!.accessToken)) {
+        var refreshedToken = await refreshToken(token.data!.refreshToken);
+        if (refreshedToken != null) {
+          accessToken = refreshedToken.data!.accessToken;
+
+          var newTokenData = LoginData.Data(
+            accessToken: refreshedToken.data!.accessToken,
+            refreshToken: token.data!.refreshToken,
+          );
+
+          var newToken = LoginResponseModel(
+            result: token.result,
+            msgCode: token.msgCode,
+            msgDesc: token.msgDesc,
+            data: newTokenData,
+          );
+          await SharedService.setLoginDetails(newToken);
+        } else {
+          Navigator.of(naviatorKey.currentContext!).pushReplacement(
+              MaterialPageRoute(builder: (context) => loginPage()));
+        }
+      }
+    }
+    String? id = '/${decodedToken['id']}';
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${token?.data?.accessToken}'
+      'Authorization': 'Bearer ${accessToken}'
     };
 
     var url = Uri.http(Config.apiUrl, Config.updateMoneyPlan);
@@ -760,12 +1385,38 @@ class ApiService {
   static Future<ReportResponseModel> report(
       String? Type, String? FromDate, String? ToDate) async {
     var token = (await SharedService.loginDetails());
+    var accessToken = token!.data!.accessToken;
     Map<String, dynamic> decodedToken =
         JwtDecoder.decode(token!.data!.accessToken);
+    if (token != null) {
+      if (isAccessTokenExpired(token.data!.accessToken)) {
+        var refreshedToken = await refreshToken(token.data!.refreshToken);
+        if (refreshedToken != null) {
+          accessToken = refreshedToken.data!.accessToken;
+
+          var newTokenData = LoginData.Data(
+            accessToken: refreshedToken.data!.accessToken,
+            refreshToken: token.data!.refreshToken,
+          );
+
+          var newToken = LoginResponseModel(
+            result: token.result,
+            msgCode: token.msgCode,
+            msgDesc: token.msgDesc,
+            data: newTokenData,
+          );
+          await SharedService.setLoginDetails(newToken);
+        } else {
+          Navigator.of(naviatorKey.currentContext!).pushReplacement(
+              MaterialPageRoute(builder: (context) => loginPage()));
+        }
+      }
+    }
+    String? id = '/${decodedToken['id']}';
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${token?.data?.accessToken}'
+      'Authorization': 'Bearer ${accessToken}'
     };
 
     var url = Uri.http(Config.apiUrl, Config.dashboard,
@@ -789,20 +1440,47 @@ class ApiService {
   }
 
   static Future<ChangePasswordResponseModel> changePassword(
-      ChangePasswordRequestModel model,String? id) async {
+      ChangePasswordRequestModel model, String? id) async {
     var token = (await SharedService.loginDetails());
+    var accessToken = token!.data!.accessToken;
     Map<String, dynamic> decodedToken =
         JwtDecoder.decode(token!.data!.accessToken);
+    if (token != null) {
+      if (isAccessTokenExpired(token.data!.accessToken)) {
+        var refreshedToken = await refreshToken(token.data!.refreshToken);
+        if (refreshedToken != null) {
+          accessToken = refreshedToken.data!.accessToken;
+
+          var newTokenData = LoginData.Data(
+            accessToken: refreshedToken.data!.accessToken,
+            refreshToken: token.data!.refreshToken,
+          );
+
+          var newToken = LoginResponseModel(
+            result: token.result,
+            msgCode: token.msgCode,
+            msgDesc: token.msgDesc,
+            data: newTokenData,
+          );
+          await SharedService.setLoginDetails(newToken);
+        } else {
+          Navigator.of(naviatorKey.currentContext!).pushReplacement(
+              MaterialPageRoute(builder: (context) => loginPage()));
+        }
+      }
+    }
+    String? id = '/${decodedToken['id']}';
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${token?.data?.accessToken}'
+      'Authorization': 'Bearer ${accessToken}'
     };
 
     var url = Uri.http(Config.apiUrl, Config.changePasswords + "${id}");
     print(url);
 
-    var response = await client.post(url, headers: requestHeaders, body: jsonEncode(model.toJson()));
+    var response = await client.post(url,
+        headers: requestHeaders, body: jsonEncode(model.toJson()));
     print(response);
 
     if (response.statusCode == 200) {
@@ -832,10 +1510,10 @@ class ApiService {
     var url = Uri.http(Config.apiUrl, Config.resetPasswordOtp);
     print(url);
 
-    var response = await client.post(url, headers: requestHeaders, body: jsonEncode(model.toJson()));
-    print( jsonEncode(model.toJson()));
+    var response = await client.post(url,
+        headers: requestHeaders, body: jsonEncode(model.toJson()));
+    print(jsonEncode(model.toJson()));
     return changePasswordOTPResponseJson(response.body);
-
 
     // if (response.statusCode == 200) {
     //   // Kiểm tra nếu response.body không rỗng
@@ -850,7 +1528,8 @@ class ApiService {
     // }
   }
 
-  static Future<ChatboxResponseModel> chatBox(String? message, String? username) async {
+  static Future<ChatboxResponseModel> chatBox(
+      String? message, String? username) async {
     var token = (await SharedService.loginDetails());
     Map<String, dynamic> decodedToken =
         JwtDecoder.decode(token!.data!.accessToken);

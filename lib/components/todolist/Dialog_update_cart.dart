@@ -87,7 +87,7 @@ class _UpdateCardDialogState extends State<UpdateCardDialog> {
           style: ElevatedButton.styleFrom(
             primary: Colors.blue[300],
           ),
-          onPressed: () {
+          onPressed: () async {
             if (title.text.isEmpty) {
               print(title.text);
               ScaffoldMessenger.of(context).showSnackBar(
@@ -103,11 +103,12 @@ class _UpdateCardDialogState extends State<UpdateCardDialog> {
                   cardId: widget.cardId,
                   title: title.text,
                   description: description.text);
-              ApiService.updateTodoCard(model).then((response) => {
+              await ApiService.updateTodoCard(model).then((response) => {
                     if (response.result)
                       {
-                        widget.onDeleteSuccess(),
-                        Navigator.of(context).pop(),
+                          widget.onDeleteSuccess(),
+                          print("vao day"),
+                          Navigator.of(context).pop(),
                       }
                   });
             }

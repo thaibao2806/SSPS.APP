@@ -383,7 +383,7 @@ class _ReportPage extends State<ReportPage> {
                         fontSize: 15,
                         onTap: () {
                           Navigator.pop(context);
-                          Navigator.push(
+                          Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => AccountPage()));
@@ -1064,7 +1064,7 @@ class _ReportPage extends State<ReportPage> {
         heroTag: "Chat",
         backgroundColor: const Color.fromARGB(255, 57, 161, 247),
         onPressed: () {
-          Navigator.push(context,
+          Navigator.pushReplacement(context,
               MaterialPageRoute(builder: (context) => MessengerPage()));
         },
         child: const Icon(

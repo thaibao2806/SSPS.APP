@@ -164,7 +164,7 @@ class _loginPageState extends State<loginPage> {
                           child: GestureDetector(
                             onTap: () {
                               Navigator.pop(context);
-                              Navigator.push(
+                              Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => forgotPassword()));
@@ -208,7 +208,7 @@ class _loginPageState extends State<loginPage> {
                                           if (response.result)
                                             {
                                               Navigator.pop(context),
-                                              Navigator.push(
+                                              Navigator.pushReplacement(
                                                   context,
                                                   MaterialPageRoute(
                                                       builder: (context) =>
@@ -282,7 +282,7 @@ class _loginPageState extends State<loginPage> {
                                 onTap: () {
                                   Navigator.pop(context);
 
-                                  Navigator.push(
+                                  Navigator.pushReplacement(
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) =>

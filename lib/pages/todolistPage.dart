@@ -45,6 +45,7 @@ class _TodolistPage extends State<TodolistPage> {
   void refreshTodoList() {
     ApiService.getAllTodo().then((response) {
       if (response.result) {
+        print(response.result);
         setState(() {
           todoList = response.data;
         });
@@ -108,7 +109,7 @@ class _TodolistPage extends State<TodolistPage> {
                           fontSize: 15,
                           onTap: () {
                             Navigator.pop(context);
-                            Navigator.push(
+                            Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => AccountPage()));
@@ -171,14 +172,7 @@ class _TodolistPage extends State<TodolistPage> {
                                       return AddCardDialog(
                                         toDoNoteId: todo.id,
                                         onDeleteSuccess: () {
-                                          ApiService.getAllTodo()
-                                              .then((response) {
-                                            if (response.result) {
-                                              setState(() {
-                                                todoList = response.data;
-                                              });
-                                            }
-                                          });
+                                          refreshTodoList();
                                         },
                                       );
                                     });
@@ -192,14 +186,7 @@ class _TodolistPage extends State<TodolistPage> {
                                     builder: (context) {
                                       return UpdateDialog(
                                         onDeleteSuccess: () {
-                                          ApiService.getAllTodo()
-                                              .then((response) {
-                                            if (response.result) {
-                                              setState(() {
-                                                todoList = response.data;
-                                              });
-                                            }
-                                          });
+                                          refreshTodoList();
                                         },
                                         todo: todo,
                                       );
@@ -216,14 +203,7 @@ class _TodolistPage extends State<TodolistPage> {
                                         todoId: todo.id,
                                         onDeleteSuccess: () {
                                           // Call the API to refresh the todo list here
-                                          ApiService.getAllTodo()
-                                              .then((response) {
-                                            if (response.result) {
-                                              setState(() {
-                                                todoList = response.data;
-                                              });
-                                            }
-                                          });
+                                          refreshTodoList();
                                         },
                                       );
                                     });
@@ -311,7 +291,7 @@ class _TodolistPage extends State<TodolistPage> {
                       foregroundColor: Colors.white,
                       label: "Chat",
                       onTap: () {
-                        Navigator.push(
+                        Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                               builder: (context) => MessengerPage()),
@@ -378,29 +358,35 @@ class _TodolistPage extends State<TodolistPage> {
                             );
                           }).toList();
                         }),
-                    IconButton(
-                      onPressed: () {
-                        showDialog(
-                            context: context,
-                            builder: (context) {
-                              return UpdateCardDialog(
-                                  toDoNoteId: todo.id,
-                                  onDeleteSuccess: () {
-                                    ApiService.getAllTodo().then((response) {
-                                      if (response.result) {
-                                        setState(() {
-                                          todoList = response.data;
-                                        });
-                                      }
-                                    });
-                                  },
-                                  cardId: card.id,
-                                  title: card.title,
-                                  description: card.description);
-                            });
-                      },
-                      icon: Icon(Icons.edit, color: Colors.white),
-                    ),
+                      IconButton(
+                        onPressed: () {
+                          showDialog(
+                              context: context,
+                              builder: (context) {
+                                return UpdateCardDialog(
+                                    toDoNoteId: todo.id,
+                                    onDeleteSuccess: () {
+                                      ApiService.getAllTodo()
+                                          .then((response) {
+                                        print("cso ${response.result}");
+                                        if (response.result) {
+                                          print(response.result);
+                                          setState(() {
+                                            todoList = response.data;
+                                          });
+                                        }
+                                      }).catchError((error) {
+                                        print('Error: $error');
+                                      });
+                                      ;
+                                    },
+                                    cardId: card.id,
+                                    title: card.title,
+                                    description: card.description);
+                              });
+                        },
+                        icon: Icon(Icons.edit, color: Colors.white),
+                      ),
                     IconButton(
                       onPressed: () {
                         showDialog(
@@ -410,13 +396,7 @@ class _TodolistPage extends State<TodolistPage> {
                                 todoId: todo.id,
                                 cardId: card.id,
                                 onDeleteSuccess: () {
-                                  ApiService.getAllTodo().then((response) {
-                                    if (response.result) {
-                                      setState(() {
-                                        todoList = response.data;
-                                      });
-                                    }
-                                  });
+                                  refreshTodoList();
                                 },
                               );
                             });

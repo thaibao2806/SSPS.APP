@@ -69,7 +69,7 @@ class WelcomePage extends StatelessWidget {
                         const SizedBox(height: 30,),
                         GestureDetector(
                           onTap: (){
-                            Navigator.push(context,
+                            Navigator.pushReplacement(context,
                                 MaterialPageRoute(builder: (context) =>  loginPage()));
                           },
                           child: Container(
@@ -97,7 +97,7 @@ class WelcomePage extends StatelessWidget {
                         const SizedBox(height: 30,),
                         GestureDetector(
                           onTap: (){
-                            Navigator.push(context,
+                            Navigator.pushReplacement(context,
                                 MaterialPageRoute(builder: (context) => const RegisterPage()));
                           },
                           child: Container(

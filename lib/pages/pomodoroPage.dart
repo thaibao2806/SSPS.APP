@@ -170,7 +170,7 @@ class _PomodoroPage extends State<PomodoroPage> {
                     fontSize: 15,
                     onTap: () {
                       Navigator.pop(context);
-                      Navigator.push(
+                      Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder: (context) => AccountPage()),
                       );

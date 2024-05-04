@@ -3,6 +3,7 @@ class Config {
   static const String apiUrl = "10.0.2.2:5031";
   static const String apiUrlChat = "10.0.2.2:5000";
   static const String loginApi = "/api/authenticate/login";
+  static const String refreshTokenAPI = "/api/authenticate/refresh-token";
   static const String registerApi = "/api/authenticate/register";
   static const String registerOTP = "/api/authenticate/register-otp";
   static const String activeAccount = "/api/authenticate/active-account-otp";

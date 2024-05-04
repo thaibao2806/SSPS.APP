@@ -39,7 +39,7 @@ Widget menuItem(BuildContext context, int id, String title, IconData icon,
       onTap: () {
         if (page != null) {
           Navigator.pop(context);
-          Navigator.push(
+          Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (context) => page));
         } else {
           SharedService.logout(context);

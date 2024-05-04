@@ -35,6 +35,6 @@ class SharedService {
 
   static Future<void> logout(BuildContext context) async {
     await APICacheManager().deleteCache("login_details");
-    Navigator.push(context, MaterialPageRoute(builder: (context) =>  loginPage()));
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>  loginPage()));
   }
 }

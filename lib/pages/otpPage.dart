@@ -116,31 +116,32 @@ class _MyVerifyState extends State<MyVerify> {
                         primary: Color(0xff2E4DF2),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10))),
-                    onPressed: ()async {
-                      SharedPreferences prefs = await SharedPreferences.getInstance();
+                    onPressed: () async {
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
                       String? email = prefs.getString("emailRegister");
-                      ActiveAccountRequestModel model = ActiveAccountRequestModel(email: email, otp: otp);
+                      ActiveAccountRequestModel model =
+                          ActiveAccountRequestModel(email: email, otp: otp);
                       ApiService.activeAccountOTP(model).then((value) {
-                        if(value.result) {
+                        if (value.result) {
                           FormHelper.showSimpleAlertDialog(
-                                            context,
-                                            Config.appName,
-                                            "Register successfull. Please login to the account",
-                                            "OK", () {
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      loginPage()));
-                                        });
-                        }else {
+                              context,
+                              Config.appName,
+                              "Register successfull. Please login to the account",
+                              "OK", () {
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => loginPage()));
+                          });
+                        } else {
                           FormHelper.showSimpleAlertDialog(
-                                            context,
-                                            Config.appName,
-                                            value.msgDesc as String,
-                                            "OK", () {
-                                         Navigator.pop(context);
-                                        });
+                              context,
+                              Config.appName,
+                              value.msgDesc as String,
+                              "OK", () {
+                            Navigator.pop(context);
+                          });
                         }
                       });
                     },
@@ -154,7 +155,7 @@ class _MyVerifyState extends State<MyVerify> {
                   TextButton(
                       onPressed: () {
                         Navigator.pop(context);
-                        Navigator.push(
+                        Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => RegisterPage()));

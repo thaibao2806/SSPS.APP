@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:intl/intl.dart';
@@ -63,10 +65,11 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
       setState(() {
         if (response.result) {
           dataCategories = response.data;
-          Data category = dataCategories.firstWhere(
-            (element) => element.name == dropdownValueCategory,
-            // orElse: () => null,
-          );
+          print(jsonEncode(dataCategories));
+          // Data category = dataCategories.firstWhere(
+          //   (element) => element.name == dropdownValueCategory,
+          //   // orElse: () => null,
+          // );
           dropdownItems =
               dataCategories.map((category) => category.name ?? "").toList();
           // Nếu cần, có thể gán giá trị mặc định cho dropdownValueCategory
@@ -535,6 +538,26 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
                                 title: Text('Notification'),
                                 content: Text(
                                     'The expected amount is not enough. Note: The time you need to create could have been planned with a higher spend'),
+                                actions: <Widget>[
+                                  TextButton(
+                                    child: Text('OK'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        }
+                        if (value.msgCode == "TOTAL_USAGE_MONEY_IS_TOO_LARGE") {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text('Notification'),
+                                content: Text(
+                                    'Plan details is too large'),
                                 actions: <Widget>[
                                   TextButton(
                                     child: Text('OK'),

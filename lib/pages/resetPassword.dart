@@ -285,7 +285,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                                                 "Change password success!!!",
                                                 "OK", () {
                                               Navigator.pop(context);
-                                              Navigator.push(
+                                              Navigator.pushReplacement(
                                                   context,
                                                   MaterialPageRoute(
                                                       builder: (context) =>
@@ -347,7 +347,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                                 onTap: () {
                                   Navigator.pop(context);
 
-                                  Navigator.push(
+                                  Navigator.pushReplacement(
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) => ReportPage()));

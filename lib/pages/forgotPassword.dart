@@ -161,7 +161,7 @@ class _forgotPasswordState extends State<forgotPassword> {
                                                 "Email has been sent. Please check your email.",
                                                 "OK", () {
                                               Navigator.pop(context);
-                                              Navigator.push(
+                                              Navigator.pushReplacement(
                                                   context,
                                                   MaterialPageRoute(
                                                       builder: (context) =>
@@ -237,7 +237,7 @@ class _forgotPasswordState extends State<forgotPassword> {
                               onTap: () {
                                 Navigator.pop(context);
 
-                                Navigator.push(
+                                Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => loginPage()));

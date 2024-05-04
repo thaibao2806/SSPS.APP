@@ -52,6 +52,7 @@ dependencies:
   bottom_picker: ^2.6.0
   shared_preferences: ^2.2.3
   pinput: ^4.0.0
+  dio: ^4.0.0
   
 
 dev_dependencies:
