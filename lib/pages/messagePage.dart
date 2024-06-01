@@ -10,6 +10,7 @@ import 'package:ssps_app/service/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:ssps_app/components/moneyPlan/dialog_create_moneyPlan.dart';
+import 'package:photo_view/photo_view.dart';
 import 'dart:convert';
 
 import 'package:ssps_app/service/shared_service.dart';
@@ -290,6 +291,7 @@ class _MessengerPageState extends State<MessengerPage> {
               itemBuilder: (context, index) {
                 final message = _messages[index];
                 final isSentByMe = message['sender'] == 'me';
+                final isImage = message.containsKey('imageUrl');
                 return Align(
                   alignment:
                       isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
@@ -306,10 +308,24 @@ class _MessengerPageState extends State<MessengerPage> {
                     constraints: BoxConstraints(
                       maxWidth: MediaQuery.of(context).size.width * 0.7,
                     ),
-                    child: Text(
-                      message['text'] ?? '',
-                      style: TextStyle(color: Colors.white, fontSize: 16),
-                    ),
+                    child: isImage
+                        ? GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ImageViewer(
+                                    imageUrl: message['imageUrl']!,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Image.network(message['imageUrl']!),
+                          )
+                        : Text(
+                            message['text'] ?? '',
+                            style: TextStyle(color: Colors.white, fontSize: 16),
+                          ),
                   ),
                 );
               },
@@ -336,13 +352,16 @@ class _MessengerPageState extends State<MessengerPage> {
                         focusNode: myFocusNode,
                         decoration: InputDecoration(
                           hintText: 'Type a message...',
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 15),
                         ),
-                        // onChanged: (value) {
-                        //   scrollDown();
-                        // },
+                        maxLines:
+                            null, // Allows the text field to expand infinitely
+                        minLines:
+                            1, // Optional: sets the initial number of lines
+                        textInputAction: TextInputAction.newline,
+                        keyboardType: TextInputType.multiline,
                         onTap: () {
-                          // Khi TextField được chọn, cuộn xuống
-                          print("vvvv");
                           scrollDown();
                         },
                       ),
@@ -390,12 +409,6 @@ class _MessengerPageState extends State<MessengerPage> {
           builder: (BuildContext context) {
             return CreateMoneyPlan(getNote: () async {
               print("check");
-              // firstDateFormatted = formatDate(firstDate);
-              // lastDateFormatted = formatDate(lastDate);
-              // getNote(firstDateFormatted, lastDateFormatted);
-
-              // await getMoneyPlan(
-              //     firstDateFormatted, lastDateFormatted);
             });
           },
         );
@@ -472,6 +485,21 @@ class _MessengerPageState extends State<MessengerPage> {
         _textController.clear();
         return;
       }
+      if (text.trim().toLowerCase() == "@image") {
+        _messages.add({'sender': 'me', 'text': text});
+        _saveMessages();
+        scrollDown();
+        _messages.add({
+          'sender': 'other',
+          'imageUrl':
+              'https://i.pinimg.com/564x/a8/94/c2/a894c2cf95470de909ac43aea342a466.jpg'
+        });
+        _saveMessages();
+        scrollDown();
+        setState(() {});
+        _textController.clear();
+        return;
+      }
       if (text.isNotEmpty) {
         _messages.add({'sender': 'me', 'text': text});
         _saveMessages();
@@ -485,17 +513,27 @@ class _MessengerPageState extends State<MessengerPage> {
       try {
         ApiService.chatBox(text, "Phan Thai Bao").then((value) {
           _messages.removeLast();
-          print(value.result);
+          print(value.data);
           if (value.result) {
-            isSoundOn ? _playSound() : null;
-            _messages.add({'sender': 'other', 'text': value.data!.message!});
-            _saveMessages();
-            scrollDown();
-
+            if (value.data?.isImage == true) {
+              isSoundOn ? _playSound() : null;
+              _messages.add({
+                'sender': 'other',
+                'imageUrl':
+                    'https://i.pinimg.com/564x/a8/94/c2/a894c2cf95470de909ac43aea342a466.jpg'
+              });
+              _saveMessages();
+              scrollDown();
+            } else {
+              isSoundOn ? _playSound() : null;
+              _messages.add({'sender': 'other', 'text': value.data!.response!});
+              _saveMessages();
+              scrollDown();
+            }
             setState(() {});
           } else {
             isSoundOn ? _playSound() : null;
-            _messages.add({'sender': 'other', 'text': value.data!.message!});
+            _messages.add({'sender': 'other', 'text': value.data!.response!});
             _saveMessages();
             scrollDown();
             setState(() {});
@@ -503,6 +541,8 @@ class _MessengerPageState extends State<MessengerPage> {
         });
       } catch (e) {
         print('Error in _sendMessage: $e');
+        _messages
+            .add({'sender': 'other', 'text': "Sorry, something went wrong!"});
         if (e.toString().contains('Internal Server Error')) {
           print('Error 500: Internal Server Error');
         }
@@ -511,5 +551,25 @@ class _MessengerPageState extends State<MessengerPage> {
         );
       }
     });
+  }
+}
+
+class ImageViewer extends StatelessWidget {
+  final String imageUrl;
+
+  const ImageViewer({required this.imageUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Image Viewer'),
+      ),
+      body: Center(
+        child: PhotoView(
+          imageProvider: NetworkImage(imageUrl),
+        ),
+      ),
+    );
   }
 }

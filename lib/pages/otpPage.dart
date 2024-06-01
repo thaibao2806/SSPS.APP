@@ -129,7 +129,7 @@ class _MyVerifyState extends State<MyVerify> {
                               Config.appName,
                               "Register successfull. Please login to the account",
                               "OK", () {
-                            Navigator.pushReplacement(
+                            Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => loginPage()));
@@ -155,7 +155,7 @@ class _MyVerifyState extends State<MyVerify> {
                   TextButton(
                       onPressed: () {
                         Navigator.pop(context);
-                        Navigator.pushReplacement(
+                        Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => RegisterPage()));

@@ -164,7 +164,7 @@ class _loginPageState extends State<loginPage> {
                           child: GestureDetector(
                             onTap: () {
                               Navigator.pop(context);
-                              Navigator.pushReplacement(
+                              Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => forgotPassword()));
@@ -184,60 +184,64 @@ class _loginPageState extends State<loginPage> {
                         ),
                         GestureDetector(
                           onTap: () {
+                            if (_emailController.text.isEmpty ||
+                                _passwordController.text.isEmpty) {
+                              // Hiển thị thông báo nếu ô input rỗng
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content:
+                                      Text('Please enter email and password.'),
+                                ),
+                              );
+                              return;
+                            }
                             if (!_isLoading) {
                               setState(() {
                                 _isLoading = true;
                               });
-                              if (_emailController.text.isEmpty ||
-                                  _passwordController.text.isEmpty) {
-                                // Hiển thị thông báo nếu ô input rỗng
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                        'Please enter email and password.'),
-                                  ),
-                                );
-                              } else {
-                                LoginRequestModel model = LoginRequestModel(
-                                    email: _emailController.text!,
-                                    password: _passwordController.text!,
-                                    deviceToken:
-                                        'dz1Ee6tnTm6poFFo8tfu-V:APA91bFg1TZUsTfTi-IXzw8EPQN0avxpJOyC24fKnmNQ_HlUtSlRNglM1ro77NIS8X0ewr-evueH7hB5raZgDVlZNnsLSV7Iidrp5zbzFAYku3ZfvnZKI6F6Y6i9X2yfA23um4GSQUxm');
-                                ApiService.login(model)
-                                    .then((response) => {
-                                          if (response.result)
-                                            {
-                                              Navigator.pop(context),
-                                              Navigator.pushReplacement(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          ReportPage())),
-                                            }
-                                          else
-                                            {
-                                              FormHelper.showSimpleAlertDialog(
-                                                  context,
-                                                  Config.appName,
-                                                  response.msgDesc != null ? response.msgDesc  as String : response.msgCode as String,
-                                                  "OK", () {
-                                                Navigator.pop(context);
-                                              })
-                                            }
-                                        })
-                                    .whenComplete(() {
-                                  setState(() {
-                                    _isLoading = false;
-                                  });
+
+                              LoginRequestModel model = LoginRequestModel(
+                                  email: _emailController.text!,
+                                  password: _passwordController.text!,
+                                  deviceToken:
+                                      'dz1Ee6tnTm6poFFo8tfu-V:APA91bFg1TZUsTfTi-IXzw8EPQN0avxpJOyC24fKnmNQ_HlUtSlRNglM1ro77NIS8X0ewr-evueH7hB5raZgDVlZNnsLSV7Iidrp5zbzFAYku3ZfvnZKI6F6Y6i9X2yfA23um4GSQUxm');
+                              ApiService.login(model)
+                                  .then((response) => {
+                                        if (response.result)
+                                          {
+                                            Navigator.pop(context),
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        ReportPage())),
+                                          }
+                                        else
+                                          {
+                                            FormHelper.showSimpleAlertDialog(
+                                                context,
+                                                Config.appName,
+                                                response.msgDesc != null
+                                                    ? response.msgDesc as String
+                                                    : response.msgCode
+                                                        as String,
+                                                "OK", () {
+                                              Navigator.pop(context);
+                                            })
+                                          }
+                                      })
+                                  .whenComplete(() {
+                                setState(() {
+                                  _isLoading = false;
                                 });
-                                // Thực hiện hành động khi cả hai ô input không rỗng
-                                // Ví dụ: Thực hiện đăng nhập
-                                // Nếu muốn điều hướng đến màn hình khác sau khi nhấn nút "Login", bạn có thể sử dụng Navigator
-                                // Navigator.push(
-                                //   context,
-                                //   MaterialPageRoute(builder: (context) => NextScreen()), // Thay NextScreen() bằng màn hình bạn muốn điều hướng đến
-                                // );
-                              }
+                              });
+                              // Thực hiện hành động khi cả hai ô input không rỗng
+                              // Ví dụ: Thực hiện đăng nhập
+                              // Nếu muốn điều hướng đến màn hình khác sau khi nhấn nút "Login", bạn có thể sử dụng Navigator
+                              // Navigator.push(
+                              //   context,
+                              //   MaterialPageRoute(builder: (context) => NextScreen()), // Thay NextScreen() bằng màn hình bạn muốn điều hướng đến
+                              // );
                             }
                           },
                           child: Container(
@@ -282,7 +286,7 @@ class _loginPageState extends State<loginPage> {
                                 onTap: () {
                                   Navigator.pop(context);
 
-                                  Navigator.pushReplacement(
+                                  Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) =>

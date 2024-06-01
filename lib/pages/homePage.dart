@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
@@ -22,7 +22,8 @@ import 'package:ssps_app/widget/drawer_widget.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage({Key? key}) : super(key: key);
+  String? date;
+  HomePage({Key? key, this.date}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePage();
@@ -68,12 +69,21 @@ class _HomePage extends State<HomePage> {
     _decodeToken();
     getMoneyPlan(formatDate(currentDate), formatDate(currentDate));
     getNote(formatDate(currentDate), formatDate(currentDate));
+    if (widget.date != null) {
+      setState(() {
+        calendarView = CalendarView.day;
+        calendarController.view = calendarView;
+        DateTime targetDate = DateTime.parse(widget.date!);
+        calendarController.displayDate = targetDate;
+        dropdownValue = 'Day';
+      });
+    }
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   super.dispose();
+  // }
 
   Color hexToColor(String code) {
     String hex = code.startsWith('#') ? code.substring(1) : code;
@@ -190,160 +200,148 @@ class _HomePage extends State<HomePage> {
   }
 
   void handleEventTap(CalendarTapDetails details) {
-    // print(jsonEncode(details));
     if (details.appointments != null && details.appointments!.isNotEmpty) {
-      DateTime selectedDate = details.date!;
-      final Appointment tappedAppointment = details.appointments![0];
-      List<Appointment> eventsOnSelectedDate = getEventsOnDate(selectedDate);
-      
-
-      if (dropdownValue == "Month") {
-        // WidgetsBinding.instance!.addPostFrameCallback((_) {
+      if (details.date != null) {
+        DateTime selectedDate = details.date!;
         final Appointment tappedAppointment = details.appointments![0];
-        String eventId = tappedAppointment.id ?? '';
-        DateTime startTime = tappedAppointment.from;
-        DateTime endTime = tappedAppointment.to;
-        String? eventName = tappedAppointment.eventName;
-        Color eventColor = tappedAppointment.background;
-        bool isAllDay = tappedAppointment.isAllDay;
-        String? notes = tappedAppointment.notes;
-        num expectAmount = tappedAppointment.expectAmount!;
-        num actualAmount = tappedAppointment.actualAmount!;
-        int priority = tappedAppointment.priority;
-        print(tappedAppointment.background);
-        if (expectAmount > 0) {
-          showModalBottomSheet(
-            context: context,
-            builder: (context) {
-              return UpdateMoneyPlan(
-                getNote: () async {
-                  firstDateFormatted = formatDate(firstDate);
-                  lastDateFormatted = formatDate(lastDate);
-                  getNote(firstDateFormatted, lastDateFormatted);
-                  await getMoneyPlan(firstDateFormatted, lastDateFormatted);
-                },
-                moneyPlanId: eventId,
-                expectualAmount: expectAmount,
-                actualAmount: actualAmount,
-                title: eventName!,
-                priority: priority,
-                notes: notes!,
-                getMoneyPla: () {
-                  firstDateFormatted = formatDate(firstDate);
-                  lastDateFormatted = formatDate(lastDate);
-                  getNote(firstDateFormatted, lastDateFormatted);
-                  getMoneyPlan(firstDateFormatted, lastDateFormatted);
-                },
-                // notes: notes ?? "",
-              );
-            },
-          );
-        } else {
-          showModalBottomSheet(
-            context: context,
-            builder: (context) {
-              return DraggableSheetUpdate(
-                getNote: () {
-                  firstDateFormatted = formatDate(firstDate);
-                  lastDateFormatted = formatDate(lastDate);
-                  getNote(firstDateFormatted, lastDateFormatted);
-                  getMoneyPlan(firstDateFormatted, lastDateFormatted);
-                },
-                enventId: eventId,
-                startTime: startTime,
-                endTime: endTime,
-                eventColor: eventColor,
-                notes: notes,
-                enventName: eventName,
-              );
-            },
-          );
-        }
-      } else {
-        final Appointment tappedAppointment = details.appointments![0];
-        String eventId = tappedAppointment.id ?? '';
-        DateTime startTime = tappedAppointment.from;
-        DateTime endTime = tappedAppointment.to;
-        String? eventName = tappedAppointment.eventName;
-        Color eventColor = tappedAppointment.background;
-        bool isAllDay = tappedAppointment.isAllDay;
-        String? notes = tappedAppointment.notes;
-        num expectAmount = tappedAppointment.expectAmount!;
-        num actualAmount = tappedAppointment.actualAmount!;
-        int priority = tappedAppointment.priority;
-        print(tappedAppointment.background);
-        WidgetsBinding.instance!.addPostFrameCallback((_) {
-          if (expectAmount > 0) {
-            showModalBottomSheet(
-              context: context,
-              builder: (context) {
-                return UpdateMoneyPlan(
-                  getNote: () async {
-                    actualAmountTotal = 0;
-                    expectAmountTotal = 0;
-                    firstDateFormatted = formatDate(firstDate);
-                    lastDateFormatted = formatDate(lastDate);
-                    getNote(firstDateFormatted, lastDateFormatted);
+        List<Appointment> eventsOnSelectedDate = getEventsOnDate(selectedDate);
 
-                    await getMoneyPlan(firstDateFormatted, lastDateFormatted);
-                  },
-                  moneyPlanId: eventId,
-                  expectualAmount: expectAmount,
-                  actualAmount: actualAmount,
-                  title: eventName!,
-                  priority: priority,
-                  notes: notes!,
-                  getMoneyPla: () {
-                    firstDateFormatted = formatDate(firstDate);
-                    lastDateFormatted = formatDate(lastDate);
-                    getNote(firstDateFormatted, lastDateFormatted);
-                    getMoneyPlan(firstDateFormatted, lastDateFormatted);
-                  },
-                  // notes: notes ?? "",
-                );
-              },
-            );
+        String? eventName = tappedAppointment.eventName;
+        if (eventName != null) {
+          String eventId = tappedAppointment.id ?? '';
+          DateTime startTime = tappedAppointment.from;
+          DateTime endTime = tappedAppointment.to;
+          Color eventColor = tappedAppointment.background;
+          String? notes = tappedAppointment.notes;
+          num expectAmount = tappedAppointment.expectAmount ?? 0;
+          num actualAmount = tappedAppointment.actualAmount ?? 0;
+          int priority = tappedAppointment.priority;
+
+          if (dropdownValue == "Month") {
+            if (expectAmount > 0) {
+              showModalBottomSheet(
+                context: context,
+                builder: (context) {
+                  return UpdateMoneyPlan(
+                    getNote: () async {
+                      firstDateFormatted = formatDate(firstDate);
+                      lastDateFormatted = formatDate(lastDate);
+                      // getNote(firstDateFormatted, lastDateFormatted);
+                      await getMoneyPlan(firstDateFormatted, lastDateFormatted);
+                    },
+                    moneyPlanId: eventId,
+                    expectualAmount: expectAmount,
+                    actualAmount: actualAmount,
+                    title: eventName,
+                    priority: priority,
+                    notes: notes!,
+                    getMoneyPla: () {
+                      firstDateFormatted = formatDate(firstDate);
+                      lastDateFormatted = formatDate(lastDate);
+                      getNote(firstDateFormatted, lastDateFormatted);
+                      // getMoneyPlan(firstDateFormatted, lastDateFormatted);
+                    },
+                  );
+                },
+              );
+            } else {
+              showModalBottomSheet(
+                context: context,
+                builder: (context) {
+                  return DraggableSheetUpdate(
+                    getNote: () {
+                      firstDateFormatted = formatDate(firstDate);
+                      lastDateFormatted = formatDate(lastDate);
+                      getNote(firstDateFormatted, lastDateFormatted);
+                      getMoneyPlan(firstDateFormatted, lastDateFormatted);
+                    },
+                    enventId: eventId,
+                    startTime: startTime,
+                    endTime: endTime,
+                    eventColor: eventColor,
+                    notes: notes,
+                    enventName: eventName,
+                  );
+                },
+              );
+            }
           } else {
-            showModalBottomSheet(
-              context: context,
-              builder: (context) {
-                return DraggableSheetUpdate(
-                  getNote: () {
-                    firstDateFormatted = formatDate(firstDate);
-                    lastDateFormatted = formatDate(lastDate);
-                    getNote(firstDateFormatted, lastDateFormatted);
-                    getMoneyPlan(firstDateFormatted, lastDateFormatted);
+            WidgetsBinding.instance!.addPostFrameCallback((_) {
+              if (expectAmount > 0) {
+                showModalBottomSheet(
+                  context: context,
+                  builder: (context) {
+                    return UpdateMoneyPlan(
+                      getNote: () async {
+                        actualAmountTotal = 0;
+                        expectAmountTotal = 0;
+                        firstDateFormatted = formatDate(firstDate);
+                        lastDateFormatted = formatDate(lastDate);
+                        await getMoneyPlan(
+                            firstDateFormatted, lastDateFormatted);
+                      },
+                      moneyPlanId: eventId,
+                      expectualAmount: expectAmount,
+                      actualAmount: actualAmount,
+                      title: eventName,
+                      priority: priority,
+                      notes: notes!,
+                      getMoneyPla: () {
+                        firstDateFormatted = formatDate(firstDate);
+                        lastDateFormatted = formatDate(lastDate);
+                        getNote(firstDateFormatted, lastDateFormatted);
+                      },
+                    );
                   },
-                  enventId: eventId,
-                  startTime: startTime,
-                  endTime: endTime,
-                  eventColor: eventColor,
-                  notes: notes,
-                  enventName: eventName,
                 );
-              },
-            );
-          }
-        });
-      }
-    }else {
-      print(details.date);
-      showModalBottomSheet(
-                    // isScrollControlled: true,
-                    shape: const RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.vertical(top: Radius.circular(20))),
-                    isScrollControlled: true,
-                    context: context,
-                    builder: (BuildContext context) {
-                      return DraggableSheet(getNote: () {
+              } else {
+                showModalBottomSheet(
+                  context: context,
+                  builder: (context) {
+                    return DraggableSheetUpdate(
+                      getNote: () {
                         firstDateFormatted = formatDate(firstDate);
                         lastDateFormatted = formatDate(lastDate);
                         getNote(firstDateFormatted, lastDateFormatted);
                         getMoneyPlan(firstDateFormatted, lastDateFormatted);
-                      }, startTime: details.date!, endTime: details.date!);
-                    },
-                  );
+                      },
+                      enventId: eventId,
+                      startTime: startTime,
+                      endTime: endTime,
+                      eventColor: eventColor,
+                      notes: notes,
+                      enventName: eventName,
+                    );
+                  },
+                );
+              }
+            });
+          }
+        }
+      }
+    } else {
+      if (details.date != null) {
+        showModalBottomSheet(
+          // isScrollControlled: true,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          isScrollControlled: true,
+          context: context,
+          builder: (BuildContext context) {
+            return DraggableSheet(
+              getNote: () {
+                firstDateFormatted = formatDate(firstDate);
+                lastDateFormatted = formatDate(lastDate);
+                getNote(firstDateFormatted, lastDateFormatted);
+                getMoneyPlan(firstDateFormatted, lastDateFormatted);
+              },
+              startTime: details.date!,
+              endTime: details.date!,
+            );
+          },
+        );
+      }
     }
   }
 
@@ -355,6 +353,11 @@ class _HomePage extends State<HomePage> {
     }).toList();
   }
   // Schedule the state update to occur after the current build cycle completes
+
+  String numberWithCommas(num x) {
+    final formatter = NumberFormat("#,##0.00");
+    return formatter.format(x);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -382,7 +385,7 @@ class _HomePage extends State<HomePage> {
                         fontSize: 15,
                         onTap: () {
                           Navigator.pop(context);
-                          Navigator.pushReplacement(
+                          Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => AccountPage()));
@@ -434,9 +437,9 @@ class _HomePage extends State<HomePage> {
                                 color: Color.fromARGB(255, 42, 43, 42)),
                           ),
                           Text(
-                            "${expectAmountTotal.toStringAsFixed(2)} $currencyUnit",
+                            "${numberWithCommas(expectAmountTotal)} $currencyUnit",
                             style: TextStyle(
-                                fontSize: 20,
+                                fontSize: 18,
                                 color: Color.fromARGB(255, 81, 212, 85)),
                           ),
                         ],
@@ -464,13 +467,15 @@ class _HomePage extends State<HomePage> {
                           ),
                           Text("Total actual:",
                               style: TextStyle(
-                                  fontSize: 16,
+                                  fontSize: 15,
                                   color: Color.fromARGB(255, 42, 43, 42))),
                           Text(
-                              "${actualAmountTotal.toStringAsFixed(2)} $currencyUnit",
+                              "${numberWithCommas(actualAmountTotal)} $currencyUnit",
                               style: TextStyle(
-                                  fontSize: 20,
-                                  color: Color.fromARGB(255, 81, 212, 85))),
+                                  fontSize: 18,
+                                  color: actualAmountTotal <= expectAmountTotal
+                                      ? Color.fromARGB(255, 81, 212, 85)
+                                      : Colors.red[200])),
                         ],
                       ),
                     )),
@@ -643,11 +648,14 @@ class _HomePage extends State<HomePage> {
                     builder: (BuildContext context) {
                       final startTime = DateTime.now();
                       final endTime = DateTime.now();
-                      return DraggableSheet(getNote: () {
-                        firstDateFormatted = formatDate(firstDate);
-                        lastDateFormatted = formatDate(lastDate);
-                        getNote(firstDateFormatted, lastDateFormatted);
-                      }, startTime: startTime, endTime: endTime);
+                      return DraggableSheet(
+                          getNote: () {
+                            firstDateFormatted = formatDate(firstDate);
+                            lastDateFormatted = formatDate(lastDate);
+                            getNote(firstDateFormatted, lastDateFormatted);
+                          },
+                          startTime: startTime,
+                          endTime: endTime);
                     },
                   );
                 },
@@ -658,7 +666,7 @@ class _HomePage extends State<HomePage> {
                 foregroundColor: Colors.white,
                 label: "Category",
                 onTap: () {
-                  Navigator.pushReplacement(
+                  Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => Categories()),
                   );
@@ -670,7 +678,7 @@ class _HomePage extends State<HomePage> {
                 foregroundColor: Colors.white,
                 label: "Chat",
                 onTap: () {
-                  Navigator.pushReplacement(
+                  Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => MessengerPage()),
                   );

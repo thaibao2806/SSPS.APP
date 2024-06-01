@@ -226,7 +226,10 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
           : widget.priority == 2
               ? "Medium"
               : "Normal";
-      dropdownValueCategory = widget.notes!;
+      String defaultCategoryName =
+          categories.isNotEmpty ? categories.first.name ?? "" : "";
+      dropdownValueCategory = widget.notes ?? defaultCategoryName;
+
       _getCategory();
       _getMoneyPlanById();
     });
@@ -236,7 +239,9 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
   void didUpdateWidget(covariant UpdateMoneyPlan oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.notes != oldWidget.notes) {
-      dropdownValueCategory = widget.notes!;
+      String defaultCategoryName =
+          categories.isNotEmpty ? categories.first.name ?? "" : "";
+      dropdownValueCategory = widget.notes ?? defaultCategoryName;
     }
   }
 

@@ -16,7 +16,7 @@ class ChatboxResponseModel {
   late final bool result;
 
   ChatboxResponseModel.fromJson(Map<String, dynamic> json) {
-    data = json['data'] !=null ? Data.fromJson(json['data']) : null;
+    data = json['data'] != null ? Data.fromJson(json['data']) : null;
     msgCode = json['msgCode'];
     msgDesc = json['msgDesc'];
     result = json['result'];
@@ -34,22 +34,25 @@ class ChatboxResponseModel {
 
 class Data {
   Data({
-    required this.message,
+    required this.isImage,
+    required this.response,
   });
-  late final String? message;
+  late final bool? isImage;
+  late final String? response;
 
   factory Data.fromJson(Map<String, dynamic> json) {
-  return Data(
-    message: json['message'] is int || json['message'] is double
-        ? json['message'].toString()
-        : json['message'],
-  );
-}
-
+    return Data(
+      response: json['response'] is int || json['response'] is double
+          ? json['response'].toString()
+          : json['response'],
+      isImage: json['isImage'],
+    );
+  }
 
   Map<String, dynamic> toJson() {
     final _data = <String, dynamic>{};
-    _data['message'] = message;
+    _data['isImage'] = isImage;
+    _data['response'] = response;
     return _data;
   }
 }

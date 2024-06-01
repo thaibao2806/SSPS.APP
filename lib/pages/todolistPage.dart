@@ -109,7 +109,7 @@ class _TodolistPage extends State<TodolistPage> {
                           fontSize: 15,
                           onTap: () {
                             Navigator.pop(context);
-                            Navigator.pushReplacement(
+                            Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => AccountPage()));
@@ -291,7 +291,7 @@ class _TodolistPage extends State<TodolistPage> {
                       foregroundColor: Colors.white,
                       label: "Chat",
                       onTap: () {
-                        Navigator.pushReplacement(
+                        Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) => MessengerPage()),
@@ -315,8 +315,7 @@ class _TodolistPage extends State<TodolistPage> {
       return Container(
         decoration: BoxDecoration(
           color: cardColor,
-          borderRadius:
-              BorderRadius.circular(8.0), // Đặt giá trị radius tùy ý ở đây
+          borderRadius: BorderRadius.circular(8.0),
         ),
         padding: EdgeInsets.all(8.0),
         margin: EdgeInsets.symmetric(vertical: 8.0),
@@ -326,67 +325,66 @@ class _TodolistPage extends State<TodolistPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  '${card.title ?? ""}',
-                  style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                      color: Colors.white),
+                Expanded(
+                  child: Text(
+                    '${card.title ?? ""}',
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.white),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 Row(
                   children: [
                     PopupMenuButton<String>(
-                        child: Icon(Icons.swap_vert, color: Colors.white),
-                        onSelected: (String newValue) {
-                          setState(() {
-                            dropdownValue = newValue;
-                            ApiService.swapCart(card.id, todo.id, dropdownValue)
-                                .then((response) => {
-                                      if (response.result)
-                                        {
-                                          refreshTodoList(),
-                                          // Navigator.of(context).pop(),
-                                        }
+                      child: Icon(Icons.swap_vert, color: Colors.white),
+                      onSelected: (String newValue) {
+                        setState(() {
+                          dropdownValue = newValue;
+                          ApiService.swapCart(card.id, todo.id, dropdownValue)
+                              .then((response) => {
+                                    if (response.result)
+                                      {
+                                        refreshTodoList(),
+                                      }
+                                  });
+                        });
+                      },
+                      itemBuilder: (BuildContext context) {
+                        return todoList.map((todo) {
+                          return PopupMenuItem<String>(
+                            value: todo.id,
+                            child: Text(todo.title!),
+                          );
+                        }).toList();
+                      },
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return UpdateCardDialog(
+                                  toDoNoteId: todo.id,
+                                  onDeleteSuccess: () {
+                                    ApiService.getAllTodo().then((response) {
+                                      if (response.result) {
+                                        setState(() {
+                                          todoList = response.data;
+                                        });
+                                      }
+                                    }).catchError((error) {
+                                      print('Error: $error');
                                     });
-                          });
-                        },
-                        itemBuilder: (BuildContext context) {
-                          return todoList.map((todo) {
-                            return PopupMenuItem<String>(
-                              value: todo.id,
-                              child: Text(todo.title!),
-                            );
-                          }).toList();
-                        }),
-                      IconButton(
-                        onPressed: () {
-                          showDialog(
-                              context: context,
-                              builder: (context) {
-                                return UpdateCardDialog(
-                                    toDoNoteId: todo.id,
-                                    onDeleteSuccess: () {
-                                      ApiService.getAllTodo()
-                                          .then((response) {
-                                        print("cso ${response.result}");
-                                        if (response.result) {
-                                          print(response.result);
-                                          setState(() {
-                                            todoList = response.data;
-                                          });
-                                        }
-                                      }).catchError((error) {
-                                        print('Error: $error');
-                                      });
-                                      ;
-                                    },
-                                    cardId: card.id,
-                                    title: card.title,
-                                    description: card.description);
-                              });
-                        },
-                        icon: Icon(Icons.edit, color: Colors.white),
-                      ),
+                                  },
+                                  cardId: card.id,
+                                  title: card.title,
+                                  description: card.description);
+                            });
+                      },
+                      icon: Icon(Icons.edit, color: Colors.white),
+                    ),
                     IconButton(
                       onPressed: () {
                         showDialog(

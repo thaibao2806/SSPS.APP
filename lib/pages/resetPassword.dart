@@ -26,6 +26,7 @@ class _ResetPasswordState extends State<ResetPassword> {
   TextEditingController _confirmPasswordController = TextEditingController();
   bool _isEmailEmpty = false;
   bool _isPasswordEmpty = false;
+  bool _isConfirmPasswordEmpty = false;
   String? id;
 
   @override
@@ -197,10 +198,10 @@ class _ResetPasswordState extends State<ResetPassword> {
                         ),
                         TextField(
                           controller: _confirmPasswordController,
-                          // obscureText: !_isPasswordVisible,
+                          obscureText: true,
                           onChanged: (value) {
                             setState(() {
-                              _isPasswordEmpty = value.isEmpty;
+                              _isConfirmPasswordEmpty = value.isEmpty;
                             });
                           },
                           decoration: InputDecoration(
@@ -222,8 +223,8 @@ class _ResetPasswordState extends State<ResetPassword> {
                                 color: Color.fromARGB(255, 0, 0, 0),
                               ),
                             ),
-                            errorText: _isPasswordEmpty
-                                ? 'Please enter your password'
+                            errorText: _isConfirmPasswordEmpty
+                                ? 'Please enter your confirm password'
                                 : null,
                           ),
                         ),
@@ -285,7 +286,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                                                 "Change password success!!!",
                                                 "OK", () {
                                               Navigator.pop(context);
-                                              Navigator.pushReplacement(
+                                              Navigator.push(
                                                   context,
                                                   MaterialPageRoute(
                                                       builder: (context) =>
@@ -347,7 +348,7 @@ class _ResetPasswordState extends State<ResetPassword> {
                                 onTap: () {
                                   Navigator.pop(context);
 
-                                  Navigator.pushReplacement(
+                                  Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) => ReportPage()));

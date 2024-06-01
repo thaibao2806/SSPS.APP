@@ -374,7 +374,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                             Config.appName,
                                             "Please check your email and enter the OTP code to complete registration",
                                             "OK", () {
-                                          Navigator.pushReplacement(
+                                          Navigator.push(
                                               context,
                                               MaterialPageRoute(
                                                   builder: (context) =>
@@ -437,7 +437,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               ),
                               GestureDetector(
                                 onTap: () {
-                                  Navigator.pushReplacement(
+                                  Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) => loginPage()));

@@ -350,7 +350,7 @@ class _AccountPage extends State<AccountPage> {
               heroTag: "Chat",
               backgroundColor: const Color.fromARGB(255, 57, 161, 247),
               onPressed: () {
-                Navigator.pushReplacement(context,
+                Navigator.push(context,
                                 MaterialPageRoute(builder: (context) =>  MessengerPage()));
               },
               child: const Icon(

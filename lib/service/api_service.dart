@@ -76,10 +76,11 @@ class ApiService {
   static Future<LoginResponseModel> login(LoginRequestModel model) async {
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
+      "ngrok-skip-browser-warning": "69420"
     };
 
     var url = Uri.http(Config.apiUrl, Config.loginApi);
-
+    print(url);
     var response = await client.post(url,
         headers: requestHeaders, body: jsonEncode(model.toJson()));
     print(response.body);
@@ -101,7 +102,8 @@ class ApiService {
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${token?.data?.accessToken}'
+      'Authorization': 'Bearer ${token?.data?.accessToken}',
+      "ngrok-skip-browser-warning": "69420"
     };
 
     var url = Uri.http(
@@ -202,7 +204,8 @@ class ApiService {
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${accessToken}'
+      'Authorization': 'Bearer ${accessToken}',
+      "ngrok-skip-browser-warning": "69420"
     };
     var url = Uri.http(Config.apiUrl, Config.getUser + id);
 
@@ -248,7 +251,8 @@ class ApiService {
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${accessToken}'
+      'Authorization': 'Bearer ${accessToken}',
+      "ngrok-skip-browser-warning": "69420"
     };
 
     var url = Uri.http(Config.apiUrl, Config.updateUser + id);
@@ -293,14 +297,14 @@ class ApiService {
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${accessToken}'
+      'Authorization': 'Bearer ${accessToken}',
+      "ngrok-skip-browser-warning": "69420"
     };
 
-      var url = Uri.http(Config.apiUrl, Config.getAllTodo);
-      print(url);
-      var response = await client.get(url, headers: requestHeaders);
-      return getAllTodoResponseJson(response.body);
-
+    var url = Uri.http(Config.apiUrl, Config.getAllTodo);
+    print(url);
+    var response = await client.get(url, headers: requestHeaders);
+    return getAllTodoResponseJson(response.body);
   }
 
   static Future<DeleteTodoNoteResponseModel> deleteTodoNote(String? id) async {
@@ -335,7 +339,8 @@ class ApiService {
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${accessToken}'
+      'Authorization': 'Bearer ${accessToken}',
+      "ngrok-skip-browser-warning": "69420"
     };
 
     var url = Uri.http(Config.apiUrl, Config.deleteTodoNote, {'id': id});
@@ -382,7 +387,8 @@ class ApiService {
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${accessToken}'
+      'Authorization': 'Bearer ${accessToken}',
+      "ngrok-skip-browser-warning": "69420"
     };
 
     var url = Uri.http(Config.apiUrl, Config.deleteTodoCart,
@@ -427,7 +433,8 @@ class ApiService {
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${accessToken}'
+      'Authorization': 'Bearer ${accessToken}',
+      "ngrok-skip-browser-warning": "69420"
     };
 
     var url = Uri.http(Config.apiUrl, Config.createTodoCart);
@@ -473,7 +480,8 @@ class ApiService {
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${accessToken}'
+      'Authorization': 'Bearer ${accessToken}',
+      "ngrok-skip-browser-warning": "69420"
     };
 
     var url = Uri.http(Config.apiUrl, Config.createTodoNote);
@@ -529,7 +537,8 @@ class ApiService {
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${accessToken}'
+      'Authorization': 'Bearer ${accessToken}',
+      "ngrok-skip-browser-warning": "69420"
     };
 
     var url = Uri.http(Config.apiUrl, Config.updateTodoCart);
@@ -586,7 +595,8 @@ class ApiService {
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${accessToken}'
+      'Authorization': 'Bearer ${accessToken}',
+      "ngrok-skip-browser-warning": "69420"
     };
 
     var url = Uri.http(Config.apiUrl, Config.updateTodoNote);
@@ -644,7 +654,8 @@ class ApiService {
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${accessToken}'
+      'Authorization': 'Bearer ${accessToken}',
+      "ngrok-skip-browser-warning": "69420"
     };
 
     var url = Uri.http(Config.apiUrl, Config.swapTodoCart, {
@@ -689,7 +700,8 @@ class ApiService {
     }
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${accessToken}'
+      'Authorization': 'Bearer ${accessToken}',
+      "ngrok-skip-browser-warning": "69420"
     };
 
     var url = Uri.http(Config.apiUrl, Config.getCategories);
@@ -734,7 +746,8 @@ class ApiService {
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${accessToken}'
+      'Authorization': 'Bearer ${accessToken}',
+      "ngrok-skip-browser-warning": "69420"
     };
 
     var url = Uri.http(Config.apiUrl, Config.createAndUpdateCategories);
@@ -791,7 +804,8 @@ class ApiService {
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${accessToken}'
+      'Authorization': 'Bearer ${accessToken}',
+      "ngrok-skip-browser-warning": "69420"
     };
 
     var url = Uri.http(Config.apiUrl, Config.createNote);
@@ -848,7 +862,8 @@ class ApiService {
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${accessToken}'
+      'Authorization': 'Bearer ${accessToken}',
+      "ngrok-skip-browser-warning": "69420"
     };
 
     var url = Uri.http(Config.apiUrl, Config.updateNote);
@@ -900,11 +915,11 @@ class ApiService {
         }
       }
     }
-    String? id = '/${decodedToken['id']}';
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${accessToken}'
+      'Authorization': 'Bearer ${accessToken}',
+      "ngrok-skip-browser-warning": "69420"
     };
 
     var url = Uri.http(Config.apiUrl, Config.deleteNote, {'Id': id});
@@ -960,7 +975,8 @@ class ApiService {
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${accessToken}'
+      'Authorization': 'Bearer ${accessToken}',
+      "ngrok-skip-browser-warning": "69420"
     };
 
     var url = Uri.http(Config.apiUrl, Config.getNote,
@@ -1017,7 +1033,8 @@ class ApiService {
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${accessToken}'
+      'Authorization': 'Bearer ${accessToken}',
+      "ngrok-skip-browser-warning": "69420"
     };
 
     var url = Uri.http(Config.apiUrl, Config.deleteCategory);
@@ -1074,7 +1091,8 @@ class ApiService {
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${accessToken}'
+      'Authorization': 'Bearer ${accessToken}',
+      "ngrok-skip-browser-warning": "69420"
     };
 
     var url = Uri.http(Config.apiUrl, Config.createMoneyPlan);
@@ -1132,7 +1150,8 @@ class ApiService {
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${accessToken}'
+      'Authorization': 'Bearer ${accessToken}',
+      "ngrok-skip-browser-warning": "69420"
     };
 
     var url = Uri.http(Config.apiUrl, Config.updateUsageMoneyPlan);
@@ -1189,7 +1208,8 @@ class ApiService {
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${accessToken}'
+      'Authorization': 'Bearer ${accessToken}',
+      "ngrok-skip-browser-warning": "69420"
     };
 
     var url = Uri.http(Config.apiUrl, Config.getMoneyPlan,
@@ -1246,7 +1266,8 @@ class ApiService {
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${accessToken}'
+      'Authorization': 'Bearer ${accessToken}',
+      "ngrok-skip-browser-warning": "69420"
     };
 
     var url = Uri.http(
@@ -1302,7 +1323,8 @@ class ApiService {
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${accessToken}'
+      'Authorization': 'Bearer ${accessToken}',
+      "ngrok-skip-browser-warning": "69420"
     };
 
     var url = Uri.http(Config.apiUrl, Config.getMoneyPlanById + "/${id}");
@@ -1358,7 +1380,8 @@ class ApiService {
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${accessToken}'
+      'Authorization': 'Bearer ${accessToken}',
+      "ngrok-skip-browser-warning": "69420"
     };
 
     var url = Uri.http(Config.apiUrl, Config.updateMoneyPlan);
@@ -1416,7 +1439,8 @@ class ApiService {
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${accessToken}'
+      'Authorization': 'Bearer ${accessToken}',
+      "ngrok-skip-browser-warning": "69420"
     };
 
     var url = Uri.http(Config.apiUrl, Config.dashboard,
@@ -1469,11 +1493,11 @@ class ApiService {
         }
       }
     }
-    String? id = '/${decodedToken['id']}';
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${accessToken}'
+      'Authorization': 'Bearer ${accessToken}',
+      "ngrok-skip-browser-warning": "69420"
     };
 
     var url = Uri.http(Config.apiUrl, Config.changePasswords + "${id}");
@@ -1504,7 +1528,8 @@ class ApiService {
 
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
-      // 'Authorization': 'Bearer ${token?.data?.accessToken}'
+      // 'Authorization': 'Bearer ${token?.data?.accessToken}',
+      "ngrok-skip-browser-warning": "69420"
     };
 
     var url = Uri.http(Config.apiUrl, Config.resetPasswordOtp);
@@ -1543,7 +1568,8 @@ class ApiService {
     // Thêm headers vào yêu cầu
     request.headers.addAll({
       'Content-Type': 'multipart/form-data',
-      'Authorization': 'Bearer ${token?.data?.accessToken}'
+      'Authorization': 'Bearer ${token?.data?.accessToken}',
+      "ngrok-skip-browser-warning": "69420"
     });
 
     // Thêm trường form 'message' vào yêu cầu
@@ -1552,7 +1578,7 @@ class ApiService {
 
     // Gửi yêu cầu và nhận phản hồi
     var response = await request.send();
-
+    print(response);
     // Chuyển đổi phản hồi thành http.Response
     var httpResponse = await http.Response.fromStream(response);
     print(httpResponse.body);

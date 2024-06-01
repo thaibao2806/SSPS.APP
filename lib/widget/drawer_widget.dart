@@ -18,14 +18,14 @@ Widget MyDrawerList(BuildContext context) {
             HomePage()),
         menuItem(
             context, 3, "Todo", Icons.task_outlined, false, TodolistPage()),
-        
         menuItem(context, 4, "Pomodoro", Icons.punch_clock_outlined, false,
             PomodoroPage()),
         menuItem(
             context, 5, "Account", Icons.person_outline, false, AccountPage()),
         Divider(),
-        menuItem(
-            context, 6, "Change Password", Icons.password, false, ResetPassword()),
+        menuItem(context, 6, "Change Password", Icons.password, false,
+            ResetPassword()),
+        menuItem(context, 7, "Donate", Icons.money, false, null),
         menuItem(context, 7, "Logout", Icons.logout_outlined, false, null),
       ],
     ),

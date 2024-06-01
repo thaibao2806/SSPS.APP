@@ -5,15 +5,21 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:ssps_app/components/my_drawer_header.dart';
-import 'package:ssps_app/models/moneyPlans/get_moneyPlan_response_model.dart' as MoneyPlan;
+import 'package:ssps_app/models/moneyPlans/get_moneyPlan_response_model.dart'
+    as MoneyPlan;
 import 'package:ssps_app/models/report/report_response_model.dart';
+import 'package:ssps_app/models/todolist/get_all_todo_response_model.dart'
+    as Todo;
 import 'package:ssps_app/pages/accountPage.dart';
+import 'package:ssps_app/pages/homePage.dart';
 import 'package:ssps_app/pages/messagePage.dart';
+import 'package:ssps_app/pages/todolistPage.dart';
 import 'package:ssps_app/service/api_service.dart';
 import 'package:ssps_app/service/shared_service.dart';
 import 'package:ssps_app/utils/avatar.dart';
 import 'package:ssps_app/widget/drawer_widget.dart';
 import 'package:bottom_picker/bottom_picker.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
 class ReportPage extends StatefulWidget {
   ReportPage({Key? key}) : super(key: key);
@@ -41,6 +47,7 @@ class _ReportPage extends State<ReportPage> {
   DateTime lastDayOfMonth = DateTime.now();
   List<ListDiagramData> listDiagramData = [];
   List<MoneyPlan.Data> listData = [];
+  List<Todo.Data> todo = [];
   final firstDayOfYear = DateTime(DateTime.now().year, 1, 1);
   final lastDayOfYear = DateTime(DateTime.now().year, 12, 31);
 
@@ -55,6 +62,7 @@ class _ReportPage extends State<ReportPage> {
     dateRange = DateTimeRange(start: firstDayOfMonth, end: lastDayOfMonth);
     _decodeToken();
     _getData(type, fromDate, toDate);
+    _getAllTodoList();
     _getMoneyPlan(
         formatMonthYear(firstDayOfYear), formatMonthYear(lastDayOfYear));
     month = formatYear(currentDate);
@@ -64,6 +72,7 @@ class _ReportPage extends State<ReportPage> {
   void dispose() {
     super.dispose();
     _decodeToken();
+    // _getAllTodoList();
   }
 
   _changeTypeDate(bool isType) {
@@ -85,12 +94,26 @@ class _ReportPage extends State<ReportPage> {
     }
   }
 
+  _getAllTodoList() {
+    ApiService.getAllTodo().then((value) {
+      print(value.result);
+      if (value.result) {
+        setState(() {
+          todo = value.data;
+        });
+      }
+    });
+  }
+
   _getMoneyPlan(String? fromDate, String? toDate) {
     ApiService.getMoneyPlan(fromDate, toDate).then((value) {
       print(value.result);
       if (value.result) {
         print(value.msgDesc);
-        listData = value.data!;
+        setState(() {
+          listData = value.data!;
+          listData.sort((a,b) => a.date!.compareTo(b.date!));
+        });
       }
     });
   }
@@ -355,6 +378,39 @@ class _ReportPage extends State<ReportPage> {
     });
   }
 
+  bool isDatePassed(String toDate) {
+    DateTime currentDate = DateTime.now();
+    DateTime parsedToDate = DateTime.parse(toDate);
+    return currentDate.isAfter(parsedToDate);
+  }
+
+  double calculateProgress(String fromDateStr, String toDateStr) {
+    DateTime fromDate = DateTime.parse(fromDateStr);
+    DateTime toDate = DateTime.parse(toDateStr);
+
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    final fromDateWithoutTime =
+        DateTime(fromDate.year, fromDate.month, fromDate.day);
+    final toDateWithoutTime = DateTime(toDate.year, toDate.month, toDate.day);
+
+    final totalDuration =
+        toDateWithoutTime.difference(fromDateWithoutTime).inDays;
+    final passedDuration = today.difference(fromDateWithoutTime).inDays;
+
+    if (passedDuration >= totalDuration) {
+      return 1;
+    } else {
+      return (passedDuration / totalDuration);
+    }
+  }
+
+  String numberWithCommas(num x) {
+    final formatter = NumberFormat("#,##0.00");
+    return formatter.format(x);
+  }
+
   @override
   Widget build(BuildContext context) {
     final start = dateRange.start;
@@ -383,7 +439,7 @@ class _ReportPage extends State<ReportPage> {
                         fontSize: 15,
                         onTap: () {
                           Navigator.pop(context);
-                          Navigator.pushReplacement(
+                          Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => AccountPage()));
@@ -522,10 +578,6 @@ class _ReportPage extends State<ReportPage> {
                                 ),
                               ),
                             ),
-                            // Icon(
-                            //   Icons.payment_outlined,
-                            //   size: 40,
-                            // ),
                             const SizedBox(
                               width: 20,
                             ),
@@ -550,9 +602,7 @@ class _ReportPage extends State<ReportPage> {
                                       height: 5,
                                     ),
                                     Text(
-                                      totalExpectAmount
-                                          .toStringAsFixed(2)
-                                          .toString(),
+                                      numberWithCommas(totalExpectAmount),
                                       style: TextStyle(
                                           fontSize: 30,
                                           fontWeight: FontWeight.w500),
@@ -619,9 +669,7 @@ class _ReportPage extends State<ReportPage> {
                                     height: 5,
                                   ),
                                   Text(
-                                    totalActualAmount
-                                        .toStringAsFixed(2)
-                                        .toString(),
+                                    numberWithCommas(totalActualAmount),
                                     style: TextStyle(
                                         fontSize: 30,
                                         fontWeight: FontWeight.w500),
@@ -637,8 +685,6 @@ class _ReportPage extends State<ReportPage> {
               Padding(
                 padding: const EdgeInsets.only(top: 20),
                 child: Container(
-                  // height: double.infinity,
-                  // width: double.infinity,
                   decoration: const BoxDecoration(
                     borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(10),
@@ -680,18 +726,7 @@ class _ReportPage extends State<ReportPage> {
                                       Column(
                                         mainAxisAlignment:
                                             MainAxisAlignment.start,
-                                        children: [
-                                          // Text(
-                                          //   "Total spending:",
-                                          //   style: TextStyle(
-                                          //       fontSize: 15,
-                                          //       fontWeight: FontWeight.w500),
-                                          // ),
-                                          // Text(
-                                          //   "10000\$",
-                                          //   style: TextStyle(fontSize: 20),
-                                          // ),
-                                        ],
+                                        children: [],
                                       ),
                                       SizedBox(
                                         width: 15,
@@ -700,7 +735,8 @@ class _ReportPage extends State<ReportPage> {
                                         visible: isMonthSelected,
                                         child: Expanded(
                                           child: Padding(
-                                            padding: EdgeInsets.only(left: 15.0),
+                                            padding:
+                                                EdgeInsets.only(left: 15.0),
                                             child: GestureDetector(
                                               onTap: () => pickDateRange(),
                                               child: AbsorbPointer(
@@ -709,99 +745,17 @@ class _ReportPage extends State<ReportPage> {
                                                     Expanded(
                                                       child: Row(
                                                         children: [
-                                                          // Text(
-                                                          //   "From:",
-                                                          //   style: TextStyle(
-                                                          //       fontSize: 18,
-                                                          //       fontWeight:
-                                                          //           FontWeight
-                                                          //               .w500),
-                                                          // ),
-                                                          // SizedBox(
-                                                          //   width: 10,
-                                                          // ),
-                                                          Text("From: ${start.day}/${start.month}/${start.year} - To: ${end.day}/${end.month}/${end.year}", style: TextStyle(fontSize: 18),),
-                                                          // Expanded(
-                                                          //   child: TextField(
-                                                          //     decoration:
-                                                          //         InputDecoration(
-                                                          //       // labelText: 'From',
-                                                          //       labelStyle: TextStyle(
-                                                          //           // fontWeight: FontWeight.bold,
-                                                          //           // color: Color.fromARGB(255, 0, 0, 0),
-                                                          //           ),
-                                                          //     ),
-                                                          //     // controller: TextEditingController(
-                                                          //     //   text: _selectedToDateTime != null
-                                                          //     //       ? _selectedToDateTime.toString()
-                                                          //     //       : '',
-                                                          //     // ),
-                                                          //     controller:
-                                                          //         TextEditingController(
-                                                          //       text:
-                                                          //           "${start.day}/${start.month}/${start.year}",
-                                                          //     ),
-                                                          //   ),
-                                                          // ),
+                                                          Text(
+                                                            "From: ${start.day}/${start.month}/${start.year} - To: ${end.day}/${end.month}/${end.year}",
+                                                            style: TextStyle(
+                                                                fontSize: 18),
+                                                          ),
                                                         ],
                                                       ),
                                                     ),
-                                                    // SizedBox(
-                                                    //   width: 10,
-                                                    // ),
-                                                    // Text(
-                                                    //   " - ",
-                                                    //   style: TextStyle(
-                                                    //     fontSize: 18,
-                                                    //   ),
-                                                    // ),
-                                                    // SizedBox(width: 15,),
-                                                    // Icon(Icons.minimize),
-                                                    // Expanded(
-                                                    //   child: Row(
-                                                    //     children: [
-                                                    //       Text(
-                                                    //         "To:",
-                                                    //         style: TextStyle(
-                                                    //             fontSize: 18,
-                                                    //             fontWeight:
-                                                    //                 FontWeight
-                                                    //                     .w500),
-                                                    //       ),
-                                                    //       // SizedBox(
-                                                    //       //   width: 10,
-                                                    //       // ),
-                                                    //       Text("${end.day}/${end.month}/${end.year}", style: TextStyle(fontSize: 18),),
-                                                    //       // Expanded(
-                                                    //       //   child: TextField(
-                                                    //       //     decoration:
-                                                    //       //         InputDecoration(
-                                                    //       //       // labelText: 'To',
-                                                    //       //       labelStyle: TextStyle(
-                                                    //       //           // fontWeight: FontWeight.bold,
-                                                    //       //           // color: Color.fromARGB(255, 0, 0, 0),
-                                                    //       //           ),
-                                                    //       //     ),
-                                                    //       //     // controller: TextEditingController(
-                                                    //       //     //   text: _selectedToDateTime != null
-                                                    //       //     //       ? _selectedToDateTime.toString()
-                                                    //       //     //       : '',
-                                                    //       //     // ),
-                                                    //       //     controller:
-                                                    //       //         TextEditingController(
-                                                    //       //       text:
-                                                    //       //           "${end.day}/${end.month}/${end.year}",
-                                                    //       //     ),
-                                                    //       //   ),
-                                                    //       // ),
-                                                    //       // SizedBox(
-                                                    //       //   width: 10,
-                                                    //       // ),
-                                                    //       IconButton(onPressed: () {}, icon: Icon(Icons.edit))
-                                                    //     ],
-                                                    //   ),
-                                                    // ),
-                                                    IconButton(onPressed: () {}, icon: Icon(Icons.edit))
+                                                    IconButton(
+                                                        onPressed: () {},
+                                                        icon: Icon(Icons.edit))
                                                   ],
                                                 ),
                                               ),
@@ -846,34 +800,18 @@ class _ReportPage extends State<ReportPage> {
                                                               SizedBox(
                                                                 width: 10,
                                                               ),
-                                                              Text("${month}", style: TextStyle(fontSize: 18),),
-                                                              IconButton(onPressed: () {}, icon: Icon(Icons.edit))
-                                                              // Expanded(
-                                                              //   child:
-                                                              //       TextField(
-                                                              //     decoration:
-                                                              //         InputDecoration(
-                                                              //       // labelText: 'From',
-                                                              //       labelStyle: TextStyle(
-                                                              //           // fontWeight: FontWeight.bold,
-                                                              //           // color: Color.fromARGB(255, 0, 0, 0),
-                                                              //           ),
-                                                              //     ),
-                                                              //     // controller: TextEditingController(
-                                                              //     //   text: _selectedToDateTime != null
-                                                              //     //       ? _selectedToDateTime.toString()
-                                                              //     //       : '',
-                                                              //     // ),
-                                                              //     controller:
-                                                              //         TextEditingController(
-                                                              //       text:
-                                                              //           "${month}",
-                                                              //     ),
-                                                              //   ),
-                                                              // ),
-                                                              // SizedBox(
-                                                              //   width: 10,
-                                                              // ),
+                                                              Text(
+                                                                "${month}",
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        18),
+                                                              ),
+                                                              IconButton(
+                                                                  onPressed:
+                                                                      () {},
+                                                                  icon: Icon(
+                                                                      Icons
+                                                                          .edit))
                                                             ],
                                                           ),
                                                         ),
@@ -942,7 +880,8 @@ class _ReportPage extends State<ReportPage> {
                                             // barsWidth = 8.0 *
                                             //     constraints.maxWidth /
                                             //     280;
-                                            barsWidth = constraints.maxWidth/ 55;
+                                            barsWidth =
+                                                constraints.maxWidth / 55;
                                           } else {
                                             barsWidth = 8.0 *
                                                 constraints.maxWidth /
@@ -1017,6 +956,173 @@ class _ReportPage extends State<ReportPage> {
                 height: 15,
               ),
               Row(children: [
+                Text("Todolist",
+                    style: TextStyle(fontSize: 25, fontWeight: FontWeight.w500))
+              ]),
+              SizedBox(
+                height: 15,
+              ),
+              CarouselSlider(
+                options: CarouselOptions(
+                  height: 150.0,
+                  autoPlay: true,
+                  autoPlayInterval: Duration(seconds: 3),
+                  autoPlayAnimationDuration: Duration(milliseconds: 800),
+                  autoPlayCurve: Curves.fastOutSlowIn,
+                  enlargeCenterPage: true,
+                  viewportFraction: 0.9,
+                  aspectRatio: 2.0,
+                  initialPage: 2,
+                ),
+                items: todo.map((item) {
+                  double progress =
+                      calculateProgress(item.fromDate!, item.toDate!);
+                  return Builder(
+                    builder: (BuildContext context) {
+                      return Container(
+                          width: MediaQuery.of(context).size.width,
+                          margin: EdgeInsets.symmetric(horizontal: 1.5),
+                          decoration: BoxDecoration(
+                            color: Color.fromRGBO(203, 203, 203, 0.408),
+                            borderRadius: BorderRadius.circular(10),
+                            // boxShadow: [
+                            //   BoxShadow(
+                            //     color: Color.fromARGB(138, 105, 104, 104),
+                            //     spreadRadius: 2,
+                            //     blurRadius: 5,
+                            //     offset: Offset(0, 2),
+                            //   ),
+                            // ],
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text('${item.title}',
+                                        style: TextStyle(fontSize: 20.0)),
+                                    Row(
+                                      children: [
+                                        Container(
+                                          width: 100,
+                                          height: 15,
+                                          decoration: BoxDecoration(
+                                              color: Colors.grey[500],
+                                              borderRadius:
+                                                  BorderRadius.circular(10)),
+                                          child: Stack(
+                                            children: [
+                                              Container(
+                                                width: 100 * progress,
+                                                height: 15,
+                                                decoration: BoxDecoration(
+                                                    color: Colors.blue,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10)),
+                                              ),
+                                              Align(
+                                                alignment: Alignment.center,
+                                                child: Text(
+                                                  "${(progress * 100).toInt()}%",
+                                                  style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: 8,
+                                        ),
+                                        Text("process")
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                Text(
+                                    '${DateFormat('dd/MM/yyyy').format(DateTime.parse(item.fromDate!))} - ${DateFormat('dd/MM/yyyy').format(DateTime.parse(item.toDate!))}',
+                                    style: TextStyle(
+                                      fontSize: 14.0,
+                                      color: isDatePassed(item.toDate!)
+                                          ? Colors.red
+                                          : Colors.black,
+                                    )),
+                                // SizedBox(
+                                //   height: 5,
+                                // ),
+                                Expanded(
+                                  child: SingleChildScrollView(
+                                    child: Column(
+                                      children: item.cards.map((card) {
+                                        return Padding(
+                                          padding: const EdgeInsets.only(
+                                              left: 10, right: 10),
+                                          child: Container(
+                                            margin: EdgeInsets.symmetric(
+                                                vertical: 5.0),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Container(
+                                                  width: MediaQuery.of(context)
+                                                      .size
+                                                      .width,
+                                                  decoration: BoxDecoration(
+                                                    color: Color(int.parse(
+                                                        '0xFF${item.color}')),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                  ),
+                                                  child: GestureDetector(
+                                                    onTap: () {
+                                                      Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                              builder: (context) =>
+                                                                  TodolistPage()));
+                                                    },
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: Text(
+                                                          '${card.title}',
+                                                          style: TextStyle(
+                                                              fontSize: 14.0,
+                                                              color: Colors
+                                                                  .white)),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ));
+                    },
+                  );
+                }).toList(),
+              ),
+              SizedBox(
+                height: 15,
+              ),
+              Row(children: [
                 Text("Report details: ",
                     style: TextStyle(fontSize: 25, fontWeight: FontWeight.w500))
               ]),
@@ -1027,10 +1133,18 @@ class _ReportPage extends State<ReportPage> {
                 child: DataTable(
                   decoration: BoxDecoration(),
                   columns: <DataColumn>[
+                    // DataColumn(
+                    //   label: Expanded(
+                    //     child: Text(
+                    //       'Category',
+                    //       style: TextStyle(fontStyle: FontStyle.italic),
+                    //     ),
+                    //   ),
+                    // ),
                     DataColumn(
                       label: Expanded(
                         child: Text(
-                          "${isMonthSelected ? "Day" : "Month"}",
+                          "Date",
                           style: TextStyle(fontStyle: FontStyle.italic),
                         ),
                       ),
@@ -1064,7 +1178,7 @@ class _ReportPage extends State<ReportPage> {
         heroTag: "Chat",
         backgroundColor: const Color.fromARGB(255, 57, 161, 247),
         onPressed: () {
-          Navigator.pushReplacement(context,
+          Navigator.push(context,
               MaterialPageRoute(builder: (context) => MessengerPage()));
         },
         child: const Icon(
@@ -1085,30 +1199,80 @@ class _ReportPage extends State<ReportPage> {
     );
   }
 
-  List<DataRow> buildDataRows() {
-    // Khởi tạo danh sách DataRow
-    List<DataRow> rows = [];
+List<DataRow> buildDataRows() {
+  // Khởi tạo danh sách DataRow
+  List<DataRow> rows = [];
 
-    // Duyệt qua mỗi dòng dữ liệu trong apiData và tạo DataRow tương ứng
-    for (var data in listDiagramData) {
-      // Tạo một list cells chứa các DataCell tương ứng với từng trường dữ liệu
-      List<DataCell> cells = [];
-      // data.actualMoney
-
-      cells.add(DataCell(Text('${data.doM}')));
-      cells.add(DataCell(Text('${data.expectMoney.toStringAsFixed(2)}')));
-      cells.add(DataCell(Text('${data.actualMoney.toStringAsFixed(2)}')));
-      // Duyệt qua mỗi trường dữ liệu trong dòng hiện tại và thêm vào cells
-      // data.forEach((key, value) {
-      //   cells.add(DataCell(Text('$value')));
-      // });
-
-      // Thêm DataRow mới vào danh sách rows
-      rows.add(DataRow(cells: cells));
-    }
-
-    return rows;
+  for (var data in listData) {
+    List<DataCell> cells = [];
+    cells.add(DataCell(Text('${DateFormat("dd/MM").format(DateTime.parse(data.date!))}')));
+    cells.add(DataCell(Text('${data.expectAmount.toStringAsFixed(2)}')));
+    cells.add(DataCell(
+  InkWell(
+    onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => HomePage(date: data.date)),
+      );
+    },
+    child: Stack(
+      children: [
+        Text(
+          '${data.actualAmount.toStringAsFixed(2)}',
+          style: TextStyle(
+            // decoration: TextDecoration.underline, // Thêm gạch dưới
+          ),
+        ),
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: Container(
+            height: 1, // Chiều cao của đường gạch dưới
+            color: Colors.black, // Màu của đường gạch dưới
+          ),
+        ),
+      ],
+    ),
+  ),
+));
+    // Thêm DataRow mới vào danh sách rows
+    rows.add(DataRow(cells: cells));
   }
+
+  return rows;
+}
+
+
+  //   //   // cells.add(DataCell(Text('${data.doM}')));
+  //   //   cells.add(DataCell(Text('${data.doM}')));
+  //   //   cells.add(DataCell(Text('${data.expectMoney.toStringAsFixed(2)}')));
+  //   //   cells.add(
+  //   //     DataCell(
+  //   //       InkWell(
+  //   //         onTap: () {
+  //   //           Navigator.push(
+  //   //             context,
+  //   //             MaterialPageRoute(
+  //   //                 builder: (context) => HomePage(doM: data.doM, isMonthSelected: isMonthSelected, month: month)),
+  //   //           );
+  //   //         },
+  //   //         child: Text('${data.actualMoney.toStringAsFixed(2)}',),
+  //   //       ),
+  //   //     ),
+  //   //   );
+  //   //   // Duyệt qua mỗi trường dữ liệu trong dòng hiện tại và thêm vào cells
+  //   //   // data.forEach((key, value) {
+  //   //   //   cells.add(DataCell(Text('$value')));
+  //   //   // });
+
+  //   //   // Thêm DataRow mới vào danh sách rows
+  //   //   rows.add(DataRow(cells: cells));
+  //   // }
+
+  //   return rows;
+  // }
 
   List<BarChartGroupData> getData(double barWidth, double barsSpace) {
     List<BarChartGroupData> data = [];

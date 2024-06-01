@@ -85,7 +85,7 @@ class _Categories extends State<Categories> {
                           fontSize: 15,
                           onTap: () {
                             Navigator.pop(context);
-                            Navigator.pushReplacement(
+                            Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => AccountPage()));
