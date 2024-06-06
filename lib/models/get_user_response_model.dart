@@ -16,9 +16,15 @@ class GetUserResponseModel {
   late final Data? data;
   
   GetUserResponseModel.fromJson(Map<String, dynamic> json){
+<<<<<<< HEAD
     result = json['result'];
     msgCode = json['msgCode'];
     msgDesc = json['msgDesc'];
+=======
+    result = json['result'] ?? false;
+    msgCode = json['msgCode'] as String?;
+    msgDesc = json['msgDesc'] as String?;
+>>>>>>> dev
     data = json['data'] !=null ? Data.fromJson(json['data']) : null;
   }
 

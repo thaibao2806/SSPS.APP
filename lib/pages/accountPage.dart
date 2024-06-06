@@ -2,12 +2,24 @@
 import 'package:flutter/material.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:snippet_coder_utils/FormHelper.dart';
+<<<<<<< HEAD
+=======
+import 'package:ssps_app/components/my_drawer_header.dart';
+>>>>>>> dev
 import 'package:ssps_app/config.dart';
 import 'package:ssps_app/models/register_request_model.dart';
 import 'package:ssps_app/models/update_user_request_model.dart';
 import 'package:ssps_app/pages/loginPage.dart';
+<<<<<<< HEAD
 import 'package:ssps_app/service/api_service.dart';
 import 'package:ssps_app/service/shared_service.dart';
+=======
+import 'package:ssps_app/pages/messagePage.dart';
+import 'package:ssps_app/service/api_service.dart';
+import 'package:ssps_app/service/shared_service.dart';
+import 'package:ssps_app/utils/avatar.dart';
+import 'package:ssps_app/widget/drawer_widget.dart';
+>>>>>>> dev
 
 class AccountPage extends StatefulWidget {
   AccountPage({Key? key}) : super(key: key);
@@ -41,6 +53,18 @@ class _AccountPage extends State<AccountPage> {
   bool _isSchoolEmpty = false;
   bool _isAddressEmpty = false;
   bool _isConfirmPasswordEmpty = false;
+<<<<<<< HEAD
+=======
+  String? firstName;
+  String? lastName;
+  bool isDataLoaded = false;
+
+  @override
+  void dispose() {
+    super.dispose();
+    _decodeToken();
+  }
+>>>>>>> dev
 
   @override
   void initState() {
@@ -79,8 +103,16 @@ class _AccountPage extends State<AccountPage> {
     String? accessToken = token?.data?.accessToken; // Access token might be null
       if (accessToken != null) {
         Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
+<<<<<<< HEAD
         String? firstName = decodedToken['firstName']; // Trích xuất firstName
         String? lastName = decodedToken['lastName']; // Trích xuất lastName
+=======
+        firstName = decodedToken['firstName']; // Trích xuất firstName
+        lastName = decodedToken['lastName']; // Trích xuất lastName
+        setState(() {
+          isDataLoaded = true;
+        });
+>>>>>>> dev
         if (firstName != null && lastName != null) {
           print("First name or last name is null");
         } else {
@@ -95,6 +127,7 @@ class _AccountPage extends State<AccountPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+<<<<<<< HEAD
         backgroundColor: Color(0xff2E4DF2),
         elevation: 0,
         centerTitle: true,
@@ -102,6 +135,16 @@ class _AccountPage extends State<AccountPage> {
         // leading: IconButton(onPressed: () {}, icon: const Icon(Icons.menu)),
         actions: [IconButton(onPressed: () {
         }, icon: const Icon(Icons.person))],
+=======
+        backgroundColor: Color(0xff3498DB),
+        elevation: 0,
+        centerTitle: true,
+        title: const Text("Account", style: TextStyle(color: Colors.white),),
+        // leading: IconButton(onPressed: () {}, icon: const Icon(Icons.menu)),
+        actions: [IconButton(onPressed: () {
+          SharedService.logout(context);
+        }, icon: const Icon(Icons.logout), color: Colors.white,)],
+>>>>>>> dev
       ),
       body: Padding(
                   padding: const EdgeInsets.only(left: 18.0,right: 18, top: 10),
@@ -110,6 +153,7 @@ class _AccountPage extends State<AccountPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
+<<<<<<< HEAD
                         const Text(
                           "Account",
                           style: TextStyle(
@@ -117,6 +161,12 @@ class _AccountPage extends State<AccountPage> {
                             fontWeight: FontWeight.bold,
                             color: Color.fromARGB(255, 0, 0, 0),
                           ),
+=======
+                         Container(
+                          margin: EdgeInsets.only(bottom: 10, top: 10),
+                          height: 150,
+                          child: AvatarWidget(firstName: firstName ?? '', lastName: lastName ?? '', width: 150, height: 150,fontSize: 60,onTap: () {},), 
+>>>>>>> dev
                         ),
                         const SizedBox(height: 15),
                         Row(
@@ -133,7 +183,11 @@ class _AccountPage extends State<AccountPage> {
                                   },
                                   decoration: InputDecoration(
                                     errorText: _isFirstNameEmpty ? 'Please enter your first name' : null,
+<<<<<<< HEAD
                                     suffixIcon: Icon(Icons.check, color: Colors.grey,),
+=======
+                                    // suffixIcon: Icon(Icons.check, color: Colors.grey,),
+>>>>>>> dev
                                     labelText: 'First name',
                                     labelStyle: TextStyle(
                                       fontWeight: FontWeight.bold,
@@ -155,7 +209,11 @@ class _AccountPage extends State<AccountPage> {
                                   },
                                   decoration: InputDecoration(
                                     errorText: _isLastNameEmpty ? 'Please enter your last name' : null,
+<<<<<<< HEAD
                                     suffixIcon: Icon(Icons.check, color: Colors.grey,),
+=======
+                                    // suffixIcon: Icon(Icons.check, color: Colors.grey,),
+>>>>>>> dev
                                     labelText: 'Last Name',
                                     labelStyle: TextStyle(
                                       fontWeight: FontWeight.bold,
@@ -182,7 +240,11 @@ class _AccountPage extends State<AccountPage> {
                                   },
                                   decoration: InputDecoration(
                                     errorText: _isCodeEmpty ? 'Please enter your code' : null,
+<<<<<<< HEAD
                                     suffixIcon: Icon(Icons.check, color: Colors.grey,),
+=======
+                                    // suffixIcon: Icon(Icons.check, color: Colors.grey,),
+>>>>>>> dev
                                     labelText: 'Code',
                                     labelStyle: TextStyle(
                                       fontWeight: FontWeight.bold,
@@ -204,7 +266,11 @@ class _AccountPage extends State<AccountPage> {
                                   },
                                   decoration: InputDecoration(
                                     errorText: _isPhoneEmpty ? "Please enter your phone number" : null,
+<<<<<<< HEAD
                                     suffixIcon: Icon(Icons.check, color: Colors.grey,),
+=======
+                                    // suffixIcon: Icon(Icons.check, color: Colors.grey,),
+>>>>>>> dev
                                     labelText: 'Phone',
                                     labelStyle: TextStyle(
                                       fontWeight: FontWeight.bold,
@@ -226,7 +292,11 @@ class _AccountPage extends State<AccountPage> {
                           },
                           decoration: InputDecoration(
                             errorText: _isSchoolEmpty ? 'Please enter your school' : null,
+<<<<<<< HEAD
                             suffixIcon: Icon(Icons.check,color: Colors.grey,),
+=======
+                            // suffixIcon: Icon(Icons.check,color: Colors.grey,),
+>>>>>>> dev
                             label: Text('School',style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color:Color.fromARGB(255, 4, 4, 4),
@@ -243,7 +313,11 @@ class _AccountPage extends State<AccountPage> {
                           },
                           decoration: InputDecoration(
                             errorText: _isEmailEmpty ? 'Please enter your email' : null,
+<<<<<<< HEAD
                             suffixIcon: Icon(Icons.check,color: Colors.grey,),
+=======
+                            // suffixIcon: Icon(Icons.check,color: Colors.grey,),
+>>>>>>> dev
                             label: Text('Email',style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color:Color.fromARGB(255, 4, 4, 4),
@@ -260,7 +334,11 @@ class _AccountPage extends State<AccountPage> {
                           },
                           decoration: InputDecoration(
                             errorText: _isAddressEmpty ? 'Please enter your address' : null,
+<<<<<<< HEAD
                             suffixIcon: Icon(Icons.check,color: Colors.grey,),
+=======
+                            // suffixIcon: Icon(Icons.check,color: Colors.grey,),
+>>>>>>> dev
                             label: Text('Address',style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color:Color.fromARGB(255, 0, 0, 0),
@@ -332,6 +410,31 @@ class _AccountPage extends State<AccountPage> {
                   ),
 
                 ),
+<<<<<<< HEAD
+=======
+      floatingActionButton: FloatingActionButton(
+              heroTag: "Chat",
+              backgroundColor: const Color.fromARGB(255, 57, 161, 247),
+              onPressed: () {
+                Navigator.push(context,
+                                MaterialPageRoute(builder: (context) =>  MessengerPage()));
+              },
+              child: const Icon(
+                Icons.chat,
+                color: Colors.white,
+              ),
+            ),
+      drawer: Drawer(
+        child: SingleChildScrollView(
+            child: Container(
+          color: Colors.white,
+          child: Column(children: [
+            const MyHeaderDrawer(),
+            MyDrawerList(context),
+          ]),
+        )),
+      ),
+>>>>>>> dev
     );
   }
 }

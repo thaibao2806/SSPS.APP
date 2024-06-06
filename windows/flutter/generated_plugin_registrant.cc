@@ -8,10 +8,22 @@
 
 #include <audioplayers_windows/audioplayers_windows_plugin.h>
 #include <file_selector_windows/file_selector_windows.h>
+<<<<<<< HEAD
+=======
+#include <firebase_core/firebase_core_plugin_c_api.h>
+#include <smart_auth/smart_auth_plugin.h>
+>>>>>>> dev
 
 void RegisterPlugins(flutter::PluginRegistry* registry) {
   AudioplayersWindowsPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("AudioplayersWindowsPlugin"));
   FileSelectorWindowsRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("FileSelectorWindows"));
+<<<<<<< HEAD
+=======
+  FirebaseCorePluginCApiRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("FirebaseCorePluginCApi"));
+  SmartAuthPluginRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("SmartAuthPlugin"));
+>>>>>>> dev
 }

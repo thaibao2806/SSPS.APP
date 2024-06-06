@@ -27,7 +27,11 @@ class LoginResponseModel {
     _data['result'] = result;
     _data['msgCode'] = msgCode;
     _data['msgDesc'] = msgDesc;
+<<<<<<< HEAD
     _data['data'] = data!.toJson();
+=======
+    _data['data'] = data != null ? data!.toJson() : null;
+>>>>>>> dev
     return _data;
   }
 }

@@ -41,6 +41,20 @@ dependencies:
   audioplayers: ^5.2.1
   jwt_decoder: ^2.0.0
   intl: ^0.19.0
+  flutter_colorpicker: ^1.0.3
+  fl_chart: ^0.66.2
+  flutter_speed_dial: ^7.0.0
+  firebase_analytics: ^10.8.9
+  firebase_messaging: ^14.7.19
+  firebase_core: ^2.27.0
+  flutter_local_notifications: ^17.0.0
+  rxdart: ^0.27.7
+  bottom_picker: ^2.6.0
+  shared_preferences: ^2.2.3
+  pinput: ^4.0.0
+  dio: ^4.0.0
+  carousel_slider: ^4.2.1
+  photo_view: ^0.15.0
 
 dev_dependencies:
   flutter_test:
@@ -68,7 +82,15 @@ flutter:
     - assets/images/home.jpg
     - assets/images/signup.png
     - assets/images/forgot-password.png
+    - assets/images/reset-password.png
+    - assets/images/change-password.png
+    - assets/images/tien-bac.jpg
+    - assets/images/expectual.jpg
+    - assets/images/tien.jpg
+    - assets/images/img1.png
+    - assets/images/ai.jpg
     - assets/audio/audio.mp3
+    - assets/audio/tingting.mp3
 
   # To add assets to your application, add an assets section, like this:
   # assets:
