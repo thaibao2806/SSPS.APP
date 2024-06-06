@@ -26,6 +26,7 @@ Widget MyDrawerList(BuildContext context) {
         menuItem(context, 6, "Change Password", Icons.password, false,
             ResetPassword()),
         // menuItem(context, 7, "Donate", Icons.money, false, null),
+        // menuItem(context, 7, "Donate", Icons.money, false, null),
         menuItem(context, 7, "Logout", Icons.logout_outlined, false, null),
       ],
     ),
