@@ -47,6 +47,7 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
   List<ValueNotifier<String>> dropdownValues2 = [];
   List<String> dropdownItems = [];
   String initialDropdownValue = '';
+  double _totalExpectual = 0.0;
 
   @override
   void initState() {
@@ -193,11 +194,25 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
         'field1': TextEditingController(),
         'field2': TextEditingController(),
       };
+      newRow['field2']!.addListener(() {
+        _calculateTotalExpectual();
+      });
       dropdownValues.add(ValueNotifier(initialDropdownValue));
       dropdownValues2.add(ValueNotifier('Highly'));
       formDataList.add(newRow);
       formRows.add(_buildFormRow(newRow,
           formRows.length)); // Thêm Widget của dòng form vào danh sách formRows
+    });
+  }
+
+  void _calculateTotalExpectual() {
+    double total = 0.0;
+    for (var formData in formDataList) {
+      double value = double.tryParse(formData['field2']?.text ?? '0') ?? 0.0;
+      total += value;
+    }
+    setState(() {
+      expectAmounts.text = total.toString();
     });
   }
 
@@ -279,6 +294,7 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
                     child: Padding(
                       padding: const EdgeInsets.only(right: 8.0),
                       child: TextField(
+                        readOnly: true,
                         controller: expectAmounts,
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
@@ -556,8 +572,7 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
                             builder: (BuildContext context) {
                               return AlertDialog(
                                 title: Text('Notification'),
-                                content: Text(
-                                    'Plan details is too large'),
+                                content: Text('Plan details is too large'),
                                 actions: <Widget>[
                                   TextButton(
                                     child: Text('OK'),
@@ -572,19 +587,6 @@ class _CreateMoneyPlanState extends State<CreateMoneyPlan> {
                         }
                       }
                     });
-                    // CreateNoteRequestModel model = CreateNoteRequestModel(
-                    //     title: title.text,
-                    //     description: description.text,
-                    //     color: colorCode,
-                    //     fromDate: formattedFromDateTime,
-                    //     toDate: formattedToDateTime);
-                    // ApiService.createNote(model).then((response) => {
-                    //       if (response.result)
-                    //         {
-                    //           widget.getNote(),
-                    //           Navigator.of(context).pop(),
-                    //         }
-                    //     });
                   }
                   ;
                 },

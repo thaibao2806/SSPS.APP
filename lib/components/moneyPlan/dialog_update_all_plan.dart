@@ -324,72 +324,6 @@ class _updateAllMoneyPlanState extends State<updateAllMoneyPlan> {
               ),
 
               Column(children: rows),
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //   children: [
-              //     Expanded(
-              //       child: Padding(
-              //         padding: const EdgeInsets.only(right: 8.0),
-              //         child: TextField(
-              //           controller: expectAmounts,
-              //           decoration: InputDecoration(
-              //             labelText: 'Title',
-              //           ),
-              //         ),
-              //       ),
-              //     ),
-              //     Expanded(
-              //       child: Padding(
-              //         padding: const EdgeInsets.only(left: 8.0),
-              //         child: TextField(
-              //           controller: expectAmounts,
-              //           decoration: InputDecoration(
-              //             labelText: 'Expect',
-              //           ),
-              //         ),
-              //       ),
-              //     ),
-              //   ],
-              // ),
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //   children: [
-              //     Text("Category"),
-              //     SizedBox(width: 20),
-              //     DropdownButton<String>(
-              //       value: dropdownValue,
-              //       onChanged: (String? newValue) {
-              //         setState(() {
-              //           dropdownValue = newValue!;
-              //         });
-              //       },
-              //       items: <String>['Highly', 'Medium', 'Normal']
-              //           .map((String value) {
-              //         return DropdownMenuItem<String>(
-              //           value: value,
-              //           child: Text(value),
-              //         );
-              //       }).toList(),
-              //     ),
-              //     Text("Priority"),
-              //     SizedBox(width: 20),
-              //     DropdownButton<String>(
-              //       value: dropdownValue,
-              //       onChanged: (String? newValue) {
-              //         setState(() {
-              //           dropdownValue = newValue!;
-              //         });
-              //       },
-              //       items: <String>['Highly', 'Medium', 'Normal']
-              //           .map((String value) {
-              //         return DropdownMenuItem<String>(
-              //           value: value,
-              //           child: Text(value),
-              //         );
-              //       }).toList(),
-              //     ),
-              //   ],
-              // ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   primary: Colors.blue[300],
@@ -413,19 +347,6 @@ class _updateAllMoneyPlanState extends State<updateAllMoneyPlan> {
                         DateTime.parse(_selectedToDateTime.toString());
                     String formattedToDateTime =
                         DateFormat('yyyy-MM-ddTHH:mm:ss.SSSZ').format(toDate);
-                    // CreateNoteRequestModel model = CreateNoteRequestModel(
-                    //     title: title.text,
-                    //     description: description.text,
-                    //     color: colorCode,
-                    //     fromDate: formattedFromDateTime,
-                    //     toDate: formattedToDateTime);
-                    // ApiService.createNote(model).then((response) => {
-                    //       if (response.result)
-                    //         {
-                    //           widget.getNote(),
-                    //           Navigator.of(context).pop(),
-                    //         }
-                    //     });
                   }
                   ;
                 },

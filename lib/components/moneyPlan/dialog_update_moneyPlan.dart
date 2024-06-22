@@ -63,6 +63,7 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
   List<String> dropdownItems = [];
   String initialDropdownValue = '';
   num totalActual = 0;
+  num totalExpectual = 0;
   bool checkChangeActual = false;
 
   Widget _buildFormRow(Map<String, TextEditingController> formData, int index) {
@@ -84,6 +85,9 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
                 controller: formData['field2'],
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(labelText: 'Expectual'),
+                onChanged: (value) {
+                  _calculateTotals();
+                },
               ),
             ),
             SizedBox(
@@ -94,6 +98,9 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
                 controller: formData['field3'],
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(labelText: 'Actual'),
+                onChanged: (value) {
+                  _calculateTotals();
+                },
               ),
             ),
             IconButton(
@@ -107,6 +114,7 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
                   formRows.removeAt(index);
                   dropdownValues.removeAt(index);
                   dropdownValues2.removeAt(index);
+                  _calculateTotals();
                 });
               },
             ),
@@ -189,6 +197,17 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
     });
   }
 
+  void _calculateTotals() {
+    totalActual = 0;
+    totalExpectual = 0;
+    for (var formData in formDataList) {
+      totalActual += double.tryParse(formData['field3']?.text ?? '0') ?? 0;
+      totalExpectual += double.tryParse(formData['field2']?.text ?? '0') ?? 0;
+    }
+    actualualAmount.text = totalActual.toString();
+    expectAmounts.text = totalExpectual.toString();
+  }
+
   @override
   void dispose() {
     // Clean up the TextEditingController instances
@@ -203,23 +222,9 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
   @override
   void initState() {
     super.initState();
-    // formDataList.add({
-    //   'field1': TextEditingController(),
-    //   'field2': TextEditingController(),
-    //   'field3': TextEditingController(),
-    // });
-    // dropdownValues.add(ValueNotifier(initialDropdownValue));
-    // dropdownValues2.add(ValueNotifier('Highly'));
-    // formRows = formDataList
-    //     .map((formData) =>
-    //         _buildFormRow(formData, formDataList.indexOf(formData)))
-    //     .toList();
 
     setState(() {
       print(widget.moneyPlanId);
-      // title.text = widget.title;
-      // expectAmounts.text = widget.expectualAmount.toString();
-      // actualualAmount.text = widget.actualAmount.toString();
       selectedPriority = widget.priority;
       dropdownValue = widget.priority == 1
           ? "Highly"
@@ -288,6 +293,7 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
             // dropdownValues[i].value = category.id!;
           }
           // actualualAmount.text = totalActual.toString();
+          _calculateTotals();
         });
       }
     });
@@ -336,6 +342,7 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
                       padding: const EdgeInsets.only(right: 8.0),
                       child: TextField(
                         controller: expectAmounts,
+                        readOnly: true,
                         keyboardType:
                             TextInputType.numberWithOptions(decimal: true),
                         decoration: InputDecoration(
@@ -349,6 +356,7 @@ class _UpdateMoneyPlanState extends State<UpdateMoneyPlan> {
                       padding: const EdgeInsets.only(left: 8.0),
                       child: TextField(
                         controller: actualualAmount,
+                        readOnly: true,
                         keyboardType:
                             TextInputType.numberWithOptions(decimal: true),
                         decoration: InputDecoration(
