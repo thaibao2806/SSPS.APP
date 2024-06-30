@@ -17,6 +17,7 @@ import 'package:ssps_app/models/changePasswordOTP_request_model.dart';
 import 'package:ssps_app/models/changePasswordOTP_response_model.dart';
 import 'package:ssps_app/models/changePassword_request_model.dart';
 import 'package:ssps_app/models/changePassword_response_model.dart';
+import 'package:ssps_app/models/chatbox/chatbot_request_model.dart';
 import 'package:ssps_app/models/chatbox/chatbox_response_model.dart';
 import 'package:ssps_app/models/get_user_response_model.dart';
 import 'package:ssps_app/models/login_request_model.dart';
@@ -1598,4 +1599,52 @@ class ApiService {
           'Failed to create categories: ${httpResponse.statusCode}');
     }
   }
+
+  static Future<ChatboxResponseModel> chatBot(
+      ChatbotRequestModel model) async {
+    var token = (await SharedService.loginDetails());
+    var accessToken = token!.data!.accessToken;
+    Map<String, dynamic> decodedToken =
+        JwtDecoder.decode(token!.data!.accessToken);
+    if (token != null) {
+      if (isAccessTokenExpired(token.data!.accessToken)) {
+        var refreshedToken = await refreshToken(token.data!.refreshToken);
+        if (refreshedToken != null) {
+          accessToken = refreshedToken.data!.accessToken;
+
+          var newTokenData = LoginData.Data(
+            accessToken: refreshedToken.data!.accessToken,
+            refreshToken: token.data!.refreshToken,
+          );
+
+          var newToken = LoginResponseModel(
+            result: token.result,
+            msgCode: token.msgCode,
+            msgDesc: token.msgDesc,
+            data: newTokenData,
+          );
+          await SharedService.setLoginDetails(newToken);
+        } else {
+          Navigator.of(naviatorKey.currentContext!).pushReplacement(
+              MaterialPageRoute(builder: (context) => loginPage()));
+        }
+      }
+    }
+
+    Map<String, String> requestHeaders = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${accessToken}',
+      "ngrok-skip-browser-warning": "69420"
+    };
+
+    var url = Uri.http(Config.apiUrlChat, Config.chatBox);
+    print(url);
+
+    var response = await client.post(url,
+        headers: requestHeaders, body: jsonEncode(model.toJson()));
+    print(jsonEncode(model.toJson()));
+    return chatboxResponseModelJson(response.body);
+  }
 }
+
+

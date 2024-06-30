@@ -6,6 +6,7 @@ import 'package:ssps_app/components/note/bottom_sheet_dialog_add_note.dart';
 import 'package:ssps_app/components/todolist/Dialog_add_card.dart';
 import 'package:ssps_app/components/todolist/Dialog_add_card_chat.dart';
 import 'package:ssps_app/components/todolist/Dialog_add_todonote.dart';
+import 'package:ssps_app/models/chatbox/chatbot_request_model.dart';
 import 'package:ssps_app/service/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -43,6 +44,7 @@ class _MessengerPageState extends State<MessengerPage> {
   bool isSoundOn = true;
   String? firstName;
   String? lastName;
+  String? userID;
   DateTime firstDate = DateTime.now();
   DateTime lastDate = DateTime.now();
 
@@ -53,22 +55,12 @@ class _MessengerPageState extends State<MessengerPage> {
   @override
   void initState() {
     super.initState();
+   // _deletePrefs();
     _initPrefs();
-    _timer = Timer(Duration(days: 7), () {
+    _timer = Timer(Duration(days: 1), () {
       _deletePrefs();
     });
-
-    _decodeToken() async {
-      var token = await SharedService.loginDetails();
-      String? accessToken = token?.data?.accessToken;
-      if (accessToken != null) {
-        Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
-        firstName = decodedToken['firstName'];
-        lastName = decodedToken['lastName'];
-      } else {
-        print("Access token is null");
-      }
-    }
+    _decodeToken();
 
     myFocusNode.addListener(() {
       if (myFocusNode.hasFocus) {
@@ -88,6 +80,20 @@ class _MessengerPageState extends State<MessengerPage> {
     _loadSoundSettings();
     // _checkAndClearMessages();
     scrollDown();
+  }
+
+  _decodeToken() async {
+    var token = await SharedService.loginDetails();
+    String? accessToken = token?.data?.accessToken;
+    if (accessToken != null) {
+      Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
+      firstName = decodedToken['firstName'];
+      lastName = decodedToken['lastName'];
+      userID = decodedToken['id'];
+      print(decodedToken['id']);
+    } else {
+      print("Access token is null");
+    }
   }
 
   void _checkAndClearMessages() {
@@ -292,6 +298,7 @@ class _MessengerPageState extends State<MessengerPage> {
                 final message = _messages[index];
                 final isSentByMe = message['sender'] == 'me';
                 final isImage = message.containsKey('imageUrl');
+                final isJson = message.containsKey('json');
                 return Align(
                   alignment:
                       isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
@@ -322,10 +329,13 @@ class _MessengerPageState extends State<MessengerPage> {
                             },
                             child: Image.network(message['imageUrl']!),
                           )
-                        : Text(
-                            message['text'] ?? '',
-                            style: TextStyle(color: Colors.white, fontSize: 16),
-                          ),
+                        : isJson
+                            ?  JsonTable(jsonString: message['json']!)
+                            : Text(
+                                message['text'] ?? '',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 16),
+                              ),
                   ),
                 );
               },
@@ -485,21 +495,6 @@ class _MessengerPageState extends State<MessengerPage> {
         _textController.clear();
         return;
       }
-      if (text.trim().toLowerCase() == "@image") {
-        _messages.add({'sender': 'me', 'text': text});
-        _saveMessages();
-        scrollDown();
-        _messages.add({
-          'sender': 'other',
-          'imageUrl':
-              'https://i.pinimg.com/564x/a8/94/c2/a894c2cf95470de909ac43aea342a466.jpg'
-        });
-        _saveMessages();
-        scrollDown();
-        setState(() {});
-        _textController.clear();
-        return;
-      }
       if (text.isNotEmpty) {
         _messages.add({'sender': 'me', 'text': text});
         _saveMessages();
@@ -509,19 +504,25 @@ class _MessengerPageState extends State<MessengerPage> {
       }
       _messages.add({'sender': 'other', 'text': 'Typing...'});
       scrollDown();
-
       try {
-        ApiService.chatBox(text, "Phan Thai Bao").then((value) {
+        if (userID == null) {
+          throw Exception("User ID is null");
+        }
+        ChatbotRequestModel model =
+            ChatbotRequestModel(message: text, userId: userID!, isAdmin: false);
+        ApiService.chatBot(model).then((value) {
           _messages.removeLast();
-          print(value.data);
+          print(value.data!.type);
           if (value.result) {
-            if (value.data?.isImage == true) {
+            if (value.data?.type == "image") {
               isSoundOn ? _playSound() : null;
-              _messages.add({
-                'sender': 'other',
-                'imageUrl':
-                    'https://i.pinimg.com/564x/a8/94/c2/a894c2cf95470de909ac43aea342a466.jpg'
-              });
+              _messages
+                  .add({'sender': 'other', 'imageUrl': value.data!.response!});
+              _saveMessages();
+              scrollDown();
+            } else if (value.data?.type == "json") {
+              isSoundOn ? _playSound() : null;
+              _messages.add({'sender': 'other', 'json': value.data!.response!});
               _saveMessages();
               scrollDown();
             } else {
@@ -553,6 +554,122 @@ class _MessengerPageState extends State<MessengerPage> {
     });
   }
 }
+
+class JsonTable extends StatelessWidget {
+  final String jsonString;
+
+  JsonTable({required this.jsonString});
+
+  @override
+  Widget build(BuildContext context) {
+    dynamic jsonData = jsonDecode(jsonString);
+
+    if (jsonData is Map<String, dynamic>) {
+      // Handle JSON object
+      return _buildTableFromMap(jsonData);
+    } else if (jsonData is List) {
+      // Handle JSON array
+      return _buildTableFromList(jsonData);
+    } else {
+      return Center(child: Text('Invalid JSON data'));
+    }
+  }
+
+  Widget _buildTableFromMap(Map<String, dynamic> jsonData) {
+    List<TableRow> rows = [];
+    jsonData.forEach((key, value) {
+      rows.add(
+        TableRow(
+          children: [
+            TableCell(
+              child: Container(
+                padding: EdgeInsets.all(8.0),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.white),
+                ),
+                child: Text(key, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+              ),
+            ),
+            TableCell(
+              child: Container(
+                padding: EdgeInsets.all(8.0),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.white),
+                ),
+                child: Text(value.toString(), style: TextStyle(color: Colors.white)),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Table(
+        columnWidths: {
+          0: FixedColumnWidth(150.0), // Chiều rộng cột thứ nhất
+          1: FixedColumnWidth(200.0), // Chiều rộng cột thứ hai
+        },
+        children: rows,
+      ),
+    );
+  }
+
+  Widget _buildTableFromList(List<dynamic> jsonData) {
+    if (jsonData.isEmpty) {
+      return Center(child: Text('No data available'));
+    }
+
+    List<TableRow> rows = [];
+    // Adding headers
+    rows.add(
+      TableRow(
+        children: jsonData[0].keys.map<Widget>((key) {
+          return TableCell(
+            child: Container(
+              padding: EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.white),
+              ),
+              child: Text(key, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+
+    // Adding rows
+    for (var item in jsonData) {
+      rows.add(
+        TableRow(
+          children: item.values.map<Widget>((value) {
+            return TableCell(
+              child: Container(
+                padding: EdgeInsets.all(8.0),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.white),
+                ),
+                child: Text(value.toString(), style: TextStyle(color: Colors.white)),
+              ),
+            );
+          }).toList(),
+        ),
+      );
+    }
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Table(
+        columnWidths: {
+          for (int i = 0; i < jsonData[0].keys.length; i++) i: FixedColumnWidth(150.0), // Set chiều rộng cho tất cả các cột
+        },
+        children: rows,
+      ),
+    );
+  }
+}
+
 
 class ImageViewer extends StatelessWidget {
   final String imageUrl;

@@ -34,10 +34,10 @@ class ChatboxResponseModel {
 
 class Data {
   Data({
-    required this.isImage,
+    required this.type,
     required this.response,
   });
-  late final bool? isImage;
+  late final String? type;
   late final String? response;
 
   factory Data.fromJson(Map<String, dynamic> json) {
@@ -45,13 +45,13 @@ class Data {
       response: json['response'] is int || json['response'] is double
           ? json['response'].toString()
           : json['response'],
-      isImage: json['isImage'],
+      type: json['type'],
     );
   }
 
   Map<String, dynamic> toJson() {
     final _data = <String, dynamic>{};
-    _data['isImage'] = isImage;
+    _data['type'] = type;
     _data['response'] = response;
     return _data;
   }
