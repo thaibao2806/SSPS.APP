@@ -55,7 +55,7 @@ class _MessengerPageState extends State<MessengerPage> {
   @override
   void initState() {
     super.initState();
-   // _deletePrefs();
+    // _deletePrefs();
     _initPrefs();
     _timer = Timer(Duration(days: 1), () {
       _deletePrefs();
@@ -330,7 +330,7 @@ class _MessengerPageState extends State<MessengerPage> {
                             child: Image.network(message['imageUrl']!),
                           )
                         : isJson
-                            ?  JsonTable(jsonString: message['json']!)
+                            ? JsonTable(jsonString: message['json']!)
                             : Text(
                                 message['text'] ?? '',
                                 style: TextStyle(
@@ -514,6 +514,23 @@ class _MessengerPageState extends State<MessengerPage> {
           _messages.removeLast();
           print(value.data!.type);
           if (value.result) {
+            if (value.data!.response!.contains(
+                    "Unfortunately, I was not able to answer your question") &&
+                value.data!.response!.contains("Column not found")) {
+              isSoundOn ? _playSound() : null;
+              _messages.add({'sender': 'other', 'text': "No data"});
+              _saveMessages();
+              scrollDown();
+            } else if (value.data!.response!.contains(
+                "Unfortunately, I was not able to answer your question")) {
+              isSoundOn ? _playSound() : null;
+              _messages.add({
+                'sender': 'other',
+                'text': "Sorry, I can't answer this question right now"
+              });
+              _saveMessages();
+              scrollDown();
+            }
             if (value.data?.type == "image") {
               isSoundOn ? _playSound() : null;
               _messages
@@ -587,7 +604,9 @@ class JsonTable extends StatelessWidget {
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.white),
                 ),
-                child: Text(key, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                child: Text(key,
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.white)),
               ),
             ),
             TableCell(
@@ -596,7 +615,8 @@ class JsonTable extends StatelessWidget {
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.white),
                 ),
-                child: Text(value.toString(), style: TextStyle(color: Colors.white)),
+                child: Text(value.toString(),
+                    style: TextStyle(color: Colors.white)),
               ),
             ),
           ],
@@ -632,7 +652,9 @@ class JsonTable extends StatelessWidget {
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.white),
               ),
-              child: Text(key, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+              child: Text(key,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.white)),
             ),
           );
         }).toList(),
@@ -650,7 +672,8 @@ class JsonTable extends StatelessWidget {
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.white),
                 ),
-                child: Text(value.toString(), style: TextStyle(color: Colors.white)),
+                child: Text(value.toString(),
+                    style: TextStyle(color: Colors.white)),
               ),
             );
           }).toList(),
@@ -662,14 +685,14 @@ class JsonTable extends StatelessWidget {
       scrollDirection: Axis.horizontal,
       child: Table(
         columnWidths: {
-          for (int i = 0; i < jsonData[0].keys.length; i++) i: FixedColumnWidth(150.0), // Set chiều rộng cho tất cả các cột
+          for (int i = 0; i < jsonData[0].keys.length; i++)
+            i: FixedColumnWidth(150.0), // Set chiều rộng cho tất cả các cột
         },
         children: rows,
       ),
     );
   }
 }
-
 
 class ImageViewer extends StatelessWidget {
   final String imageUrl;
